@@ -50,12 +50,16 @@ It's easy to conflate these, so to be explicit:
 - **GitHub Pages URLs** (`https://techmaster-thespta.github.io/thespta/*.html`)
   are the embed *source* — what you paste into "Embed → By URL" in step 3
   above. This is where the actual HTML content lives.
-- **Google Sites sub-page URLs** (`https://sites.google.com/view/<site>/<slug>`)
-  are what every link *inside* the generated pages points to (nav cards,
-  "View Events →", "Get Involved →", etc.), via `google_sites_base_url` +
-  `page_urls.*` in `config/site.json`. This keeps a visitor who clicks a
-  link inside Google Sites' own nav/header/footer shell, instead of
-  dropping them onto a bare embedded page with no way back.
+- **Google Sites sub-page URLs** are what every link *inside* the
+  generated pages points to (nav cards, "View Events →", "Get Involved
+  →", etc.), via `google_sites_base_url` + `page_urls.*` in
+  `config/site.json`. This keeps a visitor who clicks a link inside
+  Google Sites' own nav/header/footer shell, instead of dropping them
+  onto a bare embedded page with no way back. Currently
+  `https://www.thespta.org` — a custom domain wired to this Google Site,
+  which replaced the default `https://sites.google.com/view/<site>` URL
+  (see "Custom domain" below). The path convention is identical either
+  way, just with a different base.
 
 The convention that makes this work: **each Google Sites sub-page's name is
 identical to its generated HTML file's name, minus `.html`** (`home`,
@@ -63,11 +67,26 @@ identical to its generated HTML file's name, minus `.html`** (`home`,
 just holds that slug — `build.py` turns it into a full URL by prefixing
 `google_sites_base_url`.
 
+## Custom domain
+
+The site is reachable at `https://www.thespta.org` — a custom domain
+connected to this Google Site via **Settings → Custom domains** in the
+Sites editor (Google verifies domain ownership and issues its own TLS
+cert; the exact DNS records to add are shown there at setup time, not
+reproduced here since they're specific to the domain registrar). Once
+connected, every sub-page keeps the same `/<slug>` path it had under the
+default `sites.google.com/view/<site>` URL — nothing else changes.
+
+If the custom domain is ever removed or replaced, update
+`google_sites_base_url` in `config/site.json` back to the Google-provided
+URL (or the new domain) and push — every internal link on the site is
+built from that one value.
+
 ## Adding a new page later
 
 1. Add the new page to this Google Site (**Pages** tab → **Add page**),
    named to match the slug you're about to use — e.g. a page named
-   `fundraising` for a URL of `.../view/<site>/fundraising`.
+   `fundraising` for a URL of `https://www.thespta.org/fundraising`.
 2. Add a matching template under `src/templates/pages/` (see
    `.claude/CLAUDE.md` → "Adding a new modular content type" if it needs a
    new content type too) and a `page_urls.fundraising` entry in

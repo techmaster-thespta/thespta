@@ -60,7 +60,7 @@ Requires only Python 3 — no npm, no installs, nothing to configure.
 | `shop_href` | The Givebacks shop's own landing page (`https://1thes.givebacks.com/shop`) — linked from the footer's Quick Links as "Shop" |
 | `social.facebook_href`, `social.instagram_href` | Footer social links |
 | `newsletter_href` | Footer "Subscribe" link |
-| `google_sites_base_url` | The Google Site's base URL (e.g. `https://sites.google.com/view/thesptademo`) — only touch this if the site ever moves to a different Google Sites URL |
+| `google_sites_base_url` | The Google Site's base URL — currently the custom domain `https://www.thespta.org` (see `docs/website-setup.md` → "Custom domain"). Only touch this if the domain ever changes or is removed. |
 | `page_urls.*` | The **slug** of each page's Google Sites sub-page (e.g. `"home"`, `"get-involved"`) — every internal link (nav cards, buttons) is built as `google_sites_base_url` + `/` + this slug, so clicking a link keeps the visitor inside Google Sites' own nav/header/footer instead of dropping them onto a bare embedded page |
 | `copyright_year` | Footer copyright line |
 
