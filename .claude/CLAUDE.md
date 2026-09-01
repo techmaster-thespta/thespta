@@ -67,7 +67,11 @@ scripts/build.sh                # same as the first command, path-independent
   `add-board-member`, `add-sponsor`, `add-flyer`), plus the GitHub
   issue workflow: `create-issue` (plan a change collaboratively, file it)
   and `from-issue` (pull an issue by number, implement it, open a PR).
-  Both use `gh` for all GitHub operations.
+- `docs/github-agent-setup.md` — GitHub access setup for agents: `gh` CLI
+  (shell-capable agents) or the GitHub MCP server declared in `.mcp.json`
+  (any MCP-compatible agent). Use whichever this session actually has —
+  the skills describe `gh` commands as the reference implementation; an
+  MCP-only agent should translate the same intent into MCP tool calls.
 
 ## Adding a new modular content type
 

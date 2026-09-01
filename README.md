@@ -54,3 +54,4 @@ kind of addition, each scoped to config-only edits.
 | `docs/` | All setup and maintenance documentation |
 | `.github/workflows/` | The build → validate → push-to-Drive CI pipeline |
 | `.claude/` | Instructions and skills for AI agents working in this repo |
+| `.mcp.json` | GitHub MCP server declaration (token via env var, not committed) — see `docs/github-agent-setup.md` |
