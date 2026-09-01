@@ -76,7 +76,7 @@ Every color on the site is one of six named roles — change the hex value once,
 
 | Role | Default | Where it shows up |
 |---|---|---|
-| `navy` | `#073B68` | Page headers, footer, featured event card |
+| `navy` | `#073B68` | Page headers, footer, featured event card, the live calendar's event color |
 | `blue` | `#0874B9` | Links, icon circles |
 | `yellow` | `#FFD719` | Primary buttons (Donate, Join the PTA) |
 | `teal` | `#159C9C` | Accent 1 (Support THES icon, etc.) |

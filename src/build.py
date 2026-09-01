@@ -102,8 +102,15 @@ def build_context():
     cal_id = site["calendar"]["calendar_id"]
     cal_id_q = urllib.parse.quote(cal_id, safe="")
     tz_q = urllib.parse.quote(site["calendar"]["timezone"], safe="")
+    # `color`: Google's embed defaults an unstyled calendar's events to a
+    # pale/white block that barely shows up against the embed's white
+    # background — passing our own navy brand color (confirmed Google
+    # accepts arbitrary hex here, not just its built-in palette) makes a
+    # day with something on it obvious at a glance. `mode=MONTH` makes
+    # that explicit rather than relying on the embed's own default.
+    color_q = urllib.parse.quote("#" + theme["colors"]["navy"].lstrip("#"), safe="")
     context["CAL_EMBED_SRC"] = (
-        f"https://calendar.google.com/calendar/embed?src={cal_id_q}&ctz={tz_q}"
+        f"https://calendar.google.com/calendar/embed?src={cal_id_q}&ctz={tz_q}&color={color_q}&mode=MONTH"
         "&showTitle=0&showPrint=0&showTabs=0&showCalendars=0&showNav=1&showDate=1"
     )
     context["CAL_WEBCAL_URL"] = f"webcal://calendar.google.com/calendar/ical/{cal_id_q}/public/basic.ics"
