@@ -143,11 +143,19 @@ def drive_thumbnail_url(href):
     return f"https://drive.google.com/thumbnail?id={file_id}&sz=w400"
 
 
+ATTACHMENT_LINK_TEXT = "Click for more information"
+
+
 def render_event_attachments(attachments):
     """A file attached to a calendar event (e.g. a flyer PDF or image —
     see scripts/sync_calendar_events.py) becomes a small clickable
     thumbnail preview, or a plain text link when there's no thumbnail to
-    show. Returns "" if the event has none."""
+    show. Returns "" if the event has none.
+
+    The link text is always ATTACHMENT_LINK_TEXT, not the attachment's own
+    filename — Calendar attachments commonly get an auto-generated
+    filename (a photo upload UUID, a scan's default name), which reads as
+    noise/clutter next to an event, not useful link text."""
     if not attachments:
         return ""
     items = []
@@ -157,10 +165,10 @@ def render_event_attachments(attachments):
             items.append(
                 f'<a class="thes__flyer" href="{a["href"]}" target="_blank" rel="noopener">'
                 f'<img src="{thumb_url}" alt="" width="40" height="40" loading="lazy">'
-                f'<span>{a["title"]}</span></a>'
+                f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
             )
         else:
-            items.append(f'<a class="thes__flyer" href="{a["href"]}" target="_blank" rel="noopener"><span>{a["title"]}</span></a>')
+            items.append(f'<a class="thes__flyer" href="{a["href"]}" target="_blank" rel="noopener"><span>{ATTACHMENT_LINK_TEXT}</span></a>')
     label = "Flyers" if len(attachments) > 1 else "Flyer"
     return f'<div class="thes__event-attachments"><span class="thes__event-attachments-label">{label}:</span>{"".join(items)}</div>'
 
