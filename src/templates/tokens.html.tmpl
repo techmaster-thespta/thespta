@@ -46,9 +46,9 @@
   .thes__eyebrow { display: inline-block; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue); }
 
   /* ---- Page header (About / Get Involved / Events) ---- */
-  .thes__pagehead-media { position: relative; width: 100%; max-width: 1200px; margin: 0 auto; line-height: 0; }
-  .thes__pagehead-media img { width: 100%; height: auto; display: block; }
-  .thes__pagehead-fade { position: absolute; top: 0; left: 0; right: 0; height: 40%; background: linear-gradient(to bottom, #ffffff 0%, rgba(255,255,255,0.85) 25%, rgba(255,255,255,0) 100%); pointer-events: none; }
+  .thes__pagehead-media { position: relative; width: 100%; max-width: 1200px; margin: 0 auto; line-height: 0; overflow: hidden; }
+  .thes__pagehead-media img { width: 100%; height: clamp(110px, 20vw, 200px); object-fit: cover; object-position: center 30%; display: block; }
+  .thes__pagehead-fade { position: absolute; top: 0; left: 0; right: 0; height: 55%; background: linear-gradient(to bottom, #ffffff 0%, rgba(255,255,255,0.85) 35%, rgba(255,255,255,0) 100%); pointer-events: none; }
   .thes__pagehead-text { max-width: 700px; margin: 0 auto; text-align: center; padding: 28px 20px 8px; }
   .thes__pagehead-text .thes__eyebrow { color: var(--blue); }
   .thes__pagehead-text h1 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-top: 6px; }
