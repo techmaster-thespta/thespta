@@ -1,0 +1,7 @@
+[
+  { "day": "XX", "month": "Oct", "title": "Fall Fest", "when": "5:00 – 7:00 PM", "description": "A fun evening for the whole Thunder Hill community!", "featured": true },
+  { "day": "XX", "month": "Oct", "title": "Trunk or Treat", "when": "6:00 PM · Front Parking Lot", "featured": false },
+  { "day": "XX", "month": "Nov", "title": "PTA Meeting", "when": "6:30 PM · School Library", "featured": false },
+  { "day": "XX", "month": "Nov", "title": "Teacher Appreciation Lunch", "when": "11:30 AM – 1:00 PM · Staff Lounge", "featured": false },
+  { "day": "XX", "month": "Dec", "title": "Winter Craft Fair", "when": "4:00 – 6:00 PM · Gymnasium", "featured": false }
+]

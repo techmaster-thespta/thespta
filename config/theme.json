@@ -1,0 +1,21 @@
+{
+  "fonts": {
+    "display": "Montserrat",
+    "body": "Lato",
+    "google_fonts_url": "https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Lato:wght@400;600;700&display=swap"
+  },
+  "colors": {
+    "navy": "#073B68",
+    "blue": "#0874B9",
+    "yellow": "#FFD719",
+    "yellow_text": "#8A6C00",
+    "teal": "#159C9C",
+    "teal_tint": "#E1F3F3",
+    "coral": "#F2645A",
+    "coral_tint": "#FDE7E5",
+    "bg_tint": "#EFF7FA",
+    "text": "#172B3D",
+    "text_muted": "#566878",
+    "border": "#DCE7EE"
+  }
+}

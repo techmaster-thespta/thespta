@@ -1,0 +1,10 @@
+[
+  { "role": "President", "name": "Maria Alvarez", "email": "president@thunderhillpta.org" },
+  { "role": "Vice President, Programs", "name": "James Whitfield", "email": "programs@thunderhillpta.org" },
+  { "role": "Vice President, Volunteers", "name": "Priya Nair", "email": "volunteers@thunderhillpta.org" },
+  { "role": "Treasurer", "name": "Daniel Osei", "email": "treasurer@thunderhillpta.org" },
+  { "role": "Secretary", "name": "Lin Chen", "email": "secretary@thunderhillpta.org" },
+  { "role": "Fundraising Chair", "name": "Sofia Ramirez", "email": "fundraising@thunderhillpta.org" },
+  { "role": "Membership Chair", "name": "Kevin Brooks", "email": "membership@thunderhillpta.org" },
+  { "role": "Communications Chair", "name": "Aisha Bello", "email": "communications@thunderhillpta.org" }
+]

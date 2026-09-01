@@ -1,0 +1,51 @@
+name: Build, validate, and push to Drive
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Build pages from config
+        run: python3 src/build.py
+
+      - name: Validate generated pages
+        run: python3 test/validate_build.py
+
+      - name: Commit regenerated pages back to the repo (if changed)
+        run: |
+          git config user.name "thespta-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add pages/
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: regenerate pages from config [skip ci]"
+            git push
+          else
+            echo "No changes to pages/ — nothing to commit."
+          fi
+
+      - name: Install rclone
+        run: |
+          curl -fsSL -o rclone.zip https://downloads.rclone.org/rclone-current-linux-amd64.zip
+          unzip -q rclone.zip
+          sudo cp rclone-*-linux-amd64/rclone /usr/local/bin/
+          rclone version
+
+      - name: Push pages and images to Google Drive
+        env:
+          GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+        run: ./scripts/push_to_drive.sh

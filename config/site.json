@@ -1,0 +1,31 @@
+{
+  "org_name": "Thunder Hill Elementary PTA",
+  "school_name": "Thunder Hill Elementary School",
+  "school_short_name": "Thunder Hill",
+  "mascot_name": "Thunderbirds",
+  "address_line1": "9357 Scaggsville Rd",
+  "address_line2": "Columbia, MD 21045",
+  "email": "pta@thunderhillpta.org",
+  "meeting_schedule": "First Tuesday of each month, 6:30 PM · School Library",
+  "membership_cost": "$10 per family, per school year",
+  "membership_portal_href": "#",
+  "donate_href": "#",
+  "copyright_year": 2026,
+  "page_urls": {
+    "home": "#",
+    "events": "#",
+    "get_involved": "#",
+    "about": "#"
+  },
+  "hero_image_drive_id": "1KghsP5u5kEi_Ou45Rjy6et9r9cjP0Gec",
+  "page_header_image_drive_id": "1kdu7Aqlidw8qHYbXqFdn7dLMoFhi05j2",
+  "social": {
+    "facebook_href": "#",
+    "instagram_href": "#"
+  },
+  "newsletter_href": "#",
+  "calendar": {
+    "calendar_id": "573cc322608d6d958ef3a2ef6f231f12974d5f4ccee0a86e6e6bf5d173c3ff84@group.calendar.google.com",
+    "timezone": "America/New_York"
+  }
+}
