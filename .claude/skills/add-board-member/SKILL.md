@@ -27,7 +27,7 @@ left-to-right/top-to-bottom).
 4. **Removing**: delete the entry.
 5. Run `python3 src/build.py`.
 6. Run `python3 test/validate_build.py` — confirm it passes.
-7. Report that `pages/about.html` changed and remind the user to re-paste it into Google Sites (`docs/SOP.md` Task 8).
+7. Report that `pages/about.html` changed and remind the user to push (`docs/SOP.md` Task 7) — GitHub Actions rebuilds and redeploys automatically, and the Google Sites embed picks it up with no further action there.
 
 ## Do not
 

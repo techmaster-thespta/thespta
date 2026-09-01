@@ -1,10 +1,12 @@
 # Thunder Hill Elementary PTA Website
 
-This repo generates the HTML pasted into a **Google Sites** site (which has
-no code editor of its own — content goes in via "Insert → Embed → Embed
-code" blocks). It is a static-site generator: `config/*.json` (data) +
-`src/templates/*.tmpl` (structure) → `python3 src/build.py` → `/pages/*.html`
-(what actually gets pasted).
+This repo is a static-site generator: `config/*.json` (data) +
+`src/templates/*.tmpl` (structure) → `python3 src/build.py` →
+`/pages/*.html`. GitHub Actions deploys those pages to **GitHub Pages**
+(`https://techmaster-thespta.github.io/thespta/`), and **Google Sites**
+embeds each page **by URL** (`Insert → Embed → By URL`) rather than by
+pasted code — so a content change is just a config edit + push; nothing
+gets re-pasted into Google Sites ever again after initial setup.
 
 ## The one rule that matters most
 
@@ -40,15 +42,19 @@ config-only approach can't do it, rather than silently editing `src/`.
   two already-vetted uses (the banner/header fade overlay, the calendar
   iframe's aspect-ratio box). Avoid fixed pixel widths on containers. A
   from-scratch redesign broke on mobile once already from ignoring this.
-- **Images are Drive-hosted, not embedded as base64**, except when a user
-  explicitly asks for a fully self-contained embed. Drive links use
-  `https://lh3.googleusercontent.com/d/{FILE_ID}` (more reliable for
-  hotlinking than `drive.google.com/uc?export=view`). The Drive folder
-  they live in must stay shared "Anyone with the link" — see
-  `docs/drive-cicd-setup.md`.
+- **Images live in `assets/images/` and are served directly by GitHub
+  Pages** (`config/site.json` → `hero_image_filename` /
+  `page_header_image_filename`, resolved to a relative `images/<file>`
+  URL by `src/build.py`). This replaced an earlier Google-Drive-hosted
+  approach — don't reintroduce Drive for images or page hosting. A
+  service-account-based Drive push was tried and abandoned: service
+  accounts have zero storage quota on a plain Gmail "My Drive," so every
+  upload failed with `storageQuotaExceeded` regardless of folder sharing.
+  An OAuth-as-the-user variant was made to work, but GitHub Pages is
+  simpler and was chosen instead — don't re-add either Drive approach.
 - **`page_urls.*` in `config/site.json` are the only correct way to link
-  between pages.** Never hardcode a relative path like `/events` — Google
-  Sites' actual published URL structure doesn't reliably support that.
+  between pages** — they're the real GitHub Pages URLs, already correct.
+  Never hardcode a relative path like `/events`.
 
 ## Commands
 
@@ -61,8 +67,8 @@ scripts/build.sh                # same as the first command, path-independent
 ## Where things are documented
 
 - `docs/SOP.md` — day-to-day content-editing tasks (the thing to read first for "how do I change X")
-- `docs/website-setup.md` — one-time Google Sites setup
-- `docs/drive-cicd-setup.md` — one-time GitHub Actions → Google Drive setup
+- `docs/github-pages-setup.md` — one-time: turning on GitHub Pages for this repo
+- `docs/website-setup.md` — one-time: creating the Google Site and embedding the 4 pages by URL
 - `.claude/skills/` — one skill per addable content type (`add-event`,
   `add-board-member`, `add-sponsor`, `add-flyer`), plus the GitHub
   issue workflow: `create-issue` (plan a change collaboratively, file it)

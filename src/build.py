@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
 """
-Thunder Hill Elementary PTA — Google Sites page builder.
+Thunder Hill Elementary PTA — static site builder.
 
-Reads /config/*.json + src/templates/*.html.tmpl and writes one complete,
-ready-to-paste HTML file per page into /pages. Run this after changing
+Reads /config/*.json + src/templates/*.html.tmpl and writes one complete
+HTML file per page into /pages. GitHub Actions deploys /pages to GitHub
+Pages on every push to main; Google Sites embeds each page by URL
+(Insert > Embed > By URL) — not by pasted code — so nothing here ever
+needs to be manually copied into Google Sites. Run this after changing
 anything in /config or /src/templates:
 
     python3 src/build.py        (or: scripts/build.sh)
 
 No dependencies beyond the Python 3 standard library.
 
-WHY THIS EXISTS: Google Sites' "Embed code" block is just a paste box with
-no shared stylesheet, header, or footer of its own for content you embed —
-whatever you paste is everything that block contains. This script is what
-makes "change the color/text once, it updates everywhere" possible anyway:
-it lives entirely in this repo, and its only job is to stamp out the final
-files you copy-paste into each page's Embed code block. Google Sites never
-sees /config, /src, or this script — only the finished files in /pages.
+WHY THIS EXISTS: this script is what makes "change the color/text once,
+it updates everywhere" possible — it lives entirely in this repo, and its
+only job is to stamp out the final static files that get deployed.
 
 Pages: home, about, get-involved, events — see docs/SOP.md for the full
 day-to-day editing guide, and docs/skills for how content additions
@@ -82,8 +81,10 @@ def build_context():
     context["google_fonts_url"] = theme["fonts"]["google_fonts_url"]
     context.update(flatten(theme["colors"], "colors"))
 
-    context["HERO_IMAGE_URL"] = f'https://lh3.googleusercontent.com/d/{site["hero_image_drive_id"]}'
-    context["PAGE_HEADER_IMAGE_URL"] = f'https://lh3.googleusercontent.com/d/{site["page_header_image_drive_id"]}'
+    # Served by GitHub Pages alongside the HTML — see .github/workflows/deploy.yml,
+    # which copies assets/images/* into site/images/ next to pages/*.html.
+    context["HERO_IMAGE_URL"] = f'images/{site["hero_image_filename"]}'
+    context["PAGE_HEADER_IMAGE_URL"] = f'images/{site["page_header_image_filename"]}'
 
     cal_id = site["calendar"]["calendar_id"]
     cal_id_q = urllib.parse.quote(cal_id, safe="")
@@ -200,7 +201,7 @@ def main():
         print(f"  built {out_path.relative_to(ROOT)}")
 
     print(f"\nDone — {len(page_templates)} pages written to /pages.")
-    print("Paste each file's full contents into that page's Insert > Embed > Embed code block in Google Sites.")
+    print("Push to main to deploy — GitHub Actions rebuilds, validates, and redeploys to GitHub Pages automatically.")
 
 
 if __name__ == "__main__":

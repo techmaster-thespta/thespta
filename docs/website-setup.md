@@ -1,8 +1,9 @@
 # One-Time Setup: The Google Sites Website
 
-This covers creating the actual Google Site and getting the 4 generated
-pages live for the first time. For day-to-day content edits after this is
-done, see `docs/SOP.md` instead.
+This covers creating the actual Google Site and wiring its 4 pages to the
+live GitHub Pages site. Do `docs/github-pages-setup.md` first — this
+depends on that URL already being live. For day-to-day content edits after
+both are done, see `docs/SOP.md` instead.
 
 ## 1. Create the site
 
@@ -22,13 +23,25 @@ Use the **Pages** tab (right panel) → **Add page** for each:
 | Get Involved | No |
 | Events | No |
 
-## 3. Paste each generated page
+## 3. Embed each page by URL
 
-For each of the 4 pages:
+Unlike a copy-pasted code block, this stays live forever — no re-pasting
+needed after future content changes.
 
-1. Open `pages/<name>.html` (from this repo, or from the Drive `pages/` folder the CI workflow keeps in sync).
-2. Select all, copy.
-3. In Google Sites, go to that page → click where the content should go → **Insert → Embed → Embed code** → paste → **Insert**.
+For each of the 4 pages, in Google Sites:
+
+1. Go to that page → click where the content should go.
+2. **Insert → Embed → By URL**.
+3. Paste the matching GitHub Pages URL:
+
+   | Google Sites page | Embed this URL |
+   |---|---|
+   | Home | `https://techmaster-thespta.github.io/thespta/home.html` |
+   | About | `https://techmaster-thespta.github.io/thespta/about.html` |
+   | Get Involved | `https://techmaster-thespta.github.io/thespta/get-involved.html` |
+   | Events | `https://techmaster-thespta.github.io/thespta/events.html` |
+
+4. Click **Insert**.
 
 ## 4. Preview and publish
 
@@ -36,20 +49,11 @@ For each of the 4 pages:
 2. Click **Publish** (top-right).
 3. Set the site's URL path if prompted.
 
-## 5. Fill in real page URLs
-
-Once published, each page has a real URL (e.g.
-`https://sites.google.com/view/thunderhillpta/events`). Every internal
-button/footer link on the site currently points at `#` until you do this:
-
-1. Open `config/site.json` → `page_urls`.
-2. Replace each `"#"` with that page's real published URL.
-3. Rebuild (`python3 src/build.py` or push to `main` and let CI do it).
-4. Re-paste **all 4 pages** — every page's footer links to every other page.
-
 ## Ongoing updates
 
-After this initial setup, you never repeat steps 1–2. Content changes go
-through `config/*.json` (see `docs/SOP.md`), and re-publishing a changed
-page is just: re-copy that one file's contents, paste over the existing
-Embed block (click it → pencil icon → edit → replace → Update), Publish.
+After this, you never repeat any of the above. Content changes go through
+`config/*.json` (see `docs/SOP.md`) — push to `main`, GitHub Actions
+rebuilds and redeploys to GitHub Pages automatically, and every embedded
+page picks up the change immediately since it's a live URL, not a static
+paste. Nothing to touch in Google Sites again unless you're adding a
+brand-new page.

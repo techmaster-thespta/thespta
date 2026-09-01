@@ -2,11 +2,13 @@
 
 This is the reference doc for **ongoing content edits** — written so a
 future board member with no coding background can follow it. For the
-one-time initial setup, see `docs/website-setup.md` (Google Sites) and
-`docs/drive-cicd-setup.md` (GitHub Actions → Google Drive).
+one-time initial setup, see `docs/github-pages-setup.md` (GitHub Pages)
+and `docs/website-setup.md` (wiring it into Google Sites).
 
-The site itself lives on **Google Sites**; this repo (`config/`, `src/`) is
-the tool that generates the HTML you paste into it.
+The live site is hosted on **GitHub Pages**; Google Sites embeds each page
+**by URL** (not by pasted code) — so once initial setup is done, a content
+change is just: edit a config file, push, done. Nothing to re-paste,
+nothing to touch in Google Sites again.
 
 ## How the system fits together
 
@@ -14,13 +16,17 @@ the tool that generates the HTML you paste into it.
 config/*.json          ← you edit these (facts: colors, text, events, board, sponsors, flyers)
 src/templates/*.tmpl   ← page structure (rarely touched)
         ↓  python3 src/build.py   (or: scripts/build.sh)
-pages/*.html            ← generated output — paste these into Google Sites
+pages/*.html            ← generated output
+        ↓  git push → GitHub Actions
+https://techmaster-thespta.github.io/thespta/*.html   ← the live site, embedded by URL in Google Sites
 ```
 
 **Golden rule: never hand-edit a file in `/pages`.** It gets silently
 overwritten the next time anyone runs the build — including automatically,
 by GitHub Actions, on every push to `main`. Every real change happens in
-`/config` (data) or `/src/templates` (layout), followed by a rebuild.
+`/config` (data) or `/src/templates` (layout), followed by a rebuild —
+and pushing to `main` is what actually makes it live, since GitHub Actions
+does the rebuild-and-deploy for you.
 
 **If you're an AI agent (Claude or otherwise) making a content change**:
 check `.claude/skills/` first — there's a dedicated skill for each kind of
@@ -47,10 +53,10 @@ Requires only Python 3 — no npm, no installs, nothing to configure.
 | `membership_portal_href` | Where "Join PTA" / "Become a Member" buttons point |
 | `social.facebook_href`, `social.instagram_href` | Footer social links |
 | `newsletter_href` | Footer "Subscribe" link |
-| `page_urls.*` | **Fill these in once each page is published** (see Task 7) — every internal button/footer link on the site points here |
+| `page_urls.*` | The 4 pages' real GitHub Pages URLs — already correct out of the box; only touch this if the repo name or Pages domain ever changes |
 | `copyright_year` | Footer copyright line |
 
-Rebuild: `python3 src/build.py`, then re-paste the affected page(s) into Google Sites (Task 8).
+Rebuild + push: `python3 src/build.py` then `git push` (or just push — see Task 7).
 
 ---
 
@@ -75,8 +81,6 @@ Google Fonts actually has, and you must update `google_fonts_url` to match
 (go to [fonts.google.com](https://fonts.google.com), pick the font, copy
 the `<link>` URL it gives you).
 
-Rebuild after any change: `python3 src/build.py`.
-
 ---
 
 ## Task 3 — Add, remove, or edit a board member
@@ -87,8 +91,6 @@ Each entry is `{ "role": "...", "name": "...", "email": "..." }`. Add a new
 `{ }` entry (comma-separated) for a new board member, delete one to remove
 someone, or edit the text directly. This list appears once, on the About
 page.
-
-Rebuild: `python3 src/build.py`, then re-paste `pages/about.html` into Google Sites.
 
 ---
 
@@ -112,8 +114,6 @@ Each entry looks like:
 - The order in this file is the order events appear everywhere.
 - To remove an event, delete its `{ }` block. To add one, copy an existing block and edit it.
 
-Rebuild: `python3 src/build.py`, then re-paste `pages/home.html` and `pages/events.html`.
-
 ---
 
 ## Task 4b — Add, remove, or edit a sponsor
@@ -126,8 +126,6 @@ the Home page doesn't appear at all**, not even as an empty heading. Add
 your first entry and the section appears automatically; delete the last
 one and it disappears again.
 
-Rebuild: `python3 src/build.py`, then re-paste `pages/home.html`.
-
 ---
 
 ## Task 4c — Add, remove, or edit a flyer / document
@@ -135,12 +133,11 @@ Rebuild: `python3 src/build.py`, then re-paste `pages/home.html`.
 **File:** `config/flyers.json` · **Skill:** `.claude/skills/add-flyer/`
 
 Each entry is `{ "title": "...", "description": "...", "href": "..." }` —
-`href` should be a Google Drive share link (upload the PDF/doc to Drive
-first, share it "Anyone with the link", copy the link). Same
-empty-list-means-no-section behavior as sponsors — this powers the
-"Documents & Flyers" section on the About page.
-
-Rebuild: `python3 src/build.py`, then re-paste `pages/about.html`.
+`href` can be a Google Drive share link (upload the PDF/doc to Drive,
+share it "Anyone with the link", copy the link) since this is a normal
+read-only share, not an automated upload. Same empty-list-means-no-section
+behavior as sponsors — this powers the "Documents & Flyers" section on the
+About page.
 
 ---
 
@@ -158,61 +155,55 @@ event in Google Calendar directly. No rebuild needed for this.
 
 **If the PTA ever switches to a different Google Calendar** (new
 account, etc.): update `calendar.calendar_id` (and `calendar.timezone` if
-needed) in `config/site.json`, rebuild, and re-paste `pages/events.html`.
-The embed, the "Add to Google Calendar" button, the Apple/Outlook
-subscribe link, and the `.ics` download link are all built automatically
-from that one ID — you never edit those URLs by hand.
+needed) in `config/site.json` and push. The embed, the "Add to Google
+Calendar" button, the Apple/Outlook subscribe link, and the `.ics`
+download link are all built automatically from that one ID — you never
+edit those URLs by hand.
 
 ---
 
 ## Task 6 — Change the banner photo, page header photo, or add a logo
 
-Images are hosted on Google Drive, not embedded in the HTML directly —
-this keeps the pasted code small and images easy to swap.
+Images live in `assets/images/` in this repo and are served directly by
+GitHub Pages alongside the HTML — no external hosting, no sharing settings
+to manage.
 
-1. Upload the new photo to Google Drive.
-2. Right-click it → **Share** → set to **Anyone with the link** (Viewer). Required, or the image shows broken to visitors. (If it's uploaded straight into the CI-managed "PTA Website" Drive folder, this is already handled — see `docs/drive-cicd-setup.md`.)
-3. Copy the file's share link, pull out the ID (the long string between `/d/` and `/view`).
-4. Paste that ID into `config/site.json` — `hero_image_drive_id` (Home banner) or `page_header_image_drive_id` (About/Get Involved/Events header).
-5. Rebuild: `python3 src/build.py`, re-paste the affected page(s).
+1. Drop the new image file into `assets/images/`.
+2. Update `config/site.json` — `hero_image_filename` (Home banner) or `page_header_image_filename` (About/Get Involved/Events header) to that filename.
+3. Push. GitHub Actions rebuilds, copies it into the deployed site's `images/` folder, and it's live.
 
 There's no logo yet (`thes__icon-circle` fallbacks and text stand in for
 one). When there's a real Thunderbird logo file, it can be added the same
-way — a Drive-hosted image slot in the templates.
+way.
 
 ---
 
-## Task 7 — Fill in real page links (do this once, right after publishing)
+## Task 7 — Publish a change
 
-Every internal link on the site (footer nav, "Get Involved" buttons, "View
-Events" links, etc.) currently points at `#` via `config/site.json` →
-`page_urls`. Once each page is published in Google Sites and has a real
-URL (e.g. `https://sites.google.com/view/thunderhillpta/events`):
+Because Google Sites embeds each page **by URL**, publishing a content
+change is just:
 
-1. Open `config/site.json`, find `page_urls`.
-2. Replace each `"#"` with that page's real published URL.
-3. Rebuild: `python3 src/build.py`.
-4. Re-paste **all 4 pages** into Google Sites (every page's footer links to every other page, so all 4 files change).
+```bash
+python3 src/build.py     # optional — CI does this too, but good to check locally
+git add -A
+git commit -m "describe the change"
+git push
+```
 
----
+GitHub Actions takes it from there: rebuilds, validates, commits
+regenerated `pages/` back if needed, and redeploys to GitHub Pages. The
+Google Sites embed shows the update automatically — nothing to touch in
+Google Sites itself, ever, for a routine content change.
 
-## Task 8 — Publish a change to Google Sites
-
-After any rebuild:
-
-1. Open the relevant file in `/pages` (e.g. `pages/home.html`), select all, copy. (Or grab it from the Drive `pages/` folder — GitHub Actions keeps that in sync automatically on every push to `main`.)
-2. In the Google Sites editor, go to that page.
-3. **If the Embed block already exists:** click directly on it (the embedded content, not the page background) → a toolbar appears → click the **pencil/edit icon** → it reopens the code box → select all the old code, paste the new version, click **Update**.
-4. **If there's no Embed block yet:** click where you want it → **Insert → Embed → Embed code** → paste → **Insert**.
-5. Click **Publish** (top-right) to push the change live. Editing a page doesn't go live until you publish.
+(The only time you touch Google Sites again is adding a brand-new page —
+see `docs/website-setup.md`.)
 
 ---
 
-## Verification checklist (before publishing anything)
+## Verification checklist (before/after pushing)
 
-- [ ] `python3 test/validate_build.py` passes with no failures (or the GitHub Actions run for your commit is green).
-- [ ] Opened the page in Google Sites' **Preview** (eye icon), checked both desktop and the mobile toggle inside preview.
-- [ ] Clicked every button/link on the page you changed — nothing points at a stray `#` you forgot to fill in (Task 7).
+- [ ] `python3 test/validate_build.py` passes with no failures (or the GitHub Actions run for your commit is green — check the **Actions** tab).
+- [ ] Visit the live URL directly (e.g. `https://techmaster-thespta.github.io/thespta/home.html`) to confirm the change is really there.
 - [ ] If you changed `theme.json`, spot-checked all 4 pages, not just one — colors are shared.
 
 ---
@@ -220,9 +211,8 @@ After any rebuild:
 ## Yearly board handoff
 
 - This GitHub repo (`techmaster-thespta/thespta`) is the source of truth — hand off repo access (or add the incoming board's GitHub account as a collaborator) along with this doc.
-- Nobody needs to know Python to use it — just edit the `.json` files listed above; GitHub Actions rebuilds and pushes to Drive automatically on every push to `main`.
-- The Google account used for Google Sites, Google Calendar, and Drive should be a shared PTA/"webmaster" account, not a personal one, so ownership doesn't leave with a board member. Google Sites also supports adding co-owners/editors via its own **Share** button if a transition to a shared account hasn't happened yet.
-- If GitHub Actions' Drive credentials (the OAuth refresh token) ever need rotating — e.g. a departing board member set them up — see `docs/drive-cicd-setup.md`.
+- Nobody needs to know Python to use it — just edit the `.json` files listed above and push; GitHub Actions rebuilds and redeploys automatically.
+- The Google account used for Google Sites and Google Calendar should be a shared PTA/"webmaster" account, not a personal one, so ownership doesn't leave with a board member. Google Sites also supports adding co-owners/editors via its own **Share** button if a transition to a shared account hasn't happened yet.
 
 ---
 
@@ -230,9 +220,9 @@ After any rebuild:
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| Banner or header image shows a broken image icon | Drive file's sharing was changed or the file was moved/deleted | Re-check Task 6, step 2 — must stay "Anyone with the link" |
+| Banner or header image is broken | Filename in `config/site.json` doesn't match a real file in `assets/images/` | Check spelling/extension match exactly, rebuild |
 | Calendar embed shows blank/error | Calendar's own sharing isn't public, or wrong `calendar_id` | In Google Calendar → calendar settings → **Access permissions** → "Make available to public" |
-| A page's colors look wrong after a theme edit | Old page wasn't re-pasted after rebuild | Re-copy that page's file from `/pages` into Google Sites again |
+| Google Sites shows an old version | The embed is "By URL," which should always be live | Try removing and re-adding the Embed-by-URL block; also hard-refresh the live GitHub Pages URL directly to rule out browser caching |
 | `python3 src/build.py` prints `unresolved placeholder(s)` | A config file is missing a field a template expects | Read the warning — it names the exact `{{key}}` — add that field to the relevant `config/*.json` |
 | Layout looks broken/overlapping on phone | Usually a hand-edited style with a fixed pixel width or `position: absolute` added outside the existing patterns | Stick to the existing CSS classes in `src/templates/tokens.html.tmpl` rather than adding new inline styles with fixed widths |
-| GitHub Actions run failed | See `docs/drive-cicd-setup.md` → "If something breaks" | |
+| GitHub Actions run failed | See `docs/github-pages-setup.md` → "If something breaks" | |

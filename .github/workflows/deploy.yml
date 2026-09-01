@@ -1,15 +1,25 @@
-name: Build, validate, and push to Drive
+name: Build, validate, and deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
   workflow_dispatch: {}
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -37,13 +47,17 @@ jobs:
             echo "No changes to pages/ — nothing to commit."
           fi
 
-      - name: Install Google API client libraries
-        run: pip install google-auth google-auth-oauthlib google-api-python-client
+      - name: Assemble the deployed site
+        run: |
+          mkdir -p site/images
+          cp pages/*.html site/
+          find assets/images -maxdepth 1 -type f ! -name "*.md" -exec cp {} site/images/ \;
 
-      - name: Push pages and images to Google Drive
-        env:
-          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
-          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
-          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
-          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
-        run: python3 scripts/push_to_drive.py
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

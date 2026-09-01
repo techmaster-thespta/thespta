@@ -71,12 +71,13 @@ unless the issue is genuinely unclear (see "If the issue is unclear" below).
    ## Test plan
    - [x] python3 src/build.py — no unresolved placeholders
    - [x] python3 test/validate_build.py — passed
-   - [ ] Re-paste affected page(s) into Google Sites and preview"
+   - [ ] Confirm the live GitHub Pages URL reflects the change once merged"
    ```
 
-8. **Report back**: the PR URL, which page(s) will need re-pasting into
-   Google Sites once merged (per `docs/SOP.md` Task 8), and confirm the
-   branch — never merge the PR yourself.
+8. **Report back**: the PR URL, which live page(s) will update once merged
+   and GitHub Actions redeploys (per `docs/SOP.md` Task 7 — no manual
+   Google Sites step needed either way), and confirm the branch — never
+   merge the PR yourself.
 
 ## If the issue is unclear
 

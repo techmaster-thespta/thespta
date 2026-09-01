@@ -38,7 +38,7 @@ The order of entries in the file is the display order everywhere.
 4. **Removing**: delete the entry. If it was the featured one, set `featured: true` on a different entry (a file with zero featured entries falls back to the first entry, which is probably not what's intended — always leave exactly one explicit).
 5. Run `python3 src/build.py`.
 6. Run `python3 test/validate_build.py` — confirm it passes.
-7. Report which generated files changed (`pages/home.html` and `pages/events.html` — this config feeds both) and remind the user to re-paste those into Google Sites (`docs/SOP.md` Task 8).
+7. Report which generated files changed (`pages/home.html` and `pages/events.html` — this config feeds both) and remind the user to push (`docs/SOP.md` Task 7) — GitHub Actions rebuilds and redeploys automatically.
 
 ## Do not
 

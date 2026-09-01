@@ -33,7 +33,7 @@ design — don't "fix" it by editing templates.
 4. **Removing**: delete the entry.
 5. Run `python3 src/build.py`.
 6. Run `python3 test/validate_build.py` — confirm it passes.
-7. Report that `pages/home.html` changed (mention explicitly if the section just appeared or disappeared for the first time) and remind the user to re-paste it into Google Sites (`docs/SOP.md` Task 8).
+7. Report that `pages/home.html` changed (mention explicitly if the section just appeared or disappeared for the first time) and remind the user to push (`docs/SOP.md` Task 7) — GitHub Actions rebuilds and redeploys automatically.
 
 ## Do not
 

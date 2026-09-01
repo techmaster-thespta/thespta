@@ -1,9 +1,8 @@
-Source images kept in the repo for backup/version history and pushed to
-the shared Google Drive folder by CI on every push to `main` (see
-`docs/drive-cicd-setup.md`).
+Source images for the site. GitHub Actions copies these into the deployed
+GitHub Pages site's `images/` folder on every push to `main` — no external
+hosting, no sharing settings to manage.
 
-These are **not** embedded directly into the generated pages — Google
-Sites pages reference them by Drive link instead (kept small in the HTML,
-easy to swap). To change which image shows where, see `docs/SOP.md` Task 6
-— it's a `config/site.json` edit (`hero_image_drive_id` /
-`page_header_image_drive_id`), not a file-naming convention here.
+Drop a new image in here, then point `config/site.json`'s
+`hero_image_filename` or `page_header_image_filename` at its filename (see
+`docs/SOP.md` Task 6). The generated pages reference it as a relative
+`images/<file>` URL, which resolves correctly once deployed.
