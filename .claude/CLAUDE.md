@@ -63,7 +63,11 @@ scripts/build.sh                # same as the first command, path-independent
 - `docs/SOP.md` — day-to-day content-editing tasks (the thing to read first for "how do I change X")
 - `docs/website-setup.md` — one-time Google Sites setup
 - `docs/drive-cicd-setup.md` — one-time GitHub Actions → Google Drive setup
-- `.claude/skills/` — one skill per addable content type
+- `.claude/skills/` — one skill per addable content type (`add-event`,
+  `add-board-member`, `add-sponsor`, `add-flyer`), plus the GitHub
+  issue workflow: `create-issue` (plan a change collaboratively, file it)
+  and `from-issue` (pull an issue by number, implement it, open a PR).
+  Both use `gh` for all GitHub operations.
 
 ## Adding a new modular content type
 
