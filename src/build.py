@@ -140,8 +140,25 @@ def render_event_attachments(attachments):
     return f'<div class="thes__event-attachments">{label}: {links}</div>'
 
 
-def with_attachments_html(event):
-    return {**event, "ATTACHMENTS": render_event_attachments(event.get("attachments", []))}
+def render_event_description(description):
+    """An event's own calendar Description, shown as a short blurb under
+    its row on the Events page's quick-scan list — "" if it doesn't have
+    one (true of most non-featured events), so the row just stays compact
+    instead of showing filler text. Separate from the raw `description`
+    field the featured-event card template uses directly — that one
+    always has a value (falling back to a generic line), this one is
+    genuinely optional."""
+    if not description:
+        return ""
+    return f'<p class="thes__event-description">{description}</p>'
+
+
+def with_event_extras(event):
+    return {
+        **event,
+        "ATTACHMENTS": render_event_attachments(event.get("attachments", [])),
+        "DESCRIPTION_BLOCK": render_event_description(event.get("description")),
+    }
 
 
 def build_home_events_section(events, context):
@@ -160,7 +177,7 @@ def build_home_events_section(events, context):
     featured = next((e for e in events if e.get("featured")), events[0])
     others = [e for e in events if e is not featured][:2]
 
-    featured_html = indent(render(featured_tmpl, {**context, **with_attachments_html(featured)}), 8)
+    featured_html = indent(render(featured_tmpl, {**context, **with_event_extras(featured)}), 8)
     more_rows = "\n".join(indent(render(more_tmpl, {**context, **e}), 10) for e in others)
     return render(section_tmpl, {**context, "FEATURED_EVENT": featured_html, "MORE_EVENTS": more_rows})
 
@@ -180,7 +197,7 @@ def build_events_page_section(events, context):
         return render(empty_tmpl, context)
     row_tmpl = (TEMPLATES / "event-row.html.tmpl").read_text()
     section_tmpl = (TEMPLATES / "events-list-section.html.tmpl").read_text()
-    rows = "\n".join(indent(render(row_tmpl, {**context, **with_attachments_html(e)}), 8) for e in events)
+    rows = "\n".join(indent(render(row_tmpl, {**context, **with_event_extras(e)}), 8) for e in events)
     return render(section_tmpl, {**context, "EVENTS_LIST": rows})
 
 

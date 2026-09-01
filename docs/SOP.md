@@ -137,9 +137,12 @@ full calendar embed always has everything regardless), auto-marking the
 very next one as "featured" for the big navy card on the Home page. A
 `description` for the featured card comes from that event's own
 Description field in Google Calendar if you set one, otherwise a generic
-line is used. A file attached to an event in Google Calendar (step 3
-above) comes through the same way, as a "Flyer" (or "Flyers", if more
-than one) link on that event wherever it appears on the site.
+line is used. Every other event on the quick-scan list shows its own
+Description too, if it has one — otherwise that row just stays compact
+(date/time/title only), no filler text. A file attached to an event in
+Google Calendar (step 3 above) comes through the same way, as a "Flyer"
+(or "Flyers", if more than one) link on that event wherever it appears on
+the site.
 
 **Heads up:** a recurring event (e.g. a monthly meeting) produces one
 highlight-list entry per occurrence, so it can crowd out one-off events

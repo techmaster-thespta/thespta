@@ -273,7 +273,15 @@ def build_events_json(vevents, window_start, window_end):
         if occ["attachments"]:
             entry["attachments"] = occ["attachments"]
         if i == 0:
+            # The featured card always shows a description slot, so it
+            # always gets one, even a generic one if the calendar didn't
+            # set a real Description.
             entry["description"] = (occ["description"] or f"Join us for {occ['title']} — see the full calendar for details.")[:200]
+        elif occ["description"]:
+            # Every other event on the quick-scan list shows its own
+            # calendar Description too, if it set one — otherwise the
+            # row just stays compact (day/time/title), no filler text.
+            entry["description"] = occ["description"][:200]
         out.append(entry)
     return out
 
