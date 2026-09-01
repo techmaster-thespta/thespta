@@ -149,6 +149,12 @@
   .thes__event-row-body strong { font-size: 0.94rem; display: block; }
   .thes__event-row-body span { color: var(--text-muted); font-size: 0.84rem; }
 
+  /* ---- Flyer link on an event (from a Calendar file attachment) ---- */
+  .thes__event-attachments { margin-top: 4px; font-size: 0.82rem; font-weight: 700; }
+  .thes__event-attachments a { color: var(--blue); text-decoration: none; }
+  .thes__event-attachments a:hover { text-decoration: underline; }
+  .thes__featured-event .thes__event-attachments a { color: var(--yellow); }
+
   /* ---- Join / CTA band ---- */
   .thes__join { background: var(--bg-tint); border-radius: 16px; padding: 32px 24px; text-align: center; display: grid; gap: 14px; justify-items: center; }
   .thes__join h2 { font-size: clamp(1.2rem, 4vw, 1.6rem); max-width: 42ch; }
@@ -246,34 +252,7 @@
     </div>
   </section>
 
-  <!-- ===== Upcoming events ===== -->
-  <section class="thes__section thes__section--tint">
-    <div class="thes__wrap">
-      <div class="thes__section-head">
-        <h2>Upcoming Events</h2>
-      </div>
-      <div class="thes__events-grid">
-      <div class="thes__featured-event">
-        <span class="thes__eyebrow">Featured Event</span>
-        <h3>Fall Fest</h3>
-        <div class="thes__event-when">Oct XX &middot; 5:00 – 7:00 PM</div>
-        <p>A fun evening for the whole Thunder Hill community!</p>
-        <a href="https://sites.google.com/view/thesptademo/events">Learn More &rarr;</a>
-      </div>
-        <div class="thes__more-events">
-        <div class="thes__more-events-row">
-          <strong>Trunk or Treat</strong>
-          <span>Oct XX</span>
-        </div>
-        <div class="thes__more-events-row">
-          <strong>PTA Meeting</strong>
-          <span>Nov XX</span>
-        </div>
-          <a href="https://sites.google.com/view/thesptademo/events">And more&hellip; View all events &rarr;</a>
-        </div>
-      </div>
-    </div>
-  </section>
+
 
   <!-- ===== Impact ===== -->
   <section class="thes__section">

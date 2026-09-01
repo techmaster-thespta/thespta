@@ -13,26 +13,32 @@ nothing to touch in Google Sites again.
 ## How the system fits together
 
 ```
-config/*.json          ← you edit these (facts: colors, text, events, board, sponsors, flyers)
-src/templates/*.tmpl   ← page structure (rarely touched)
+Google Calendar         ← the PTA's shared calendar (events only — see Task 4)
+        ↓  scripts/sync_calendar_events.py (GitHub Actions runs this hourly via sync-events.yml, + on every push via deploy.yml)
+config/events.json      ← generated — don't hand-edit
+config/*.json           ← everything else you DO edit (colors, text, board, sponsors, flyers)
+src/templates/*.tmpl    ← page structure (rarely touched)
         ↓  python3 src/build.py   (or: scripts/build.sh)
 pages/*.html            ← generated output
         ↓  git push → GitHub Actions
 https://techmaster-thespta.github.io/thespta/*.html   ← the live site, embedded by URL in Google Sites
 ```
 
-**Golden rule: never hand-edit a file in `/pages`.** It gets silently
-overwritten the next time anyone runs the build — including automatically,
-by GitHub Actions, on every push to `main`. Every real change happens in
-`/config` (data) or `/src/templates` (layout), followed by a rebuild —
-and pushing to `main` is what actually makes it live, since GitHub Actions
-does the rebuild-and-deploy for you.
+**Golden rule: never hand-edit a file in `/pages` or `config/events.json`.**
+Both get silently overwritten the next time anyone runs the build/sync —
+including automatically, by GitHub Actions, hourly and on every push to
+`main`. Every real change happens in Google Calendar (for events), the
+rest of `/config` (other data), or `/src/templates` (layout), followed by
+a rebuild — and pushing to `main` is what actually makes it live, since
+GitHub Actions does the rebuild-and-deploy for you.
 
 **If you're an AI agent (Claude or otherwise) making a content change**:
 check `.claude/skills/` first — there's a dedicated skill for each kind of
-addition (event, board member, sponsor, flyer/document). Those skills are
-scoped to **config-only edits** and are the preferred path. Only touch
-`src/` if the user explicitly asks for a structural/design change.
+addition (board member, sponsor, flyer/document). Events are the one
+exception: they're calendar-driven now, not a config edit — see
+`.claude/skills/add-event/` and Task 4 below. Skills are scoped to
+**config-only edits** and are the preferred path. Only touch `src/` if the
+user explicitly asks for a structural/design change.
 
 Requires only Python 3 — no npm, no installs, nothing to configure.
 
@@ -96,25 +102,64 @@ page.
 
 ---
 
-## Task 4 — Add, remove, or edit an event (the static highlights)
+## Task 4 — Add, remove, or edit an event
 
-**File:** `config/events.json` · **Skill:** `.claude/skills/add-event/`
+**There is exactly one place to do this: Google Calendar.** Both the
+"Upcoming Events" preview on the Home page and the quick-scan list on the
+Events page are synced automatically from the PTA's Google Calendar —
+nothing to edit in this repo for a routine event change.
 
-This powers two things: the "Upcoming Events" preview on the Home page
-(one big featured event + a short list), and the quick-scan list at the
-top of the Events page. **It is separate from the live Google Calendar**
-embedded further down the Events page (see Task 5) — this file is for
-short, hand-picked highlights; the calendar is the full, always-current
-schedule.
+1. Go to [calendar.google.com](https://calendar.google.com), find the
+   PTA's shared calendar in the left sidebar (matches the `calendar_id` in
+   `config/site.json` under `calendar`).
+2. Add/edit/delete events as normal — a one-time event, or a recurring one
+   (e.g. "First Tuesday of every month" for board meetings) both work.
+3. **To attach a flyer to an event** (so it shows as a "Flyer" link next
+   to that event on the website): open the event → **Add attachment** →
+   pick or upload the file in Google Drive. The Drive file itself still
+   needs to be shared **"Anyone with the link"** — attaching it to the
+   event doesn't change its Drive sharing, and a visitor clicking a
+   flyer link they can't open is the most likely thing to go wrong here.
+4. The live calendar embed on the Events page updates within minutes,
+   automatically, no rebuild needed.
+5. The Home/Events highlight lists (and any flyer link) catch up on the
+   next sync — automatically, within the hour
+   (`.github/workflows/sync-events.yml`), and again on every push to
+   `main`. To pull the change in immediately instead of waiting:
+   **Actions** tab → "Sync events from Google Calendar" → **Run
+   workflow**.
 
-Each entry looks like:
-```json
-{ "day": "15", "month": "Sep", "title": "Back-to-School Picnic", "when": "5:30 – 7:00 PM · Courtyard", "featured": false }
-```
+**`config/events.json` is now generated, like `pages/*.html`  — don't
+hand-edit it,** it'll be overwritten by the next sync. `scripts/sync_calendar_events.py`
+reads the calendar's public `.ics` feed and picks up to 6 of the soonest
+upcoming events (further out ones just don't make the short-list — the
+full calendar embed always has everything regardless), auto-marking the
+very next one as "featured" for the big navy card on the Home page. A
+`description` for the featured card comes from that event's own
+Description field in Google Calendar if you set one, otherwise a generic
+line is used. A file attached to an event in Google Calendar (step 3
+above) comes through the same way, as a "Flyer" (or "Flyers", if more
+than one) link on that event wherever it appears on the site.
 
-- Exactly **one** entry should have `"featured": true` — that one becomes the big navy card on the Home page. Give it a `"description"` field too (a one-sentence blurb) — the featured card shows it, others don't need it.
-- The order in this file is the order events appear everywhere.
-- To remove an event, delete its `{ }` block. To add one, copy an existing block and edit it.
+**Heads up:** a recurring event (e.g. a monthly meeting) produces one
+highlight-list entry per occurrence, so it can crowd out one-off events
+further out if there are more than 6 items competing for the list. If
+that becomes a real problem, the fix is changing `MAX_EVENTS` in
+`scripts/sync_calendar_events.py` (a `src/`-adjacent change — get sign-off
+first, per `.claude/CLAUDE.md`) or splitting recurring meetings onto a
+separate calendar not included in the sync.
+
+If the calendar has zero upcoming events, both highlight sections
+disappear from the site entirely (same empty-list-means-no-section
+pattern as sponsors/flyers) — the site never shows an empty "Upcoming
+Events" box.
+
+**If the PTA ever switches to a different Google Calendar** (new
+account, etc.): update `calendar.calendar_id` (and `calendar.timezone` if
+needed) in `config/site.json` and push. The embed, the sync script, the
+"Add to Google Calendar" button, the Apple/Outlook subscribe link, and the
+`.ics` download link are all built from that one ID — you never edit those
+URLs by hand.
 
 ---
 
@@ -139,28 +184,12 @@ Each entry is `{ "title": "...", "description": "...", "href": "..." }` —
 share it "Anyone with the link", copy the link) since this is a normal
 read-only share, not an automated upload. Same empty-list-means-no-section
 behavior as sponsors — this powers the "Documents & Flyers" section on the
-About page.
+About page, for standing documents (bylaws, handbooks) not tied to a
+specific date.
 
----
-
-## Task 5 — Update the actual event schedule (live calendar)
-
-The Events page embeds a real Google Calendar, which is **not** part of
-this build system — it updates itself the moment you add/edit/delete an
-event in Google Calendar directly. No rebuild needed for this.
-
-1. Go to [calendar.google.com](https://calendar.google.com), find the
-   PTA's shared calendar in the left sidebar (matches the `calendar_id` in
-   `config/site.json` under `calendar`).
-2. Add/edit/delete events as normal.
-3. Changes appear on the website within a few minutes automatically.
-
-**If the PTA ever switches to a different Google Calendar** (new
-account, etc.): update `calendar.calendar_id` (and `calendar.timezone` if
-needed) in `config/site.json` and push. The embed, the "Add to Google
-Calendar" button, the Apple/Outlook subscribe link, and the `.ics`
-download link are all built automatically from that one ID — you never
-edit those URLs by hand.
+**A flyer for a specific event doesn't go here** — attach it to that
+event in Google Calendar instead (Task 4, step 3) so it shows up linked
+from that event directly, wherever the event appears.
 
 ---
 

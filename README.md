@@ -7,7 +7,9 @@ Sites ever again. This repo is the generator: plain config files in,
 complete static HTML pages out.
 
 ```
-config/*.json          ← edit these: site info, theme, events, board, sponsors, flyers
+Google Calendar         ← events — edit here, not in this repo (see docs/SOP.md Task 4)
+        ↓  scripts/sync_calendar_events.py (hourly + on push)
+config/*.json           ← edit the rest of these: site info, theme, board, sponsors, flyers
 src/                    ← the generator (templates + build script) — rarely touched
         ↓  python3 src/build.py
 pages/*.html            ← generated output
@@ -50,9 +52,9 @@ kind of addition, each scoped to config-only edits.
 | `src/templates/` | Page structure and reusable component templates |
 | `pages/` | Generated HTML — deployed to GitHub Pages by CI |
 | `assets/images/` | Source images, served directly by GitHub Pages |
-| `scripts/` | `build.sh` — rebuild locally |
+| `scripts/` | `build.sh` (rebuild locally), `sync_calendar_events.py` (pull events from Google Calendar into `config/events.json`) |
 | `test/` | Build validation |
 | `docs/` | All setup and maintenance documentation |
-| `.github/workflows/` | The build → validate → deploy-to-Pages CI pipeline |
+| `.github/workflows/` | `deploy.yml` (build → validate → deploy-to-Pages, on push), `sync-events.yml` (hourly calendar sync) |
 | `.claude/` | Instructions and skills for AI agents working in this repo |
 | `.mcp.json` | GitHub MCP server declaration (token via env var, not committed) — see `docs/github-agent-setup.md` |

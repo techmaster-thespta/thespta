@@ -1,0 +1,92 @@
+name: Sync events from Google Calendar
+
+# A separate, self-contained hourly pipeline (distinct from deploy.yml's
+# push-triggered one) so the Home/Events highlight lists catch up with
+# calendar changes within the hour even when nobody pushes a code change.
+#
+# This has to do its own full build+validate+deploy rather than just
+# committing config/events.json and counting on deploy.yml's `push`
+# trigger to pick it up: GitHub Actions never lets a GITHUB_TOKEN-authored
+# push trigger another workflow (loop-prevention by design — see
+# https://docs.github.com/en/actions/concepts/security/github_token), so
+# that handoff would silently never fire.
+#
+# To avoid redeploying every single hour when the calendar hasn't
+# actually changed, everything past the sync step is skipped unless
+# config/events.json actually differs.
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # hourly
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"  # shared with deploy.yml — both deploy to Pages and must not run at once
+  cancel-in-progress: false
+
+jobs:
+  sync-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.x"
+
+      - name: Sync events from Google Calendar
+        run: python3 scripts/sync_calendar_events.py
+
+      - name: Check whether the calendar actually changed anything
+        id: diff
+        run: |
+          if git diff --quiet -- config/events.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build pages from config
+        if: steps.diff.outputs.changed == 'true'
+        run: python3 src/build.py
+
+      - name: Validate generated pages
+        if: steps.diff.outputs.changed == 'true'
+        run: python3 test/validate_build.py
+
+      - name: Commit config/events.json and regenerated pages
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "thespta-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add config/events.json pages/
+          git commit -m "chore: sync events from calendar, regenerate pages [skip ci]"
+          git push
+
+      - name: Assemble the deployed site
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          mkdir -p site/images
+          cp pages/*.html site/
+          find assets/images -maxdepth 1 -type f ! -name "*.md" -exec cp {} site/images/ \;
+
+      - name: Upload Pages artifact
+        if: steps.diff.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        if: steps.diff.outputs.changed == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v5

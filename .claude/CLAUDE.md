@@ -13,9 +13,9 @@ gets re-pasted into Google Sites ever again after initial setup.
 **Content changes are config-only. Do not edit `src/` unless the user
 explicitly asks for a structural or design change.**
 
-Every routine addition (a new event, board member, sponsor, flyer) has a
-matching skill in `.claude/skills/` — use it. Those skills are deliberately
-scoped to touching only `config/*.json`, because:
+Every routine addition (a board member, sponsor, flyer) has a matching
+skill in `.claude/skills/` — use it. Those skills are deliberately scoped
+to touching only `config/*.json`, because:
 
 - `src/templates/` defines the visual system (the "thes" design language:
   navy/blue/yellow/teal/coral, Montserrat + Lato, card/grid patterns).
@@ -27,6 +27,13 @@ scoped to touching only `config/*.json`, because:
   the site looks the same as before, or a section quietly doesn't render
   (sponsors/flyers with an empty list produce no section at all — this is
   intentional, not a bug).
+
+**Events are the one exception to "config-only"**: they're synced
+automatically from Google Calendar by `scripts/sync_calendar_events.py`
+(GitHub Actions runs it hourly via `.github/workflows/sync-events.yml`,
+and again on every push via `deploy.yml`) — `config/events.json` is
+*generated*, like `pages/*.html`, never hand-edited. See
+`.claude/skills/add-event/` and `docs/SOP.md` Task 4.
 
 If a task genuinely needs a template/build.py change (a new page, a new
 section type nothing existing covers), say so explicitly and explain why a
@@ -71,6 +78,15 @@ config-only approach can't do it, rather than silently editing `src/`.
   buttons rendered near-black inherited text instead of white. The fix in
   place is `.thes__btn.thes__btn--navy { ... }` (two classes, specificity
   0,2,0) — follow that pattern for any new button/link color rule.
+- **A GitHub-Actions-bot push never triggers another workflow's `push`
+  trigger** — this is deliberate loop-prevention baked into `GITHUB_TOKEN`
+  (see [GitHub's docs](https://docs.github.com/en/actions/concepts/security/github_token)),
+  not a bug to work around with a PAT. This is why
+  `.github/workflows/sync-events.yml` does its own full build+validate+deploy
+  instead of just committing `config/events.json` and counting on
+  `deploy.yml`'s push trigger to pick it up — that handoff would silently
+  never fire. Keep this in mind before adding any other bot-committing
+  workflow that's meant to cascade into another one.
 
 ## Commands
 
@@ -90,6 +106,13 @@ scripts/build.sh                # same as the first command, path-independent
   `add-board-member`, `add-sponsor`, `add-flyer`), plus the GitHub
   issue workflow: `create-issue` (plan a change collaboratively, file it)
   and `from-issue` (pull an issue by number, implement it, open a PR).
+- `scripts/sync_calendar_events.py` — generates `config/events.json` from
+  the public Google Calendar `.ics` feed (stdlib-only RRULE expansion, no
+  API key), including any file attached to an event (rendered as a
+  "Flyer" link — confirmed empirically that Google's public feed includes
+  `ATTACH` properties). Run by `.github/workflows/sync-events.yml`
+  (hourly) and by `deploy.yml` (every push/manual run). See `docs/SOP.md`
+  Task 4.
 - `docs/github-agent-setup.md` — GitHub access setup for agents: `gh` CLI
   (shell-capable agents) or the GitHub MCP server declared in `.mcp.json`
   (any MCP-compatible agent). Use whichever this session actually has —

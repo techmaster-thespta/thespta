@@ -127,25 +127,54 @@ def build_board_cards():
     return "\n".join(indent(render(card_tmpl, member)) for member in board)
 
 
-def build_home_events_blocks(events, context):
-    """One big featured event (first entry with "featured": true, or the
-    first event) + the next two as a short list."""
+def render_event_attachments(attachments):
+    """A file attached to a calendar event (e.g. a flyer PDF — see
+    scripts/sync_calendar_events.py) becomes a small linked-flyer line, or
+    "" if the event has none."""
+    if not attachments:
+        return ""
+    label = "Flyers" if len(attachments) > 1 else "Flyer"
+    links = " &middot; ".join(
+        f'<a href="{a["href"]}" target="_blank" rel="noopener">{a["title"]}</a>' for a in attachments
+    )
+    return f'<div class="thes__event-attachments">{label}: {links}</div>'
+
+
+def with_attachments_html(event):
+    return {**event, "ATTACHMENTS": render_event_attachments(event.get("attachments", []))}
+
+
+def build_home_events_section(events, context):
+    """Whole 'Upcoming Events' section on the Home page: one big featured
+    event (first entry with "featured": true, or the first event) + the
+    next two as a short list. Config/events.json is synced automatically
+    from Google Calendar (see scripts/sync_calendar_events.py) and can
+    genuinely be empty — same empty-list-means-no-section pattern as
+    sponsors/flyers, rather than rendering an empty grid."""
+    if not events:
+        return ""
     featured_tmpl = (TEMPLATES / "featured-event.html.tmpl").read_text()
     more_tmpl = (TEMPLATES / "more-event-row.html.tmpl").read_text()
+    section_tmpl = (TEMPLATES / "events-section.html.tmpl").read_text()
 
     featured = next((e for e in events if e.get("featured")), events[0])
     others = [e for e in events if e is not featured][:2]
 
-    featured_html = indent(render(featured_tmpl, {**context, **featured}))
-    more_rows = "\n".join(indent(render(more_tmpl, {**context, **e}), 8) for e in others)
-    return featured_html, more_rows
+    featured_html = indent(render(featured_tmpl, {**context, **with_attachments_html(featured)}), 8)
+    more_rows = "\n".join(indent(render(more_tmpl, {**context, **e}), 10) for e in others)
+    return render(section_tmpl, {**context, "FEATURED_EVENT": featured_html, "MORE_EVENTS": more_rows})
 
 
-def build_events_page_list(events, context):
-    """Full-ish list of event rows for the dedicated Events page, shown
-    above the live calendar as a quick-scan highlight list."""
+def build_events_page_section(events, context):
+    """Whole quick-scan highlights section on the Events page — omitted
+    when there are zero upcoming events (see build_home_events_section);
+    the live calendar embed further down the page renders regardless."""
+    if not events:
+        return ""
     row_tmpl = (TEMPLATES / "event-row.html.tmpl").read_text()
-    return "\n".join(indent(render(row_tmpl, {**context, **e})) for e in events)
+    section_tmpl = (TEMPLATES / "events-list-section.html.tmpl").read_text()
+    rows = "\n".join(indent(render(row_tmpl, {**context, **with_attachments_html(e)}), 8) for e in events)
+    return render(section_tmpl, {**context, "EVENTS_LIST": rows})
 
 
 def build_optional_section(config_name, card_template_name, section_template_name, cards_key, context):
@@ -170,9 +199,9 @@ def main():
     footer = build_footer(context)
     board_cards = build_board_cards()
 
-    events = load_json("events.json")
-    featured_event, more_events = build_home_events_blocks(events, context)
-    events_list = build_events_page_list(events, context)
+    events = load_json("events.json", default=[])
+    home_events_section = build_home_events_section(events, context)
+    events_page_section = build_events_page_section(events, context)
 
     sponsors_section = build_optional_section(
         "sponsors.json", "card-sponsor.html.tmpl", "sponsors-section.html.tmpl", "SPONSOR_CARDS", context
@@ -185,9 +214,8 @@ def main():
         "{{TOKENS}}": tokens,
         "{{FOOTER}}": footer,
         "{{BOARD_CARDS}}": board_cards,
-        "{{FEATURED_EVENT}}": featured_event,
-        "{{MORE_EVENTS}}": more_events,
-        "{{EVENTS_LIST}}": events_list,
+        "{{EVENTS_SECTION}}": home_events_section,
+        "{{EVENTS_LIST_SECTION}}": events_page_section,
         "{{SPONSORS_SECTION}}": sponsors_section,
         "{{FLYERS_SECTION}}": flyers_section,
     }
