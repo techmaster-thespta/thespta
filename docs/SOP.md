@@ -49,8 +49,9 @@ Requires only Python 3 — no npm, no installs, nothing to configure.
 | `address_line1` / `address_line2` | Footer address |
 | `email` | Footer contact link |
 | `meeting_schedule`, `membership_cost` | Text on About / Get Involved |
-| `donate_href` | Where the "Donate" buttons point (Support THES card) |
-| `membership_portal_href` | Where "Join PTA" / "Become a Member" buttons point |
+| `donate_href` | Where the "Donate" buttons point (Support THES card). Currently the Givebacks shop pre-filtered to donation items: `https://1thes.givebacks.com/shop?search=Donation` |
+| `membership_portal_href` | Where "Join PTA" / "Become a Member" buttons point. Currently the Givebacks shop pre-filtered to membership items: `https://1thes.givebacks.com/shop?search=Membership` — the shop lists each membership tier (student, individual, faculty/staff, business, etc.) as a separately named product, and this one search catches all of them. If a tier ever needs its own dedicated link instead, add a new `*_membership_href` field per tier and wire it in wherever that tier should link. |
+| `shop_href` | The Givebacks shop's own landing page (`https://1thes.givebacks.com/shop`) — linked from the footer's Quick Links as "Shop" |
 | `social.facebook_href`, `social.instagram_href` | Footer social links |
 | `newsletter_href` | Footer "Subscribe" link |
 | `google_sites_base_url` | The Google Site's base URL (e.g. `https://sites.google.com/view/thesptademo`) — only touch this if the site ever moves to a different Google Sites URL |
