@@ -49,7 +49,7 @@ kind of addition, each scoped to config-only edits.
 | `src/templates/` | Page structure and reusable component templates |
 | `pages/` | Generated HTML — what you paste into Google Sites |
 | `assets/images/` | Source images kept in the repo (also pushed to Drive by CI) |
-| `scripts/` | `build.sh` (rebuild) and `push_to_drive.sh` (used by CI) |
+| `scripts/` | `build.sh` (rebuild) and `push_to_drive.py` (used by CI) |
 | `test/` | Build validation |
 | `docs/` | All setup and maintenance documentation |
 | `.github/workflows/` | The build → validate → push-to-Drive CI pipeline |

@@ -222,7 +222,7 @@ After any rebuild:
 - This GitHub repo (`techmaster-thespta/thespta`) is the source of truth — hand off repo access (or add the incoming board's GitHub account as a collaborator) along with this doc.
 - Nobody needs to know Python to use it — just edit the `.json` files listed above; GitHub Actions rebuilds and pushes to Drive automatically on every push to `main`.
 - The Google account used for Google Sites, Google Calendar, and Drive should be a shared PTA/"webmaster" account, not a personal one, so ownership doesn't leave with a board member. Google Sites also supports adding co-owners/editors via its own **Share** button if a transition to a shared account hasn't happened yet.
-- If GitHub Actions credentials (the Drive service account) ever need rotating — e.g. a departing board member set them up under a personal Google Cloud project — see `docs/drive-cicd-setup.md`.
+- If GitHub Actions' Drive credentials (the OAuth refresh token) ever need rotating — e.g. a departing board member set them up — see `docs/drive-cicd-setup.md`.
 
 ---
 
