@@ -63,6 +63,14 @@ config-only approach can't do it, rather than silently editing `src/`.
   different jobs" before changing any of this. Never hardcode a relative
   path like `/events`, and never point `page_urls.*` at a GitHub Pages URL
   directly.
+- **Any new colored link/button variant must combine classes, not rely on
+  a single one for color** — `.thes a { color: inherit; }` in
+  `tokens.html.tmpl` has specificity (0,1,1), which beats a single-class
+  selector like `.thes__btn--green { color: ... }` (0,1,0) regardless of
+  source order. This exact bug shipped once already: `.thes__btn--navy`
+  buttons rendered near-black inherited text instead of white. The fix in
+  place is `.thes__btn.thes__btn--navy { ... }` (two classes, specificity
+  0,2,0) — follow that pattern for any new button/link color rule.
 
 ## Commands
 
