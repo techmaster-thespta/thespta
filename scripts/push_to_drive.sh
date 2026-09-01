@@ -11,7 +11,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 : "${GDRIVE_SERVICE_ACCOUNT_JSON:?Set GDRIVE_SERVICE_ACCOUNT_JSON to the full service account key JSON}"
-: "${GDRIVE_FOLDER_ID:?Set GDRIVE_FOLDER_ID to the target Drive folder's ID}"
+: "${GDRIVE_FOLDER_ID:?Set GDRIVE_FOLDER_ID to the target Drive folder ID}"
 
 if ! command -v rclone >/dev/null; then
   echo "rclone not found on PATH — install it first (see docs/drive-cicd-setup.md)." >&2
