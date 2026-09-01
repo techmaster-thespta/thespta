@@ -236,6 +236,12 @@ Google Sites itself, ever, for a routine content change.
 (The only time you touch Google Sites again is adding a brand-new page —
 see `docs/website-setup.md` → "Adding a new page later.")
 
+**Want it live immediately** instead of waiting on the push-triggered
+pipeline or the hourly calendar sync? Trigger a rebuild directly:
+**Actions** tab → "Build, validate, and deploy to GitHub Pages" → **Run
+workflow**. If you're asking an AI agent to do this, it's the
+`rebuild-now` skill (`.claude/skills/rebuild-now/`).
+
 ---
 
 ## Verification checklist (before/after pushing)

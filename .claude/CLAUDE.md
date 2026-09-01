@@ -103,9 +103,12 @@ scripts/build.sh                # same as the first command, path-independent
 - `docs/website-setup.md` — one-time: creating the Google Site, embedding
   the 4 pages by URL, and the slug convention for adding a new page later
 - `.claude/skills/` — one skill per addable content type (`add-event`,
-  `add-board-member`, `add-sponsor`, `add-flyer`), plus the GitHub
-  issue workflow: `create-issue` (plan a change collaboratively, file it)
-  and `from-issue` (pull an issue by number, implement it, open a PR).
+  `add-board-member`, `add-sponsor`, `add-flyer`), the GitHub issue
+  workflow (`create-issue` to plan a change and file it, `from-issue` to
+  pull an issue by number, implement it, open a PR), and `rebuild-now`
+  (push pending changes + force an immediate rebuild/redeploy, for
+  last-minute changes the user wants live right away rather than waiting
+  on the hourly sync or normal push pipeline).
 - `scripts/sync_calendar_events.py` — generates `config/events.json` from
   the public Google Calendar `.ics` feed (stdlib-only RRULE expansion, no
   API key), including any file attached to an event (rendered as a
