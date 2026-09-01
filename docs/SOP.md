@@ -53,7 +53,8 @@ Requires only Python 3 — no npm, no installs, nothing to configure.
 | `membership_portal_href` | Where "Join PTA" / "Become a Member" buttons point |
 | `social.facebook_href`, `social.instagram_href` | Footer social links |
 | `newsletter_href` | Footer "Subscribe" link |
-| `page_urls.*` | The 4 pages' real GitHub Pages URLs — already correct out of the box; only touch this if the repo name or Pages domain ever changes |
+| `google_sites_base_url` | The Google Site's base URL (e.g. `https://sites.google.com/view/thesptademo`) — only touch this if the site ever moves to a different Google Sites URL |
+| `page_urls.*` | The **slug** of each page's Google Sites sub-page (e.g. `"home"`, `"get-involved"`) — every internal link (nav cards, buttons) is built as `google_sites_base_url` + `/` + this slug, so clicking a link keeps the visitor inside Google Sites' own nav/header/footer instead of dropping them onto a bare embedded page |
 | `copyright_year` | Footer copyright line |
 
 Rebuild + push: `python3 src/build.py` then `git push` (or just push — see Task 7).
@@ -196,7 +197,7 @@ Google Sites embed shows the update automatically — nothing to touch in
 Google Sites itself, ever, for a routine content change.
 
 (The only time you touch Google Sites again is adding a brand-new page —
-see `docs/website-setup.md`.)
+see `docs/website-setup.md` → "Adding a new page later.")
 
 ---
 

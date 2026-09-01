@@ -86,6 +86,19 @@ def build_context():
     context["HERO_IMAGE_URL"] = f'images/{site["hero_image_filename"]}'
     context["PAGE_HEADER_IMAGE_URL"] = f'images/{site["page_header_image_filename"]}'
 
+    # Internal links point at the Google Sites sub-pages (not the raw GitHub
+    # Pages URLs) so clicking one keeps the visitor inside Google Sites' own
+    # nav/header/footer shell instead of dropping them onto a bare embedded
+    # page. Convention: each Google Sites sub-page is named identically to
+    # its generated HTML file (minus ".html") — config/site.json's
+    # `page_urls` values are just that slug; this is where it becomes a
+    # full URL. Adding a new page later: create the matching Google Sites
+    # sub-page with that same name, add one entry here, done.
+    sites_base = site["google_sites_base_url"].rstrip("/")
+    for key in list(context.keys()):
+        if key.startswith("page_urls."):
+            context[key] = f"{sites_base}/{context[key]}"
+
     cal_id = site["calendar"]["calendar_id"]
     cal_id_q = urllib.parse.quote(cal_id, safe="")
     tz_q = urllib.parse.quote(site["calendar"]["timezone"], safe="")

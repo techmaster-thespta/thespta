@@ -53,8 +53,16 @@ config-only approach can't do it, rather than silently editing `src/`.
   An OAuth-as-the-user variant was made to work, but GitHub Pages is
   simpler and was chosen instead — don't re-add either Drive approach.
 - **`page_urls.*` in `config/site.json` are the only correct way to link
-  between pages** — they're the real GitHub Pages URLs, already correct.
-  Never hardcode a relative path like `/events`.
+  between pages** — each value is a *slug* (e.g. `"get-involved"`), not a
+  full URL. `src/build.py` prefixes `google_sites_base_url` onto it, so
+  links point at the page's Google Sites sub-page rather than the raw
+  GitHub Pages URL — this keeps a visitor inside Google Sites' own
+  nav/header/footer shell after clicking. The convention: a Google Sites
+  sub-page's name always matches its generated HTML file's name (minus
+  `.html`). See `docs/website-setup.md` → "Two different URLs, two
+  different jobs" before changing any of this. Never hardcode a relative
+  path like `/events`, and never point `page_urls.*` at a GitHub Pages URL
+  directly.
 
 ## Commands
 
@@ -68,7 +76,8 @@ scripts/build.sh                # same as the first command, path-independent
 
 - `docs/SOP.md` — day-to-day content-editing tasks (the thing to read first for "how do I change X")
 - `docs/github-pages-setup.md` — one-time: turning on GitHub Pages for this repo
-- `docs/website-setup.md` — one-time: creating the Google Site and embedding the 4 pages by URL
+- `docs/website-setup.md` — one-time: creating the Google Site, embedding
+  the 4 pages by URL, and the slug convention for adding a new page later
 - `.claude/skills/` — one skill per addable content type (`add-event`,
   `add-board-member`, `add-sponsor`, `add-flyer`), plus the GitHub
   issue workflow: `create-issue` (plan a change collaboratively, file it)

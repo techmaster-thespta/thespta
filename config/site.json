@@ -11,11 +11,13 @@
   "membership_portal_href": "#",
   "donate_href": "#",
   "copyright_year": 2026,
+  "google_sites_base_url": "https://sites.google.com/view/thesptademo",
+  "github_pages_base_url": "https://techmaster-thespta.github.io/thespta",
   "page_urls": {
-    "home": "https://techmaster-thespta.github.io/thespta/home.html",
-    "events": "https://techmaster-thespta.github.io/thespta/events.html",
-    "get_involved": "https://techmaster-thespta.github.io/thespta/get-involved.html",
-    "about": "https://techmaster-thespta.github.io/thespta/about.html"
+    "home": "home",
+    "events": "events",
+    "get_involved": "get-involved",
+    "about": "about"
   },
   "hero_image_filename": "hero-banner.jpg",
   "page_header_image_filename": "page-header-no-text.jpg",

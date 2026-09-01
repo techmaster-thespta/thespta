@@ -49,14 +49,28 @@
   .thes__section-head p { color: var(--text-muted); margin: 8px 0 0; }
   .thes__eyebrow { display: inline-block; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue); }
 
-  /* ---- Page header (About / Get Involved / Events) ---- */
-  .thes__pagehead-media { position: relative; width: 100%; max-width: 1200px; margin: 0 auto; line-height: 0; overflow: hidden; }
-  .thes__pagehead-media img { width: 100%; height: clamp(110px, 20vw, 200px); object-fit: cover; object-position: center 30%; display: block; }
-  .thes__pagehead-fade { position: absolute; top: 0; left: 0; right: 0; height: 55%; background: linear-gradient(to bottom, #ffffff 0%, rgba(255,255,255,0.85) 35%, rgba(255,255,255,0) 100%); pointer-events: none; }
-  .thes__pagehead-text { max-width: 700px; margin: 0 auto; text-align: center; padding: 28px 20px 8px; }
+  /* ---- Page header (About / Get Involved / Events) ----
+     Mirrors the home hero's layout (title text on the left, school photo on
+     the right) and matches its aspect ratio (1695:928, the source banner
+     image's own proportions) so every page's header renders at the same
+     size as the home page's, for visual consistency. Below 700px there
+     isn't room for a text/photo row, so it stacks and the photo gets a
+     fixed compact height instead of following the aspect ratio. */
+  .thes__pagehead { width: 100%; max-width: 1200px; margin: 0 auto; overflow: hidden; }
+  .thes__pagehead-text { padding: 28px clamp(20px, 4vw, 48px); min-width: 0; }
   .thes__pagehead-text .thes__eyebrow { color: var(--blue); }
-  .thes__pagehead-text h1 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-top: 6px; }
-  .thes__pagehead-text p { color: var(--text-muted); margin: 10px auto 0; max-width: 56ch; }
+  .thes__pagehead-text h1 { font-size: clamp(1.5rem, 4.4vw, 2.3rem); line-height: 1.15; margin-top: 6px; }
+  .thes__pagehead-text p { color: var(--text-muted); margin: 10px 0 0; max-width: 46ch; }
+  .thes__pagehead-media { position: relative; min-width: 0; overflow: hidden; }
+  .thes__pagehead-media img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; display: block; }
+  @media (min-width: 700px) {
+    .thes__pagehead { display: flex; align-items: stretch; aspect-ratio: 1695 / 928; }
+    .thes__pagehead-text { flex: 0 0 42%; display: flex; flex-direction: column; justify-content: center; }
+    .thes__pagehead-media { flex: 1 1 58%; }
+  }
+  @media (max-width: 699px) {
+    .thes__pagehead-media { height: clamp(140px, 42vw, 220px); }
+  }
 
   /* ---- Buttons ---- */
   .thes__btn {
@@ -64,9 +78,14 @@
     border-radius: 999px; font-family: 'Montserrat', sans-serif; font-weight: 700;
     font-size: 0.88rem; text-decoration: none; white-space: nowrap; border: 2px solid transparent;
   }
-  .thes__btn--yellow { background: var(--yellow); color: var(--navy); }
-  .thes__btn--navy { background: var(--navy); color: #fff; }
-  .thes__btn--outline { background: transparent; border-color: var(--navy); color: var(--navy); }
+  /* .thes__btn.<modifier> (not just .thes__btn--x) so this beats the
+     ".thes a { color: inherit }" rule above on specificity — a single-class
+     selector here was losing to it, rendering every button's text as
+     inherited near-black instead of its intended color (invisible on the
+     navy Subscribe/Add-to-Calendar buttons specifically). */
+  .thes__btn.thes__btn--yellow { background: var(--yellow); color: var(--navy); }
+  .thes__btn.thes__btn--navy { background: var(--navy); color: #fff; }
+  .thes__btn.thes__btn--outline { background: transparent; border-color: var(--navy); color: var(--navy); }
 
   /* ---- Icon badges ---- */
   .thes__icon-circle {
@@ -172,14 +191,15 @@
 
 <div class="thes">
 
-  <div class="thes__pagehead-media">
-    <img src="images/page-header-no-text.jpg" alt="Thunder Hill Elementary School">
-    <div class="thes__pagehead-fade"></div>
-  </div>
-  <div class="thes__pagehead-text">
-    <span class="thes__eyebrow">Get Involved</span>
-    <h1>There's a Place for Every Family</h1>
-    <p>No time commitment is too small. Whether you have five minutes or five hours a month, there's a way to pitch in.</p>
+  <div class="thes__pagehead">
+    <div class="thes__pagehead-text">
+      <span class="thes__eyebrow">Get Involved</span>
+      <h1>There's a Place for Every Family</h1>
+      <p>No time commitment is too small. Whether you have five minutes or five hours a month, there's a way to pitch in.</p>
+    </div>
+    <div class="thes__pagehead-media">
+      <img src="images/page-header-no-text.jpg" alt="Thunder Hill Elementary School">
+    </div>
   </div>
 
   <!-- ===== Ways to help ===== -->
@@ -279,10 +299,10 @@
         <div>
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="https://techmaster-thespta.github.io/thespta/home.html">Home</a></li>
-            <li><a href="https://techmaster-thespta.github.io/thespta/events.html">Events</a></li>
-            <li><a href="https://techmaster-thespta.github.io/thespta/get-involved.html">Get Involved</a></li>
-            <li><a href="https://techmaster-thespta.github.io/thespta/about.html">About</a></li>
+            <li><a href="https://sites.google.com/view/thesptademo/home">Home</a></li>
+            <li><a href="https://sites.google.com/view/thesptademo/events">Events</a></li>
+            <li><a href="https://sites.google.com/view/thesptademo/get-involved">Get Involved</a></li>
+            <li><a href="https://sites.google.com/view/thesptademo/about">About</a></li>
           </ul>
         </div>
         <div>
