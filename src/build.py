@@ -166,11 +166,18 @@ def build_home_events_section(events, context):
 
 
 def build_events_page_section(events, context):
-    """Whole quick-scan highlights section on the Events page — omitted
-    when there are zero upcoming events (see build_home_events_section);
-    the live calendar embed further down the page renders regardless."""
+    """Whole quick-scan highlights section on the Events page. Unlike the
+    Home page teaser (which just disappears when there are no events —
+    it's a preview, not the main feature), this section always renders:
+    with zero synced events it shows a short "nothing posted yet" message
+    instead of vanishing, since this list is the site's main date-sorted
+    view of what's coming up and a visitor expects to see *something*
+    here. The live calendar embed further down the page renders either
+    way, regardless of this section."""
+    section_tmpl = (TEMPLATES / "events-list-section.html.tmpl").read_text()
     if not events:
-        return ""
+        empty_tmpl = (TEMPLATES / "events-list-empty.html.tmpl").read_text()
+        return render(empty_tmpl, context)
     row_tmpl = (TEMPLATES / "event-row.html.tmpl").read_text()
     section_tmpl = (TEMPLATES / "events-list-section.html.tmpl").read_text()
     rows = "\n".join(indent(render(row_tmpl, {**context, **with_attachments_html(e)}), 8) for e in events)

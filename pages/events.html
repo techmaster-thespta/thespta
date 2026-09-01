@@ -143,6 +143,7 @@
   .thes__more-events > a { margin-top: 8px; font-weight: 700; font-size: 0.86rem; color: var(--blue); text-decoration: none; }
 
   .thes__event-list { display: grid; gap: 10px; }
+  .thes__events-empty { text-align: center; color: var(--text-muted); background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
   .thes__event-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; }
   .thes__event-date { background: var(--navy); color: #fff; border-radius: 8px; text-align: center; padding: 5px 9px; line-height: 1.1; flex-shrink: 0; min-width: 50px; }
   .thes__event-date .thes__day { display: block; font-size: 1.05rem; font-weight: 800; }
@@ -210,6 +211,12 @@
     </div>
   </div>
 
+<!-- ===== No upcoming events synced from the calendar yet ===== -->
+<section class="thes__section">
+  <div class="thes__wrap">
+    <p class="thes__events-empty">No upcoming events are posted yet — check the full calendar below, or check back soon.</p>
+  </div>
+</section>
 
 
   <!-- ===== Live calendar ===== -->
