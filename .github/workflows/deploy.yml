@@ -54,10 +54,10 @@ jobs:
           find assets/images -maxdepth 1 -type f ! -name "*.md" -exec cp {} site/images/ \;
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: site
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
