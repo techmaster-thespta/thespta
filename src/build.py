@@ -127,17 +127,42 @@ def build_board_cards():
     return "\n".join(indent(render(card_tmpl, member)) for member in board)
 
 
+DRIVE_FILE_ID = re.compile(r"/file/d/([\w-]+)|[?&]id=([\w-]+)")
+
+
+def drive_thumbnail_url(href):
+    """Drive's public thumbnail endpoint renders a preview image for a
+    shared file regardless of type — a real image, or the first page of a
+    PDF — confirmed working against a real file before relying on it.
+    Returns None if `href` isn't a recognizable Drive share link, so
+    non-Drive attachments just fall back to a plain text link."""
+    m = DRIVE_FILE_ID.search(href)
+    if not m:
+        return None
+    file_id = m.group(1) or m.group(2)
+    return f"https://drive.google.com/thumbnail?id={file_id}&sz=w400"
+
+
 def render_event_attachments(attachments):
-    """A file attached to a calendar event (e.g. a flyer PDF — see
-    scripts/sync_calendar_events.py) becomes a small linked-flyer line, or
-    "" if the event has none."""
+    """A file attached to a calendar event (e.g. a flyer PDF or image —
+    see scripts/sync_calendar_events.py) becomes a small clickable
+    thumbnail preview, or a plain text link when there's no thumbnail to
+    show. Returns "" if the event has none."""
     if not attachments:
         return ""
+    items = []
+    for a in attachments:
+        thumb_url = drive_thumbnail_url(a["href"])
+        if thumb_url:
+            items.append(
+                f'<a class="thes__flyer" href="{a["href"]}" target="_blank" rel="noopener">'
+                f'<img src="{thumb_url}" alt="" width="40" height="40" loading="lazy">'
+                f'<span>{a["title"]}</span></a>'
+            )
+        else:
+            items.append(f'<a class="thes__flyer" href="{a["href"]}" target="_blank" rel="noopener"><span>{a["title"]}</span></a>')
     label = "Flyers" if len(attachments) > 1 else "Flyer"
-    links = " &middot; ".join(
-        f'<a href="{a["href"]}" target="_blank" rel="noopener">{a["title"]}</a>' for a in attachments
-    )
-    return f'<div class="thes__event-attachments">{label}: {links}</div>'
+    return f'<div class="thes__event-attachments"><span class="thes__event-attachments-label">{label}:</span>{"".join(items)}</div>'
 
 
 def render_event_description(description):

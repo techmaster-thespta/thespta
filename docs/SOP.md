@@ -142,7 +142,11 @@ Description too, if it has one — otherwise that row just stays compact
 (date/time/title only), no filler text. A file attached to an event in
 Google Calendar (step 3 above) comes through the same way, as a "Flyer"
 (or "Flyers", if more than one) link on that event wherever it appears on
-the site.
+the site — shown as a small clickable thumbnail preview, not just plain
+text, if the attachment is a Drive link (true of anything attached via
+the Calendar UI's own "Add attachment" picker). Drive can generate a
+preview thumbnail for a PDF as well as an actual image file, so either
+kind of flyer shows a picture, not just a link.
 
 **Heads up:** a recurring event (e.g. a monthly meeting) produces one
 highlight-list entry per occurrence, so it can crowd out one-off events
