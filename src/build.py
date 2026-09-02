@@ -86,18 +86,14 @@ def build_context():
     context["HERO_IMAGE_URL"] = f'images/{site["hero_image_filename"]}'
     context["PAGE_HEADER_IMAGE_URL"] = f'images/{site["page_header_image_filename"]}'
 
-    # Internal links point at the Google Sites sub-pages (not the raw GitHub
-    # Pages URLs) so clicking one keeps the visitor inside Google Sites' own
-    # nav/header/footer shell instead of dropping them onto a bare embedded
-    # page. Convention: each Google Sites sub-page is named identically to
-    # its generated HTML file (minus ".html") — config/site.json's
-    # `page_urls` values are just that slug; this is where it becomes a
-    # full URL. Adding a new page later: create the matching Google Sites
-    # sub-page with that same name, add one entry here, done.
-    sites_base = site["google_sites_base_url"].rstrip("/")
+    # PROTOTYPE (standalone-github-pages branch): no Google Sites embed to
+    # stay inside anymore, so internal links are just relative filenames —
+    # `about`, `events`, etc. become `about.html`, `events.html`, resolved
+    # relative to whatever domain serves /pages directly (GitHub Pages'
+    # own URL, or a custom domain pointed at it via a CNAME file).
     for key in list(context.keys()):
         if key.startswith("page_urls."):
-            context[key] = f"{sites_base}/{context[key]}"
+            context[key] = f"{context[key]}.html"
 
     cal_id = site["calendar"]["calendar_id"]
     cal_id_q = urllib.parse.quote(cal_id, safe="")
@@ -122,6 +118,10 @@ def build_context():
 
 def build_tokens(context):
     return render((TEMPLATES / "tokens.html.tmpl").read_text(), context)
+
+
+def build_header(context):
+    return render((TEMPLATES / "header.html.tmpl").read_text(), context)
 
 
 def build_footer(context):
@@ -260,6 +260,7 @@ def build_optional_section(config_name, card_template_name, section_template_nam
 def main():
     context = build_context()
     tokens = build_tokens(context)
+    header = build_header(context)
     footer = build_footer(context)
     board_cards = build_board_cards()
 
@@ -276,6 +277,7 @@ def main():
 
     shared_markers = {
         "{{TOKENS}}": tokens,
+        "{{HEADER}}": header,
         "{{FOOTER}}": footer,
         "{{BOARD_CARDS}}": board_cards,
         "{{EVENTS_SECTION}}": home_events_section,

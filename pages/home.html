@@ -49,6 +49,14 @@
   .thes__section-head p { color: var(--text-muted); margin: 8px 0 0; }
   .thes__eyebrow { display: inline-block; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue); }
 
+  /* ---- Header/nav (standalone-hosting prototype — no Google Sites chrome to rely on) ---- */
+  .thes__header { background: #fff; border-bottom: 1px solid var(--border); }
+  .thes__header-wrap { max-width: 1200px; margin: 0 auto; padding: 14px 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+  .thes__header-brand { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--navy); text-decoration: none; }
+  .thes__header-nav { display: flex; flex-wrap: wrap; gap: 20px; }
+  .thes__header-nav a { text-decoration: none; font-weight: 700; font-size: 0.88rem; color: var(--text); }
+  .thes__header-nav a:hover { color: var(--blue); }
+
   /* ---- Page header (About / Get Involved / Events) ----
      Mirrors the home hero's layout (title text on the left, school photo on
      the right) and matches its aspect ratio (1695:928, the source banner
@@ -201,6 +209,18 @@
 
 
 <div class="thes">
+<header class="thes__header">
+  <div class="thes__header-wrap">
+    <a class="thes__header-brand" href="home.html">Thunder Hill Elementary PTA</a>
+    <nav class="thes__header-nav" aria-label="Primary">
+      <a href="home.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="get-involved.html">Get Involved</a>
+      <a href="events.html">Events</a>
+    </nav>
+  </div>
+</header>
+
 
   <!-- ===== Banner (Google Drive-hosted photo, fades to white) ===== -->
   <div style="position:relative; width:100%; max-width:1200px; margin:0 auto; line-height:0;">
@@ -232,7 +252,7 @@
           </span>
           <h3>Get Involved</h3>
           <p>Volunteer in a way that works for your family and schedule.</p>
-          <a href="https://www.thespta.org/get-involved" target="_top">Learn More &rarr;</a>
+          <a href="get-involved.html" target="_top">Learn More &rarr;</a>
         </div>
 
         <div class="thes__card thes__card--coral">
@@ -241,7 +261,7 @@
           </span>
           <h3>Join Us</h3>
           <p>See upcoming school and PTA events.</p>
-          <a href="https://www.thespta.org/events" target="_top">View Events &rarr;</a>
+          <a href="events.html" target="_top">View Events &rarr;</a>
         </div>
 
         <div class="thes__card thes__card--navy">
@@ -270,7 +290,7 @@
           <div class="thes__event-when">Sep 08 &middot; 5:00 – 6:00 PM</div>
           <p>Meet other families, hear what’s planned for the year, and discover ways to get involved!</p>
           <div class="thes__event-attachments"><span class="thes__event-attachments-label">Flyer:</span><a class="thes__flyer" href="https://drive.google.com/file/d/1-Wy3F9bg5glOQIDN5TTiaGfT5x1apZac" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1-Wy3F9bg5glOQIDN5TTiaGfT5x1apZac&sz=w400" alt="" width="40" height="40" loading="lazy"><span>Click for more information</span></a></div>
-          <a href="https://www.thespta.org/events" target="_top">Learn More &rarr;</a>
+          <a href="events.html" target="_top">Learn More &rarr;</a>
         </div>
       <div class="thes__more-events">
           <div class="thes__more-events-row">
@@ -281,7 +301,7 @@
             <strong>Fall Fest & Trunk or Treat</strong>
             <span>Oct 30</span>
           </div>
-        <a href="https://www.thespta.org/events" target="_top">And more&hellip; View all events &rarr;</a>
+        <a href="events.html" target="_top">And more&hellip; View all events &rarr;</a>
       </div>
     </div>
   </div>
@@ -355,10 +375,10 @@
         <div>
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="https://www.thespta.org/home" target="_top">Home</a></li>
-            <li><a href="https://www.thespta.org/events" target="_top">Events</a></li>
-            <li><a href="https://www.thespta.org/get-involved" target="_top">Get Involved</a></li>
-            <li><a href="https://www.thespta.org/about" target="_top">About</a></li>
+            <li><a href="home.html" target="_top">Home</a></li>
+            <li><a href="events.html" target="_top">Events</a></li>
+            <li><a href="get-involved.html" target="_top">Get Involved</a></li>
+            <li><a href="about.html" target="_top">About</a></li>
             <li><a href="https://1thes.givebacks.com/shop" target="_blank" rel="noopener">Shop</a></li>
           </ul>
         </div>
