@@ -189,10 +189,13 @@ def render_event_attachments(attachments):
     thumbnail preview, or a plain text link when there's no thumbnail to
     show. Returns "" if the event has none.
 
-    The link text is always ATTACHMENT_LINK_TEXT, not the attachment's own
-    filename — Calendar attachments commonly get an auto-generated
-    filename (a photo upload UUID, a scan's default name), which reads as
-    noise/clutter next to an event, not useful link text."""
+    The thumbnail is sized big enough that the picture itself is
+    recognizable (not just a tiny icon) — that's what signals "there's
+    more here," so no "Flyer:" label is needed alongside it, just the
+    click-through text. The link text is always ATTACHMENT_LINK_TEXT, not
+    the attachment's own filename — Calendar attachments commonly get an
+    auto-generated filename (a photo upload UUID, a scan's default name),
+    which reads as noise/clutter next to an event, not useful link text."""
     if not attachments:
         return ""
     items = []
@@ -201,13 +204,12 @@ def render_event_attachments(attachments):
         if thumb_url:
             items.append(
                 f'<a class="thes__flyer" href="{a["href"]}" target="_blank" rel="noopener">'
-                f'<img src="{thumb_url}" alt="" width="40" height="40" loading="lazy">'
+                f'<img src="{thumb_url}" alt="" width="72" height="72" loading="lazy">'
                 f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
             )
         else:
             items.append(f'<a class="thes__flyer" href="{a["href"]}" target="_blank" rel="noopener"><span>{ATTACHMENT_LINK_TEXT}</span></a>')
-    label = "Flyers" if len(attachments) > 1 else "Flyer"
-    return f'<div class="thes__event-attachments"><span class="thes__event-attachments-label">{label}:</span>{"".join(items)}</div>'
+    return f'<div class="thes__event-attachments">{"".join(items)}</div>'
 
 
 def render_event_description(description):
