@@ -303,6 +303,22 @@ def main():
         if leftover:
             print(f"  ! {page_name}: unresolved placeholder(s): {sorted(set(leftover))}")
 
+        # PROTOTYPE (standalone-github-pages branch): these pages are opened
+        # directly now, not embedded inside a Google Sites page that supplies
+        # its own <head>/viewport — so this branch has to supply a real
+        # document shell itself. Missing the viewport meta specifically is
+        # why the mobile hamburger menu's @media query never triggered on an
+        # actual phone: without it, mobile browsers assume a fake ~980px
+        # desktop-width layout viewport instead of the device's real width.
+        page_title = page_name.removesuffix(".html").replace("-", " ").title()
+        text = (
+            "<!DOCTYPE html>\n"
+            '<html lang="en">\n<head>\n<meta charset="UTF-8">\n'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+            f"<title>{context.get('org_name', '')} — {page_title}</title>\n"
+            f"</head>\n<body>\n{text}\n</body>\n</html>\n"
+        )
+
         out_path = PAGES_OUT / page_name
         out_path.write_text(text)
         print(f"  built {out_path.relative_to(ROOT)}")
