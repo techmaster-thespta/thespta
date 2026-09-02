@@ -70,6 +70,16 @@ config-only approach can't do it, rather than silently editing `src/`.
   different jobs" before changing any of this. Never hardcode a relative
   path like `/events`, and never point `page_urls.*` at a GitHub Pages URL
   directly.
+- **Every `href="{{page_urls...}}"` link must have `target="_top"`.**
+  Without it, clicking the link tries to load the Google Sites page
+  *inside the current GitHub-Pages iframe* Google Sites already embedded
+  this page in — and Google Sites refuses to render itself inside a
+  frame (its own clickjacking protection), so the browser shows a hard
+  "won't allow this page to be displayed" error instead of navigating.
+  `target="_top"` breaks out of the iframe and loads the linked page at
+  the top level instead, landing the visitor on the full Google-Sites-
+  chromed page as intended. This bit a real user — don't drop it from a
+  new `page_urls.*` link.
 - **Any new colored link/button variant must combine classes, not rely on
   a single one for color** — `.thes a { color: inherit; }` in
   `tokens.html.tmpl` has specificity (0,1,1), which beats a single-class
