@@ -172,6 +172,8 @@
   .thes__info-row a { text-decoration: none; font-weight: 600; overflow-wrap: anywhere; }
   .thes__board { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
   .thes__board-member { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px; min-width: 0; }
+  .thes__board-photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+  .thes__board-photo-placeholder { width: 100%; aspect-ratio: 4 / 5; border-radius: 8px; margin-bottom: 10px; background: var(--bg-tint); display: flex; align-items: center; justify-content: center; color: var(--border); }
   .thes__board-role { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--blue); }
   .thes__board-name { font-weight: 700; margin-top: 4px; }
   .thes__board-email { display: block; margin-top: 4px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; overflow-wrap: anywhere; }
@@ -251,44 +253,52 @@
       </div>
       <div class="thes__board">
       <div class="thes__board-member">
+        <img class="thes__board-photo" src="images/board-natalie-miskimins.jpg" alt="Natalie Miskimins">
         <div class="thes__board-role">President</div>
-        <div class="thes__board-name">Maria Alvarez</div>
-        <a class="thes__board-email" href="mailto:president@thunderhillpta.org">president@thunderhillpta.org</a>
+        <div class="thes__board-name">Natalie Miskimins</div>
+  
       </div>
       <div class="thes__board-member">
-        <div class="thes__board-role">Vice President, Programs</div>
-        <div class="thes__board-name">James Whitfield</div>
-        <a class="thes__board-email" href="mailto:programs@thunderhillpta.org">programs@thunderhillpta.org</a>
+        <img class="thes__board-photo" src="images/board-leila-phillips.jpg" alt="Leila Phillips">
+        <div class="thes__board-role">1st Vice President & Events Committee Chair</div>
+        <div class="thes__board-name">Leila Phillips</div>
+  
       </div>
       <div class="thes__board-member">
-        <div class="thes__board-role">Vice President, Volunteers</div>
-        <div class="thes__board-name">Priya Nair</div>
-        <a class="thes__board-email" href="mailto:volunteers@thunderhillpta.org">volunteers@thunderhillpta.org</a>
+        <div class="thes__board-photo-placeholder" aria-hidden="true"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 4-7 8-7s8 2.5 8 7"/></svg></div>
+        <div class="thes__board-role">2nd Vice President & Fundraising Committee Chair</div>
+        <div class="thes__board-name">Vacant</div>
+  
       </div>
       <div class="thes__board-member">
-        <div class="thes__board-role">Treasurer</div>
-        <div class="thes__board-name">Daniel Osei</div>
-        <a class="thes__board-email" href="mailto:treasurer@thunderhillpta.org">treasurer@thunderhillpta.org</a>
+        <img class="thes__board-photo" src="images/board-rachel-swan.jpg" alt="Rachel Swan">
+        <div class="thes__board-role">Treasurer & Budget Committee Chair</div>
+        <div class="thes__board-name">Rachel Swan</div>
+  
       </div>
       <div class="thes__board-member">
-        <div class="thes__board-role">Secretary</div>
-        <div class="thes__board-name">Lin Chen</div>
-        <a class="thes__board-email" href="mailto:secretary@thunderhillpta.org">secretary@thunderhillpta.org</a>
+        <img class="thes__board-photo" src="images/board-sarah-murray.jpg" alt="Sarah Murray">
+        <div class="thes__board-role">Recording Secretary & Grants Committee Chair</div>
+        <div class="thes__board-name">Sarah Murray</div>
+  
       </div>
       <div class="thes__board-member">
-        <div class="thes__board-role">Fundraising Chair</div>
-        <div class="thes__board-name">Sofia Ramirez</div>
-        <a class="thes__board-email" href="mailto:fundraising@thunderhillpta.org">fundraising@thunderhillpta.org</a>
+        <img class="thes__board-photo" src="images/board-erin-adediran.jpg" alt="Erin Adediran">
+        <div class="thes__board-role">Finance Secretary & Financial Review Committee Chair</div>
+        <div class="thes__board-name">Erin Adediran</div>
+  
       </div>
       <div class="thes__board-member">
-        <div class="thes__board-role">Membership Chair</div>
-        <div class="thes__board-name">Kevin Brooks</div>
-        <a class="thes__board-email" href="mailto:membership@thunderhillpta.org">membership@thunderhillpta.org</a>
+        <img class="thes__board-photo" src="images/board-meghan-thon.jpg" alt="Meghan Thon">
+        <div class="thes__board-role">PTACHC Representative</div>
+        <div class="thes__board-name">Meghan Thon</div>
+  
       </div>
       <div class="thes__board-member">
-        <div class="thes__board-role">Communications Chair</div>
-        <div class="thes__board-name">Aisha Bello</div>
-        <a class="thes__board-email" href="mailto:communications@thunderhillpta.org">communications@thunderhillpta.org</a>
+        <div class="thes__board-photo-placeholder" aria-hidden="true"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 4-7 8-7s8 2.5 8 7"/></svg></div>
+        <div class="thes__board-role">PTACHC Representative</div>
+        <div class="thes__board-name">Vacant</div>
+  
       </div>
       </div>
     </div>

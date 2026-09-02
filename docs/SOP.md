@@ -95,10 +95,15 @@ the `<link>` URL it gives you).
 
 **File:** `config/board.json` · **Skill:** `.claude/skills/add-board-member/`
 
-Each entry is `{ "role": "...", "name": "...", "email": "..." }`. Add a new
-`{ }` entry (comma-separated) for a new board member, delete one to remove
-someone, or edit the text directly. This list appears once, on the About
-page.
+Each entry is `{ "role": "...", "name": "...", "email": "...", "photo_filename": "..." }`.
+`role` and `name` are required; `email` and `photo_filename` are both
+optional — a seat with no photo gets a neutral placeholder icon instead
+of a broken image, and a vacant seat (`"name": "Vacant"`) should have
+neither. Photo files go in `assets/images/` (flat, no subfolder), same as
+the hero/page-header images. Add a new `{ }` entry (comma-separated) for
+a new board member, delete one to remove someone (or set its name to
+`"Vacant"` if the seat still exists but is unfilled), or edit the text
+directly. This list appears once, on the About page.
 
 ---
 
