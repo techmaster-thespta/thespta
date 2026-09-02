@@ -1,9 +1,9 @@
 [
-  { "role": "President", "name": "Natalie Miskimins", "photo_filename": "board-natalie-miskimins.jpg" },
-  { "role": "1st Vice President & Events Committee Chair", "name": "Leila Phillips", "photo_filename": "board-leila-phillips.jpg" },
+  { "role": "President", "name": "Natalie Miskimins", "email": "president.thespta@gmail.com", "photo_filename": "board-natalie-miskimins.jpg" },
+  { "role": "1st Vice President & Events Committee Chair", "name": "Leila Phillips", "email": "vpfundraising.thespta@gmail.com", "photo_filename": "board-leila-phillips.jpg" },
   { "role": "2nd Vice President & Fundraising Committee Chair", "name": "Vacant" },
-  { "role": "Treasurer & Budget Committee Chair", "name": "Rachel Swan", "photo_filename": "board-rachel-swan.jpg" },
-  { "role": "Recording Secretary & Grants Committee Chair", "name": "Sarah Murray", "photo_filename": "board-sarah-murray.jpg" },
+  { "role": "Treasurer & Budget Committee Chair", "name": "Rachel Swan", "email": "trea.thes@gmail.com", "photo_filename": "board-rachel-swan.jpg" },
+  { "role": "Recording Secretary & Grants Committee Chair", "name": "Sarah Murray", "email": "secretary.thespta@gmail.com", "photo_filename": "board-sarah-murray.jpg" },
   { "role": "Finance Secretary & Financial Review Committee Chair", "name": "Erin Adediran", "photo_filename": "board-erin-adediran.jpg" },
   { "role": "PTACHC Representative", "name": "Meghan Thon", "photo_filename": "board-meghan-thon.jpg" },
   { "role": "PTACHC Representative", "name": "Vacant" }
