@@ -45,13 +45,33 @@
   .thes__section-head p { color: var(--text-muted); margin: 8px 0 0; }
   .thes__eyebrow { display: inline-block; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue); }
 
-  /* ---- Header/nav (standalone-hosting prototype — no Google Sites chrome to rely on) ---- */
+  /* ---- Header/nav (standalone-hosting prototype — no Google Sites chrome to rely on) ----
+     Desktop: brand + inline nav, unchanged. Below 700px: a three-line
+     menu button (top-left, like Google Sites' own mobile nav) toggles
+     the nav open/closed. Pure CSS (the checkbox-hack) — no JS anywhere
+     else on this site, so this doesn't introduce the first <script>. */
   .thes__header { background: #fff; border-bottom: 1px solid var(--border); }
   .thes__header-wrap { max-width: 1200px; margin: 0 auto; padding: 14px 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
   .thes__header-brand { font-family: '{{font_display}}', sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--navy); text-decoration: none; }
   .thes__header-nav { display: flex; flex-wrap: wrap; gap: 20px; }
   .thes__header-nav a { text-decoration: none; font-weight: 700; font-size: 0.88rem; color: var(--text); }
   .thes__header-nav a:hover { color: var(--blue); }
+  .thes__menu-toggle { display: none; }
+  .thes__menu-btn { display: none; }
+  @media (max-width: 699px) {
+    .thes__header-wrap { position: relative; padding-left: 60px; }
+    .thes__menu-btn {
+      display: flex; flex-direction: column; justify-content: center; gap: 5px;
+      position: absolute; top: 14px; left: 20px; width: 28px; height: 28px; cursor: pointer;
+    }
+    .thes__menu-btn span { display: block; height: 2px; border-radius: 2px; background: var(--navy); }
+    .thes__header-nav {
+      display: none; flex-direction: column; gap: 0; width: 100%;
+      order: 3; border-top: 1px solid var(--border); margin-top: 12px; padding-top: 8px;
+    }
+    .thes__header-nav a { padding: 10px 2px; }
+    .thes__menu-toggle:checked ~ .thes__header-nav { display: flex; }
+  }
 
   /* ---- Page header (About / Get Involved / Events) ----
      Mirrors the home hero's layout (title text on the left, school photo on
