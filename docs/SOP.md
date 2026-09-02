@@ -248,6 +248,15 @@ pipeline or the hourly calendar sync? Trigger a rebuild directly:
 workflow**. If you're asking an AI agent to do this, it's the
 `rebuild-now` skill (`.claude/skills/rebuild-now/`).
 
+**Want a shareable summary of what's new** — e.g. to send the board an
+update? That's a release, not just a push: ask an AI agent to use the
+`release` skill (`.claude/skills/release/`), which bumps `VERSION`,
+writes a plain-language entry in `CHANGELOG.md`, and cuts a tagged
+GitHub Release at
+`https://github.com/techmaster-thespta/thespta/releases`. Only do this
+when you actually want a shareable snapshot — not after every small
+change.
+
 ---
 
 ## Verification checklist (before/after pushing)
