@@ -68,7 +68,6 @@
   .thes__nav-item { position: relative; }
   .thes__nav-item-row { display: flex; align-items: center; gap: 4px; }
   .thes__nav-submenu { display: none; list-style: none; margin: 0; padding: 8px 0; position: absolute; top: 100%; left: 0; min-width: 190px; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 24px rgba(7,59,104,0.12); z-index: 20; }
-  .thes__nav-item--parent:hover .thes__nav-submenu, .thes__nav-item--parent:focus-within .thes__nav-submenu { display: block; }
   .thes__nav-submenu a { display: block; padding: 8px 16px; }
   .thes__nav-submenu a:hover { background: var(--bg-tint); }
   .thes__menu-toggle, .thes__submenu-toggle { display: none; }
@@ -79,6 +78,14 @@
     border-right: 2px solid var(--navy); border-bottom: 2px solid var(--navy);
     transform: rotate(45deg); transition: transform 0.15s ease;
   }
+  /* Hover/focus-opened dropdown is desktop-only — on a touch screen,
+     tapping the "Get Involved" link itself can trigger :focus-within,
+     which would pop the submenu open with no way to tell it apart from
+     the deliberate caret-driven toggle below. Mobile relies solely on
+     the checkbox. */
+  @media (min-width: 700px) {
+    .thes__nav-item--parent:hover .thes__nav-submenu, .thes__nav-item--parent:focus-within .thes__nav-submenu { display: block; }
+  }
   @media (max-width: 699px) {
     .thes__header-wrap { position: relative; padding-left: 60px; }
     .thes__menu-btn {
@@ -86,14 +93,18 @@
       position: absolute; top: 14px; left: 20px; width: 28px; height: 28px; cursor: pointer;
     }
     .thes__menu-btn span { display: block; height: 2px; border-radius: 2px; background: var(--navy); }
-    .thes__header-nav {
-      display: none; width: 100%;
-      order: 3; border-top: 1px solid var(--border); margin-top: 12px; padding-top: 8px;
+    /* header-nav itself stays full-width so it reliably wraps onto its
+       own line below the brand; the visible menu box (the <ul>) is
+       sized to its own content instead, so it's only a little wider
+       than its widest item rather than spanning the whole header. */
+    .thes__header-nav { display: none; width: 100%; order: 3; margin-top: 12px; }
+    .thes__header-nav ul {
+      flex-direction: column; gap: 0; width: fit-content; max-width: 100%;
+      border-top: 1px solid var(--border); padding-top: 8px;
     }
-    .thes__header-nav ul { flex-direction: column; gap: 0; }
     .thes__header-nav a, .thes__nav-trigger { padding: 10px 2px; }
     .thes__menu-toggle:checked ~ .thes__header-nav { display: block; }
-    .thes__nav-item-row { justify-content: space-between; }
+    .thes__nav-item-row { justify-content: flex-start; }
     .thes__nav-caret {
       display: flex; align-items: center; justify-content: center;
       width: 32px; height: 32px; margin: -6px 0; cursor: pointer;
