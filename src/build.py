@@ -331,7 +331,7 @@ def colorize_title_words(text):
 
 PAGE_TITLES = {
     "about.html": "Who We Are",
-    "get-involved.html": "Join Us — No Strings Attached",
+    "get-involved.html": "Join Us",
     "events.html": "Upcoming Events",
     "newsletter.html": "The Newsletter",
 }
