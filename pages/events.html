@@ -67,14 +67,19 @@
      header.html.tmpl, appended right after the header markup by
      build_header() so it's on every page like the header itself) — the
      hamburger button and each parent nav item's caret are real
-     <button>s that toggle a plain ".is-open" class via addEventListener,
-     rather than the hidden-checkbox trick this used to be. An earlier
-     checkbox-hack version of the submenu toggle shipped a real bug: a
-     touch tap on the "Get Involved" link itself could trigger
+     <button>s whose click handlers set the target's inline
+     style.display directly, rather than toggling a CSS class. An
+     earlier checkbox-hack version of the submenu toggle shipped a real
+     bug: a touch tap on the "Get Involved" link itself could trigger
      :focus-within and pop the submenu open with no way to distinguish
-     that from a deliberate caret tap. JS state (explicit class toggle
-     driven by a click handler on the caret alone) doesn't have that
-     failure mode.
+     that from a deliberate caret tap. A later class-toggle JS version
+     fixed that but still depended on a class selector correctly beating
+     everything else in the cascade to actually show/hide anything —
+     driving the inline style instead removes that dependency entirely,
+     since an inline style wins over any stylesheet rule regardless of
+     specificity or media-query match. The caret's rotation still reads
+     purely from its own `aria-expanded` attribute (kept in sync by the
+     same click handler) rather than a class, for the same reason.
 
      Nav items come from config/site.json's `nav` list (see build.py's
      render_nav_items) — a flat list today, but any item can carry a
@@ -85,7 +90,16 @@
   .thes__header { background: #fff; border-bottom: 1px solid var(--border); }
   .thes__header-wrap { max-width: 1200px; margin: 0 auto; padding: 14px 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
   .thes__header-brand { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--navy); text-decoration: none; }
-  .thes__header-nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 20px; }
+  /* Direct-child combinator ("> ul"), not a descendant selector — this
+     must target only the top-level nav list, not also the nested
+     .thes__nav-submenu <ul> inside each dropdown <li>. That exact bleed
+     was the real bug behind the submenu-always-visible issue: a plain
+     descendant selector here has specificity (0,1,1), which beats the
+     single-class ".thes__nav-submenu { display: none; ... }" rule
+     (0,1,0) regardless of which one is defined later in the file, so
+     the submenu inherited "display: flex" from here no matter what the
+     open/close toggle (checkbox, class, or inline style) tried to set. */
+  .thes__header-nav > ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 20px; }
   .thes__header-nav a, .thes__nav-trigger { text-decoration: none; font-weight: 700; font-size: 0.88rem; color: var(--text); cursor: pointer; }
   .thes__header-nav a:hover, .thes__nav-trigger:hover { color: var(--blue); }
   .thes__nav-item { position: relative; }
@@ -100,6 +114,7 @@
     border-right: 2px solid var(--navy); border-bottom: 2px solid var(--navy);
     transform: rotate(45deg); transition: transform 0.15s ease;
   }
+  .thes__nav-caret[aria-expanded="true"]::before { transform: rotate(-135deg); }
   @media (min-width: 700px) {
     .thes__nav-item--parent:hover .thes__nav-submenu, .thes__nav-item--parent:focus-within .thes__nav-submenu { display: block; }
   }
@@ -115,8 +130,7 @@
        sized to its own content instead, so it's only a little wider
        than its widest item rather than spanning the whole header. */
     .thes__header-nav { display: none; width: 100%; order: 3; margin-top: 12px; }
-    .thes__header-nav.is-open { display: block; }
-    .thes__header-nav ul {
+    .thes__header-nav > ul {
       flex-direction: column; gap: 0; width: fit-content; max-width: 100%;
       border-top: 1px solid var(--border); padding-top: 8px;
     }
@@ -126,9 +140,7 @@
       display: flex; align-items: center; justify-content: center;
       width: 32px; height: 32px; margin: -6px 0; cursor: pointer;
     }
-    .thes__nav-item--parent.is-open .thes__nav-caret::before { transform: rotate(-135deg); }
     .thes__nav-submenu { display: none; position: static; box-shadow: none; border: none; padding: 0 0 4px 16px; }
-    .thes__nav-item--parent.is-open .thes__nav-submenu { display: block; }
   }
 
   /* ---- Page header (About / Get Involved / Events) ----
@@ -320,7 +332,7 @@
       <ul>
 <li class="thes__nav-item"><a href="index.html">Home</a></li>
 <li class="thes__nav-item"><a href="about.html">About</a></li>
-<li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="get-involved.html">Get Involved</a><button type="button" class="thes__nav-caret" aria-label="Show Get Involved submenu"></button></span><ul class="thes__nav-submenu"><li><a href="get-involved/committees.html">Committees</a></li></ul></li>
+<li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="get-involved.html">Get Involved</a><button type="button" class="thes__nav-caret" aria-label="Show Get Involved submenu" aria-expanded="false" aria-controls="thes-submenu-2"></button></span><ul class="thes__nav-submenu" id="thes-submenu-2"><li><a href="get-involved/committees.html">Committees</a></li></ul></li>
 <li class="thes__nav-item"><a href="events.html">Events</a></li>
 <li class="thes__nav-item"><a href="newsletter.html">THES Happenings</a></li>
       </ul>
@@ -333,19 +345,23 @@
   var nav = document.getElementById("thes-header-nav");
   if (menuBtn && nav) {
     menuBtn.addEventListener("click", function () {
-      var open = nav.classList.toggle("is-open");
-      menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      var open = nav.style.display !== "block";
+      nav.style.display = open ? "block" : "";
+      menuBtn.setAttribute("aria-expanded", String(open));
     });
   }
-  document.querySelectorAll(".thes__nav-caret").forEach(function (caret) {
-    caret.setAttribute("aria-expanded", "false");
-    caret.addEventListener("click", function () {
-      var item = caret.closest(".thes__nav-item--parent");
-      if (!item) return;
-      var open = item.classList.toggle("is-open");
-      caret.setAttribute("aria-expanded", open ? "true" : "false");
-    });
-  });
+  var carets = document.querySelectorAll(".thes__nav-caret");
+  for (var i = 0; i < carets.length; i++) {
+    (function (btn) {
+      var submenu = document.getElementById(btn.getAttribute("aria-controls"));
+      if (!submenu) return;
+      btn.addEventListener("click", function () {
+        var open = submenu.style.display !== "block";
+        submenu.style.display = open ? "block" : "none";
+        btn.setAttribute("aria-expanded", String(open));
+      });
+    })(carets[i]);
+  }
 })();
 </script>
 

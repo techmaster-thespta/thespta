@@ -17,18 +17,22 @@
   var nav = document.getElementById("thes-header-nav");
   if (menuBtn && nav) {
     menuBtn.addEventListener("click", function () {
-      var open = nav.classList.toggle("is-open");
-      menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      var open = nav.style.display !== "block";
+      nav.style.display = open ? "block" : "";
+      menuBtn.setAttribute("aria-expanded", String(open));
     });
   }
-  document.querySelectorAll(".thes__nav-caret").forEach(function (caret) {
-    caret.setAttribute("aria-expanded", "false");
-    caret.addEventListener("click", function () {
-      var item = caret.closest(".thes__nav-item--parent");
-      if (!item) return;
-      var open = item.classList.toggle("is-open");
-      caret.setAttribute("aria-expanded", open ? "true" : "false");
-    });
-  });
+  var carets = document.querySelectorAll(".thes__nav-caret");
+  for (var i = 0; i < carets.length; i++) {
+    (function (btn) {
+      var submenu = document.getElementById(btn.getAttribute("aria-controls"));
+      if (!submenu) return;
+      btn.addEventListener("click", function () {
+        var open = submenu.style.display !== "block";
+        submenu.style.display = open ? "block" : "none";
+        btn.setAttribute("aria-expanded", String(open));
+      });
+    })(carets[i]);
+  }
 })();
 </script>

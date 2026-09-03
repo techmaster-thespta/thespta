@@ -141,17 +141,20 @@ def render_nav_items(items, context):
     with children and no page_url of its own (omit "page_url") renders as
     a non-link dropdown trigger rather than a page link.
 
-    A parent item's caret is a real <button>, toggled by the small script
-    build_header() appends after the header markup — this site now uses
-    JS for header/nav interactivity (see tokens.html.tmpl's ".is-open"
-    rules) rather than the older checkbox-hack, so submenu state is a
-    plain class toggle, not a hidden-checkbox trick."""
+    A parent item's caret is a real <button> wired to its submenu via
+    aria-controls/id (not proximity in the DOM) and toggled by the
+    script build_header() appends after the header markup. The JS sets
+    the submenu's inline style.display directly rather than toggling a
+    CSS class, so opening/closing it can't be silently defeated by a
+    media query or selector mistake elsewhere in the stylesheet — an
+    inline style always wins the cascade."""
     html = []
-    for item in items:
+    for i, item in enumerate(items):
         label = item["label"]
         href = context[f"page_urls.{item['page_url']}"] if item.get("page_url") else None
         children = item.get("children")
         if children:
+            submenu_id = f"thes-submenu-{i}"
             child_html = "".join(
                 f'<li><a href="{context[f"page_urls.{c["page_url"]}"]}">{c["label"]}</a></li>'
                 for c in children
@@ -160,9 +163,10 @@ def render_nav_items(items, context):
             html.append(
                 f'<li class="thes__nav-item thes__nav-item--parent">'
                 f'<span class="thes__nav-item-row">{trigger}'
-                f'<button type="button" class="thes__nav-caret" aria-label="Show {label} submenu"></button>'
+                f'<button type="button" class="thes__nav-caret" aria-label="Show {label} submenu" '
+                f'aria-expanded="false" aria-controls="{submenu_id}"></button>'
                 f'</span>'
-                f'<ul class="thes__nav-submenu">{child_html}</ul></li>'
+                f'<ul class="thes__nav-submenu" id="{submenu_id}">{child_html}</ul></li>'
             )
         else:
             html.append(f'<li class="thes__nav-item"><a href="{href}">{label}</a></li>')
