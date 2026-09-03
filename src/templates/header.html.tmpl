@@ -1,14 +1,34 @@
 <header class="thes__header">
   <div class="thes__header-wrap">
-    <input type="checkbox" id="thes-menu-toggle" class="thes__menu-toggle">
-    <label for="thes-menu-toggle" class="thes__menu-btn" aria-label="Menu">
+    <button type="button" class="thes__menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="thes-header-nav">
       <span></span><span></span><span></span>
-    </label>
+    </button>
     <a class="thes__header-brand" href="{{page_urls.home}}">{{header_title}}</a>
-    <nav class="thes__header-nav" aria-label="Primary">
+    <nav class="thes__header-nav" id="thes-header-nav" aria-label="Primary">
       <ul>
 {{NAV_ITEMS}}
       </ul>
     </nav>
   </div>
 </header>
+<script>
+(function () {
+  var menuBtn = document.querySelector(".thes__menu-btn");
+  var nav = document.getElementById("thes-header-nav");
+  if (menuBtn && nav) {
+    menuBtn.addEventListener("click", function () {
+      var open = nav.classList.toggle("is-open");
+      menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  }
+  document.querySelectorAll(".thes__nav-caret").forEach(function (caret) {
+    caret.setAttribute("aria-expanded", "false");
+    caret.addEventListener("click", function () {
+      var item = caret.closest(".thes__nav-item--parent");
+      if (!item) return;
+      var open = item.classList.toggle("is-open");
+      caret.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  });
+})();
+</script>

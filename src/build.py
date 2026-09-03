@@ -141,19 +141,17 @@ def render_nav_items(items, context):
     with children and no page_url of its own (omit "page_url") renders as
     a non-link dropdown trigger rather than a page link.
 
-    A parent item gets its own checkbox (the same pure-CSS checkbox-hack
-    the mobile hamburger menu itself uses) so its submenu is collapsed by
-    default on mobile and only expands when its caret is tapped — on
-    desktop this checkbox/caret pair sits unused and the submenu opens on
-    hover/focus instead. See the ".thes__submenu-toggle" rules in
-    tokens.html.tmpl."""
+    A parent item's caret is a real <button>, toggled by the small script
+    build_header() appends after the header markup — this site now uses
+    JS for header/nav interactivity (see tokens.html.tmpl's ".is-open"
+    rules) rather than the older checkbox-hack, so submenu state is a
+    plain class toggle, not a hidden-checkbox trick."""
     html = []
-    for i, item in enumerate(items):
+    for item in items:
         label = item["label"]
         href = context[f"page_urls.{item['page_url']}"] if item.get("page_url") else None
         children = item.get("children")
         if children:
-            toggle_id = f"thes-nav-toggle-{i}"
             child_html = "".join(
                 f'<li><a href="{context[f"page_urls.{c["page_url"]}"]}">{c["label"]}</a></li>'
                 for c in children
@@ -161,9 +159,8 @@ def render_nav_items(items, context):
             trigger = f'<a href="{href}">{label}</a>' if href else f'<span class="thes__nav-trigger">{label}</span>'
             html.append(
                 f'<li class="thes__nav-item thes__nav-item--parent">'
-                f'<input type="checkbox" id="{toggle_id}" class="thes__submenu-toggle">'
                 f'<span class="thes__nav-item-row">{trigger}'
-                f'<label for="{toggle_id}" class="thes__nav-caret" aria-label="Show {label} submenu"></label>'
+                f'<button type="button" class="thes__nav-caret" aria-label="Show {label} submenu"></button>'
                 f'</span>'
                 f'<ul class="thes__nav-submenu">{child_html}</ul></li>'
             )

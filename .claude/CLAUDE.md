@@ -68,6 +68,20 @@ config-only approach can't do it, rather than silently editing `src/`.
   viewport regardless of the device's real width. This already caused a
   real bug (the mobile hamburger menu never triggered on an actual phone)
   before the fix.
+- **The header/nav is the site's one piece of JS-driven UI** — the
+  hamburger button and each dropdown nav item's caret are real
+  `<button>`s that toggle a plain `.is-open` class via
+  `addEventListener` (see the `<script>` in `header.html.tmpl`, appended
+  right after the header markup by `build_header()` so it ships on every
+  page the same way the header itself does). This replaced an earlier
+  pure-CSS checkbox-hack version after that version shipped a real bug:
+  a touch tap on a parent nav link (e.g. "Get Involved") could trigger
+  `:focus-within` and pop its submenu open with no way to distinguish
+  that from a deliberate caret tap, and a user reported the submenu
+  showing "from the beginning" with the caret doing nothing. The rest of
+  the site has no other JS, and there's no framework/bundler — if you add
+  more interactive UI, keep it as plain inline `<script>` in the relevant
+  template, following this same pattern.
 - **Mobile-safety**: every grid uses `auto-fit`/`minmax(...)`, never a
   fixed multi-breakpoint layout. Avoid `position: absolute` outside the
   three already-vetted uses (the header dropdown submenu, the page-header

@@ -48,17 +48,27 @@
   /* ---- Header/nav (self-hosted — no Google Sites chrome to rely on) ----
      Desktop: brand + inline nav, unchanged. Below 700px: a three-line
      menu button (top-left, like Google Sites' own mobile nav) toggles
-     the nav open/closed. Pure CSS (the checkbox-hack) — no JS anywhere
-     else on this site, so this doesn't introduce the first <script>.
+     the nav open/closed.
+
+     This is the site's one JS-driven piece of UI (see the <script> in
+     header.html.tmpl, appended right after the header markup by
+     build_header() so it's on every page like the header itself) — the
+     hamburger button and each parent nav item's caret are real
+     <button>s that toggle a plain ".is-open" class via addEventListener,
+     rather than the hidden-checkbox trick this used to be. An earlier
+     checkbox-hack version of the submenu toggle shipped a real bug: a
+     touch tap on the "Get Involved" link itself could trigger
+     :focus-within and pop the submenu open with no way to distinguish
+     that from a deliberate caret tap. JS state (explicit class toggle
+     driven by a click handler on the caret alone) doesn't have that
+     failure mode.
 
      Nav items come from config/site.json's `nav` list (see build.py's
      render_nav_items) — a flat list today, but any item can carry a
      "children" list to become a one-level dropdown, so a future subpage
-     is a config change, not a template change. Desktop shows a dropdown
-     on hover/focus; mobile keeps it collapsed behind a caret the same
-     way the hamburger menu itself is a checkbox-hack toggle — tapping
-     the parent label doesn't expand it (that's the checkbox's own
-     hidden native behavior being sidestepped), tapping the caret does. */
+     is a config change, not a template change. Desktop still opens a
+     dropdown on hover/focus as a mouse/keyboard convenience; mobile
+     relies solely on the caret's click handler. */
   .thes__header { background: #fff; border-bottom: 1px solid var(--border); }
   .thes__header-wrap { max-width: 1200px; margin: 0 auto; padding: 14px 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
   .thes__header-brand { font-family: '{{font_display}}', sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--navy); text-decoration: none; }
@@ -70,19 +80,13 @@
   .thes__nav-submenu { display: none; list-style: none; margin: 0; padding: 8px 0; position: absolute; top: 100%; left: 0; min-width: 190px; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 24px rgba(7,59,104,0.12); z-index: 20; }
   .thes__nav-submenu a { display: block; padding: 8px 16px; }
   .thes__nav-submenu a:hover { background: var(--bg-tint); }
-  .thes__menu-toggle, .thes__submenu-toggle { display: none; }
-  .thes__menu-btn { display: none; }
-  .thes__nav-caret { display: none; }
+  .thes__menu-btn { display: none; background: none; border: none; padding: 0; font: inherit; }
+  .thes__nav-caret { display: none; background: none; border: none; padding: 0; font: inherit; }
   .thes__nav-caret::before {
     content: ""; display: block; width: 8px; height: 8px;
     border-right: 2px solid var(--navy); border-bottom: 2px solid var(--navy);
     transform: rotate(45deg); transition: transform 0.15s ease;
   }
-  /* Hover/focus-opened dropdown is desktop-only — on a touch screen,
-     tapping the "Get Involved" link itself can trigger :focus-within,
-     which would pop the submenu open with no way to tell it apart from
-     the deliberate caret-driven toggle below. Mobile relies solely on
-     the checkbox. */
   @media (min-width: 700px) {
     .thes__nav-item--parent:hover .thes__nav-submenu, .thes__nav-item--parent:focus-within .thes__nav-submenu { display: block; }
   }
@@ -98,20 +102,20 @@
        sized to its own content instead, so it's only a little wider
        than its widest item rather than spanning the whole header. */
     .thes__header-nav { display: none; width: 100%; order: 3; margin-top: 12px; }
+    .thes__header-nav.is-open { display: block; }
     .thes__header-nav ul {
       flex-direction: column; gap: 0; width: fit-content; max-width: 100%;
       border-top: 1px solid var(--border); padding-top: 8px;
     }
     .thes__header-nav a, .thes__nav-trigger { padding: 10px 2px; }
-    .thes__menu-toggle:checked ~ .thes__header-nav { display: block; }
     .thes__nav-item-row { justify-content: flex-start; }
     .thes__nav-caret {
       display: flex; align-items: center; justify-content: center;
       width: 32px; height: 32px; margin: -6px 0; cursor: pointer;
     }
-    .thes__submenu-toggle:checked ~ .thes__nav-item-row .thes__nav-caret::before { transform: rotate(-135deg); }
+    .thes__nav-item--parent.is-open .thes__nav-caret::before { transform: rotate(-135deg); }
     .thes__nav-submenu { display: none; position: static; box-shadow: none; border: none; padding: 0 0 4px 16px; }
-    .thes__submenu-toggle:checked ~ .thes__nav-submenu { display: block; }
+    .thes__nav-item--parent.is-open .thes__nav-submenu { display: block; }
   }
 
   /* ---- Page header (About / Get Involved / Events) ----
