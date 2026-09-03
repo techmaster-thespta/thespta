@@ -1,5 +1,6 @@
 {
   "org_name": "Thunder Hill Elementary PTA",
+  "header_title": "Parent Teacher Association",
   "school_name": "Thunder Hill Elementary School",
   "school_short_name": "Thunder Hill",
   "mascot_name": "Thunderbirds",
@@ -12,8 +13,7 @@
   "donate_href": "https://1thes.givebacks.com/shop?search=Donation",
   "shop_href": "https://1thes.givebacks.com/shop",
   "copyright_year": 2026,
-  "google_sites_base_url": "https://www.thespta.org",
-  "github_pages_base_url": "https://techmaster-thespta.github.io/thespta",
+  "custom_domain": "www.thespta.org",
   "page_urls": {
     "home": "home",
     "events": "events",
@@ -21,6 +21,13 @@
     "about": "about",
     "newsletter": "newsletter"
   },
+  "nav": [
+    { "label": "Home", "page_url": "home" },
+    { "label": "About", "page_url": "about" },
+    { "label": "Get Involved", "page_url": "get_involved" },
+    { "label": "Events", "page_url": "events" },
+    { "label": "THES Happenings", "page_url": "newsletter" }
+  ],
   "hero_image_filename": "hero-banner.jpg",
   "page_header_image_filename": "page-header-no-text.jpg",
   "social": {

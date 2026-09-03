@@ -54,6 +54,7 @@ jobs:
         run: |
           mkdir -p site/images
           cp pages/*.html site/
+          cp pages/CNAME site/
           find assets/images -maxdepth 1 -type f ! -name "*.md" -exec cp {} site/images/ \;
 
       - name: Upload Pages artifact

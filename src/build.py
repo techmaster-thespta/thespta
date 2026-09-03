@@ -3,11 +3,10 @@
 Thunder Hill Elementary PTA — static site builder.
 
 Reads /config/*.json + src/templates/*.html.tmpl and writes one complete
-HTML file per page into /pages. GitHub Actions deploys /pages to GitHub
-Pages on every push to main; Google Sites embeds each page by URL
-(Insert > Embed > By URL) — not by pasted code — so nothing here ever
-needs to be manually copied into Google Sites. Run this after changing
-anything in /config or /src/templates:
+HTML file per page into /pages, self-hosted directly on GitHub Pages at
+the custom domain in config/site.json's `custom_domain` — no third-party
+site builder in the chain. Run this after changing anything in /config
+or /src/templates:
 
     python3 src/build.py        (or: scripts/build.sh)
 
@@ -17,10 +16,10 @@ WHY THIS EXISTS: this script is what makes "change the color/text once,
 it updates everywhere" possible — it lives entirely in this repo, and its
 only job is to stamp out the final static files that get deployed.
 
-Pages: home, about, get-involved, events — see docs/SOP.md for the full
-day-to-day editing guide, and docs/skills for how content additions
-(events, board members, sponsors, flyers) are meant to be made — config
-only, never this file — by an agent working from .claude/skills/.
+Pages: home, about, get-involved, events, newsletter — see docs/SOP.md
+for the full day-to-day editing guide, and docs/skills for how content
+additions (events, board members, sponsors, flyers) are meant to be made
+— config only, never this file — by an agent working from .claude/skills/.
 """
 import json
 import re
@@ -86,18 +85,13 @@ def build_context():
     context["HERO_IMAGE_URL"] = f'images/{site["hero_image_filename"]}'
     context["PAGE_HEADER_IMAGE_URL"] = f'images/{site["page_header_image_filename"]}'
 
-    # Internal links point at the Google Sites sub-pages (not the raw GitHub
-    # Pages URLs) so clicking one keeps the visitor inside Google Sites' own
-    # nav/header/footer shell instead of dropping them onto a bare embedded
-    # page. Convention: each Google Sites sub-page is named identically to
-    # its generated HTML file (minus ".html") — config/site.json's
-    # `page_urls` values are just that slug; this is where it becomes a
-    # full URL. Adding a new page later: create the matching Google Sites
-    # sub-page with that same name, add one entry here, done.
-    sites_base = site["google_sites_base_url"].rstrip("/")
+    # Internal links are plain relative filenames — `about`, `events`, etc.
+    # become `about.html`, `events.html` — resolved relative to whatever
+    # domain serves /pages directly (GitHub Pages' own URL, or the custom
+    # domain in `custom_domain` via the generated CNAME file below).
     for key in list(context.keys()):
         if key.startswith("page_urls."):
-            context[key] = f"{sites_base}/{context[key]}"
+            context[key] = f"{context[key]}.html"
 
     cal_id = site["calendar"]["calendar_id"]
     cal_id_q = urllib.parse.quote(cal_id, safe="")
@@ -122,6 +116,40 @@ def build_context():
 
 def build_tokens(context):
     return render((TEMPLATES / "tokens.html.tmpl").read_text(), context)
+
+
+def render_nav_items(items, context):
+    """Render config/site.json's `nav` list into <li> menu items.
+
+    Each item is {"label": ..., "page_url": <a page_urls.* key>} and may
+    optionally have "children": [...same shape...] for a one-level
+    dropdown submenu — this is the hook for a future page to gain
+    subpages without touching this function again, just config. A parent
+    with children and no page_url of its own (omit "page_url") renders as
+    a non-link dropdown trigger rather than a page link."""
+    html = []
+    for item in items:
+        label = item["label"]
+        href = context[f"page_urls.{item['page_url']}"] if item.get("page_url") else None
+        children = item.get("children")
+        if children:
+            child_html = "".join(
+                f'<li><a href="{context[f"page_urls.{c["page_url"]}"]}">{c["label"]}</a></li>'
+                for c in children
+            )
+            trigger = f'<a href="{href}">{label}</a>' if href else f'<span class="thes__nav-trigger">{label}</span>'
+            html.append(
+                f'<li class="thes__nav-item thes__nav-item--parent">{trigger}'
+                f'<ul class="thes__nav-submenu">{child_html}</ul></li>'
+            )
+        else:
+            html.append(f'<li class="thes__nav-item"><a href="{href}">{label}</a></li>')
+    return "\n".join(html)
+
+
+def build_header(context):
+    nav_items = render_nav_items(load_json("site.json").get("nav", []), context)
+    return render((TEMPLATES / "header.html.tmpl").read_text(), {**context, "NAV_ITEMS": nav_items})
 
 
 def build_footer(context):
@@ -289,9 +317,28 @@ def build_optional_section(config_name, card_template_name, section_template_nam
     return render(section_tmpl, {**context, cards_key: cards})
 
 
+def colorize_title_words(text):
+    """Alternate each word's color between the site's dark text tone and
+    teal — the same two-tone treatment already used in the home hero
+    image's headline ("Stronger Together." / "Better for Every Student.")
+    — applied here to the live <h1> text on every other page's header."""
+    classes = ["thes__title-a", "thes__title-b"]
+    words = text.split(" ")
+    return " ".join(f'<span class="{classes[i % 2]}">{w}</span>' for i, w in enumerate(words))
+
+
+PAGE_TITLES = {
+    "about.html": "Who We Are",
+    "get-involved.html": "Join Us",
+    "events.html": "Upcoming Events",
+    "newsletter.html": "The Newsletter",
+}
+
+
 def main():
     context = build_context()
     tokens = build_tokens(context)
+    header = build_header(context)
     footer = build_footer(context)
     board_cards = build_board_cards()
 
@@ -324,18 +371,57 @@ def main():
 
     for tmpl_path in page_templates:
         page_name = tmpl_path.name.removesuffix(".tmpl")
+        page_context = context
+        if page_name in PAGE_TITLES:
+            page_context = {**context, "PAGE_TITLE": colorize_title_words(PAGE_TITLES[page_name])}
         text = tmpl_path.read_text()
-        text = render(text, context)
+        text = render(text, page_context)
         for marker, value in shared_markers.items():
             text = text.replace(marker, value)
+
+        # Decoupled from each page template's own markup on purpose: the
+        # header is inserted structurally right after `<div class="thes">`
+        # opens, rather than relying on a `{{HEADER}}` marker every page
+        # template has to remember to include. A real page once shipped
+        # without one (copied from before this branch had a header at
+        # all) because nothing enforced its presence — this makes it
+        # impossible for any current or future page to omit it.
+        text = text.replace('<div class="thes">', f'<div class="thes">\n{header}', 1)
 
         leftover = PLACEHOLDER.findall(text)
         if leftover:
             print(f"  ! {page_name}: unresolved placeholder(s): {sorted(set(leftover))}")
 
+        # These pages are opened directly (no Google Sites parent page to
+        # supply a <head>/viewport for them), so this is a real document
+        # shell, not a fragment. Missing the viewport meta specifically
+        # would silently break any @media query meant for phones — without
+        # it, mobile browsers assume a fake ~980px desktop-width layout
+        # viewport instead of the device's real width.
+        page_title = page_name.removesuffix(".html").replace("-", " ").title()
+        text = (
+            "<!DOCTYPE html>\n"
+            '<html lang="en">\n<head>\n<meta charset="UTF-8">\n'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+            f"<title>{context.get('org_name', '')} — {page_title}</title>\n"
+            f"</head>\n<body>\n{text}\n</body>\n</html>\n"
+        )
+
         out_path = PAGES_OUT / page_name
         out_path.write_text(text)
         print(f"  built {out_path.relative_to(ROOT)}")
+
+    # GitHub Pages' custom-domain feature reads a plain-text CNAME file
+    # (just the domain, nothing else) from the deployed site's root.
+    # Generated from config/site.json's `custom_domain` — the single
+    # source of truth — rather than hand-maintained separately, so it
+    # can never drift out of sync with what the site actually claims to
+    # be. .github/workflows/deploy.yml copies this into site/ alongside
+    # pages/*.html and assets/images/*.
+    custom_domain = context.get("custom_domain")
+    if custom_domain:
+        (PAGES_OUT / "CNAME").write_text(custom_domain + "\n")
+        print(f"  built {(PAGES_OUT / 'CNAME').relative_to(ROOT)} ({custom_domain})")
 
     print(f"\nDone — {len(page_templates)} pages written to /pages.")
     print("Push to main to deploy — GitHub Actions rebuilds, validates, and redeploys to GitHub Pages automatically.")

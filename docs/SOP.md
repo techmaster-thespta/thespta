@@ -2,13 +2,12 @@
 
 This is the reference doc for **ongoing content edits** — written so a
 future board member with no coding background can follow it. For the
-one-time initial setup, see `docs/github-pages-setup.md` (GitHub Pages)
-and `docs/website-setup.md` (wiring it into Google Sites).
+one-time initial setup, see `docs/github-pages-setup.md` (GitHub Pages +
+the custom domain).
 
-The live site is hosted on **GitHub Pages**; Google Sites embeds each page
-**by URL** (not by pasted code) — so once initial setup is done, a content
-change is just: edit a config file, push, done. Nothing to re-paste,
-nothing to touch in Google Sites again.
+The site is fully self-hosted on **GitHub Pages** at the custom domain
+`www.thespta.org` — no Google Sites in the chain anymore. A content
+change is just: edit a config file, push, done.
 
 ## How the system fits together
 
@@ -16,12 +15,12 @@ nothing to touch in Google Sites again.
 Google Calendar         ← the PTA's shared calendar (events only — see Task 4)
         ↓  scripts/sync_calendar_events.py (GitHub Actions runs this hourly via sync-events.yml, + on every push via deploy.yml)
 config/events.json      ← generated — don't hand-edit
-config/*.json           ← everything else you DO edit (colors, text, board, sponsors, flyers)
+config/*.json           ← everything else you DO edit (colors, text, board, sponsors, flyers, nav)
 src/templates/*.tmpl    ← page structure (rarely touched)
         ↓  python3 src/build.py   (or: scripts/build.sh)
-pages/*.html            ← generated output
+pages/*.html            ← generated output (including pages/CNAME for the custom domain)
         ↓  git push → GitHub Actions
-https://techmaster-thespta.github.io/thespta/*.html   ← the live site, embedded by URL in Google Sites
+https://www.thespta.org/*.html   ← the live site
 ```
 
 **Golden rule: never hand-edit a file in `/pages` or `config/events.json`.**
@@ -61,8 +60,9 @@ Requires only Python 3 — no npm, no installs, nothing to configure.
 | `social.facebook_href`, `social.instagram_href` | Footer social links |
 | `newsletter_href` | Footer "Subscribe" link, and the "Subscribe for Future Issues" button on the THES Happenings page — the real Smore newsletter URL |
 | `newsletter_embed_src` | The Smore URL actually embedded as an iframe on the THES Happenings page (same newsletter, with `?embedded` appended) — update both together if the Smore newsletter's URL ever changes |
-| `google_sites_base_url` | The Google Site's base URL — currently the custom domain `https://www.thespta.org` (see `docs/website-setup.md` → "Custom domain"). Only touch this if the domain ever changes or is removed. |
-| `page_urls.*` | The **slug** of each page's Google Sites sub-page (e.g. `"home"`, `"get-involved"`) — every internal link (nav cards, buttons) is built as `google_sites_base_url` + `/` + this slug, so clicking a link keeps the visitor inside Google Sites' own nav/header/footer instead of dropping them onto a bare embedded page |
+| `custom_domain` | The site's real domain (`www.thespta.org`) — `src/build.py` generates the `CNAME` file GitHub Pages needs from this value on every build. Only touch this if the domain itself changes; see `docs/github-pages-setup.md` for the DNS side. |
+| `page_urls.*` | The filename-minus-`.html` slug for each page (e.g. `"home"`, `"get-involved"`) — every internal link resolves as a plain relative filename (`home.html`, `get-involved.html`), which works identically whether the page is reached via the custom domain or the raw `*.github.io` URL |
+| `nav` | The header menu's contents, in display order — see Task 5 |
 | `copyright_year` | Footer copyright line |
 
 Rebuild + push: `python3 src/build.py` then `git push` (or just push — see Task 7).
@@ -206,6 +206,35 @@ from that event directly, wherever the event appears.
 
 ---
 
+## Task 5 — Add, remove, or reorder a nav menu item
+
+**File:** `config/site.json` → `nav`
+
+Each entry is `{ "label": "...", "page_url": "<a page_urls.* key>" }`.
+Order in the list is left-to-right display order in the header. To add
+an existing page to the menu, add an entry pointing at its `page_urls`
+key; to remove one from the menu (without deleting the page itself),
+delete its entry.
+
+An entry can also carry a `"children"` list (same shape) to become a
+dropdown — desktop shows it on hover, mobile lists it indented inside
+the already-open mobile menu:
+
+```json
+{ "label": "Resources", "page_url": "resources", "children": [
+  { "label": "Bylaws", "page_url": "bylaws" },
+  { "label": "Committees", "page_url": "committees" }
+] }
+```
+
+Omit `"page_url"` on a parent entry to make it a dropdown-only label with
+no page of its own. **Adding a genuinely new page** (not just adding an
+existing one to the nav) is a bigger step — new template, new
+`page_urls` entry — that's a `src/` change; ask before doing it, per
+`.claude/CLAUDE.md`.
+
+---
+
 ## Task 6 — Change the banner photo, page header photo, or add a logo
 
 Images live in `assets/images/` in this repo and are served directly by
@@ -224,8 +253,8 @@ way.
 
 ## Task 7 — Publish a change
 
-Because Google Sites embeds each page **by URL**, publishing a content
-change is just:
+The site is served directly from what's in this repo, so publishing a
+content change is just:
 
 ```bash
 python3 src/build.py     # optional — CI does this too, but good to check locally
@@ -235,12 +264,8 @@ git push
 ```
 
 GitHub Actions takes it from there: rebuilds, validates, commits
-regenerated `pages/` back if needed, and redeploys to GitHub Pages. The
-Google Sites embed shows the update automatically — nothing to touch in
-Google Sites itself, ever, for a routine content change.
-
-(The only time you touch Google Sites again is adding a brand-new page —
-see `docs/website-setup.md` → "Adding a new page later.")
+regenerated `pages/` back if needed, and redeploys to GitHub Pages —
+`https://www.thespta.org` shows the update automatically.
 
 **Want it live immediately** instead of waiting on the push-triggered
 pipeline or the hourly calendar sync? Trigger a rebuild directly:
@@ -262,8 +287,8 @@ change.
 ## Verification checklist (before/after pushing)
 
 - [ ] `python3 test/validate_build.py` passes with no failures (or the GitHub Actions run for your commit is green — check the **Actions** tab).
-- [ ] Visit the live URL directly (e.g. `https://techmaster-thespta.github.io/thespta/home.html`) to confirm the change is really there.
-- [ ] If you changed `theme.json`, spot-checked all 4 pages, not just one — colors are shared.
+- [ ] Visit the live URL directly (e.g. `https://www.thespta.org/home.html`) to confirm the change is really there.
+- [ ] If you changed `theme.json`, spot-checked every page, not just one — colors are shared.
 
 ---
 
@@ -271,7 +296,8 @@ change.
 
 - This GitHub repo (`techmaster-thespta/thespta`) is the source of truth — hand off repo access (or add the incoming board's GitHub account as a collaborator) along with this doc.
 - Nobody needs to know Python to use it — just edit the `.json` files listed above and push; GitHub Actions rebuilds and redeploys automatically.
-- The Google account used for Google Sites and Google Calendar should be a shared PTA/"webmaster" account, not a personal one, so ownership doesn't leave with a board member. Google Sites also supports adding co-owners/editors via its own **Share** button if a transition to a shared account hasn't happened yet.
+- The Google account used for Google Calendar should be a shared PTA/"webmaster" account, not a personal one, so ownership doesn't leave with a board member.
+- Whoever manages `thespta.org`'s DNS (domain registrar access) needs to be someone with institutional continuity too — that's a separate credential from GitHub/Google and only needed if the domain itself ever moves (see `docs/github-pages-setup.md`).
 
 ---
 
@@ -281,7 +307,8 @@ change.
 |---|---|---|
 | Banner or header image is broken | Filename in `config/site.json` doesn't match a real file in `assets/images/` | Check spelling/extension match exactly, rebuild |
 | Calendar embed shows blank/error | Calendar's own sharing isn't public, or wrong `calendar_id` | In Google Calendar → calendar settings → **Access permissions** → "Make available to public" |
-| Google Sites shows an old version | The embed is "By URL," which should always be live | Try removing and re-adding the Embed-by-URL block; also hard-refresh the live GitHub Pages URL directly to rule out browser caching |
+| `www.thespta.org` shows an old version | Should always be live within a minute or two of a successful deploy | Hard-refresh to rule out browser caching; check the **Actions** tab for a recent green run |
 | `python3 src/build.py` prints `unresolved placeholder(s)` | A config file is missing a field a template expects | Read the warning — it names the exact `{{key}}` — add that field to the relevant `config/*.json` |
 | Layout looks broken/overlapping on phone | Usually a hand-edited style with a fixed pixel width or `position: absolute` added outside the existing patterns | Stick to the existing CSS classes in `src/templates/tokens.html.tmpl` rather than adding new inline styles with fixed widths |
 | GitHub Actions run failed | See `docs/github-pages-setup.md` → "If something breaks" | |
+| Custom domain broken (SSL warning, wrong content, "domain not verified") | DNS or GitHub Pages custom-domain config issue, not a code problem | See `docs/github-pages-setup.md` → "Point the custom domain at GitHub Pages" |

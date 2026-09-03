@@ -2,11 +2,17 @@
 
 This repo is a static-site generator: `config/*.json` (data) +
 `src/templates/*.tmpl` (structure) → `python3 src/build.py` →
-`/pages/*.html`. GitHub Actions deploys those pages to **GitHub Pages**
-(`https://techmaster-thespta.github.io/thespta/`), and **Google Sites**
-embeds each page **by URL** (`Insert → Embed → By URL`) rather than by
-pasted code — so a content change is just a config edit + push; nothing
-gets re-pasted into Google Sites ever again after initial setup.
+`/pages/*.html`. GitHub Actions builds and deploys those pages straight
+to **GitHub Pages**, served at the custom domain in `config/site.json`'s
+`custom_domain` field (currently `www.thespta.org`) via a generated
+`CNAME` file — self-hosted, no Google Sites embedding. A content change
+is just a config edit + push.
+
+**Staging**: `techmaster-thespta/thespta-prestage` is a separate repo
+that mirrors this one for previewing changes before they hit production,
+live at `https://techmaster-thespta.github.io/thespta-prestage/`. See
+the `rebuild-now` skill's pattern for pushing this repo's current branch
+there and redeploying.
 
 ## The one rule that matters most
 
@@ -35,20 +41,39 @@ and again on every push via `deploy.yml`) — `config/events.json` is
 *generated*, like `pages/*.html`, never hand-edited. See
 `.claude/skills/add-event/` and `docs/SOP.md` Task 4.
 
+The **nav menu** is also config, not template: `config/site.json`'s
+`nav` list drives the header — see "Adding a page to the nav" below.
+
 If a task genuinely needs a template/build.py change (a new page, a new
 section type nothing existing covers), say so explicitly and explain why a
 config-only approach can't do it, rather than silently editing `src/`.
 
 ## Hard-won constraints (don't reintroduce these mistakes)
 
-- **No custom header/nav/footer duplicating Google Sites' own** — except
-  the footer, which Sites has no native equivalent for, so we build one
-  (`src/templates/footer.html.tmpl`). Never add a second nav bar.
+- **No page can omit the header — it's structural, not a template
+  convention.** `build.py`'s `main()` inserts the header right after
+  `<div class="thes">` opens, for every page, unconditionally — no page
+  template includes a `{{HEADER}}` marker to remember. This exists
+  because a real page (the newsletter page) shipped without a header
+  once: it was written before this repo had a header concept, and a
+  later merge didn't retroactively add a marker nothing enforced.
+  Don't reintroduce a marker-based header; if the header needs to change,
+  edit `src/templates/header.html.tmpl` or `build_header()`.
+- **Every generated page needs its own `<!DOCTYPE html>`/`<head>`/viewport
+  meta — these pages are opened directly, not embedded inside another
+  page that supplies one.** `build.py`'s `main()` wraps every page in a
+  real document shell for exactly this reason. Skipping the viewport meta
+  specifically silently breaks every `@media` query meant for phones —
+  without it, mobile browsers assume a fake ~980px desktop-width layout
+  viewport regardless of the device's real width. This already caused a
+  real bug (the mobile hamburger menu never triggered on an actual phone)
+  before the fix.
 - **Mobile-safety**: every grid uses `auto-fit`/`minmax(...)`, never a
   fixed multi-breakpoint layout. Avoid `position: absolute` outside the
-  two already-vetted uses (the banner/header fade overlay, the calendar
-  iframe's aspect-ratio box). Avoid fixed pixel widths on containers. A
-  from-scratch redesign broke on mobile once already from ignoring this.
+  three already-vetted uses (the header dropdown submenu, the page-header
+  fade overlay, the calendar iframe's aspect-ratio box). Avoid fixed pixel
+  widths on containers. A from-scratch redesign broke on mobile once
+  already from ignoring this.
 - **Images live in `assets/images/` and are served directly by GitHub
   Pages** (`config/site.json` → `hero_image_filename` /
   `page_header_image_filename`, resolved to a relative `images/<file>`
@@ -61,25 +86,11 @@ config-only approach can't do it, rather than silently editing `src/`.
   simpler and was chosen instead — don't re-add either Drive approach.
 - **`page_urls.*` in `config/site.json` are the only correct way to link
   between pages** — each value is a *slug* (e.g. `"get-involved"`), not a
-  full URL. `src/build.py` prefixes `google_sites_base_url` onto it, so
-  links point at the page's Google Sites sub-page rather than the raw
-  GitHub Pages URL — this keeps a visitor inside Google Sites' own
-  nav/header/footer shell after clicking. The convention: a Google Sites
-  sub-page's name always matches its generated HTML file's name (minus
-  `.html`). See `docs/website-setup.md` → "Two different URLs, two
-  different jobs" before changing any of this. Never hardcode a relative
-  path like `/events`, and never point `page_urls.*` at a GitHub Pages URL
-  directly.
-- **Every `href="{{page_urls...}}"` link must have `target="_top"`.**
-  Without it, clicking the link tries to load the Google Sites page
-  *inside the current GitHub-Pages iframe* Google Sites already embedded
-  this page in — and Google Sites refuses to render itself inside a
-  frame (its own clickjacking protection), so the browser shows a hard
-  "won't allow this page to be displayed" error instead of navigating.
-  `target="_top"` breaks out of the iframe and loads the linked page at
-  the top level instead, landing the visitor on the full Google-Sites-
-  chromed page as intended. This bit a real user — don't drop it from a
-  new `page_urls.*` link.
+  full URL. `src/build.py` appends `.html` to it, and links resolve as
+  plain relative filenames against whatever domain currently serves the
+  page (the custom domain, or the raw `*.github.io` URL — both work
+  identically). Never hardcode an absolute path or a full URL into
+  `page_urls.*`.
 - **Any new colored link/button variant must combine classes, not rely on
   a single one for color** — `.thes a { color: inherit; }` in
   `tokens.html.tmpl` has specificity (0,1,1), which beats a single-class
@@ -97,6 +108,12 @@ config-only approach can't do it, rather than silently editing `src/`.
   `deploy.yml`'s push trigger to pick it up — that handoff would silently
   never fire. Keep this in mind before adding any other bot-committing
   workflow that's meant to cascade into another one.
+- **`config/site.json`'s `custom_domain` generates the `CNAME` file
+  GitHub Pages needs for the custom domain to work** — `build.py` writes
+  `pages/CNAME` from it, and `deploy.yml`/`sync-events.yml` both copy that
+  into the deployed `site/`. If the domain ever changes, update
+  `custom_domain` and the DNS record pointing at GitHub Pages — don't
+  hand-maintain a separate CNAME file, it'll drift.
 
 ## Commands
 
@@ -106,12 +123,19 @@ python3 test/validate_build.py  # validate the output (also runs in CI)
 scripts/build.sh                # same as the first command, path-independent
 ```
 
+## Adding a page to the nav
+
+Edit `config/site.json`'s `nav` list — each item is
+`{"label": "...", "page_url": "<a page_urls.* key>"}`. Any item can carry
+a `"children": [...]` list (same shape) to become a dropdown/subpage menu
+— desktop shows it on hover, mobile lists it indented inside the already-
+open mobile menu. This is data, not a template change: adding a subpage
+never requires touching `header.html.tmpl` or `build.py`.
+
 ## Where things are documented
 
 - `docs/SOP.md` — day-to-day content-editing tasks (the thing to read first for "how do I change X")
-- `docs/github-pages-setup.md` — one-time: turning on GitHub Pages for this repo
-- `docs/website-setup.md` — one-time: creating the Google Site, embedding
-  the 4 pages by URL, and the slug convention for adding a new page later
+- `docs/github-pages-setup.md` — one-time: turning on GitHub Pages and the custom domain for this repo
 - `.claude/skills/` — one skill per addable content type (`add-event`,
   `add-board-member`, `add-sponsor`, `add-flyer`), the GitHub issue
   workflow (`create-issue` to plan a change and file it, `from-issue` to
@@ -129,10 +153,10 @@ scripts/build.sh                # same as the first command, path-independent
 - `scripts/sync_calendar_events.py` — generates `config/events.json` from
   the public Google Calendar `.ics` feed (stdlib-only RRULE expansion, no
   API key), including any file attached to an event (rendered as a
-  "Flyer" link — confirmed empirically that Google's public feed includes
-  `ATTACH` properties). Run by `.github/workflows/sync-events.yml`
-  (hourly) and by `deploy.yml` (every push/manual run). See `docs/SOP.md`
-  Task 4.
+  clickable photo preview — confirmed empirically that Google's public
+  feed includes `ATTACH` properties). Run by
+  `.github/workflows/sync-events.yml` (hourly) and by `deploy.yml` (every
+  push/manual run). See `docs/SOP.md` Task 4.
 - `docs/github-agent-setup.md` — GitHub access setup for agents: `gh` CLI
   (shell-capable agents) or the GitHub MCP server declared in `.mcp.json`
   (any MCP-compatible agent). Use whichever this session actually has —

@@ -75,9 +75,8 @@ unless the issue is genuinely unclear (see "If the issue is unclear" below).
    ```
 
 8. **Report back**: the PR URL, which live page(s) will update once merged
-   and GitHub Actions redeploys (per `docs/SOP.md` Task 7 — no manual
-   Google Sites step needed either way), and confirm the branch — never
-   merge the PR yourself.
+   and GitHub Actions redeploys (per `docs/SOP.md` Task 7), and confirm
+   the branch — never merge the PR yourself.
 
 ## If the issue is unclear
 

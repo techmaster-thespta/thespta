@@ -1,20 +1,19 @@
 # Thunder Hill Elementary PTA — Website
 
-The live site is hosted on **GitHub Pages** and embedded into **Google
-Sites** by URL (`Insert → Embed → By URL`) — so once set up, a content
-change is just a config edit + push, with nothing to re-paste in Google
-Sites ever again. This repo is the generator: plain config files in,
-complete static HTML pages out.
+The live site is fully self-hosted on **GitHub Pages** at
+`www.thespta.org` — a content change is just a config edit + push. This
+repo is the generator: plain config files in, complete static HTML pages
+out.
 
 ```
 Google Calendar         ← events — edit here, not in this repo (see docs/SOP.md Task 4)
         ↓  scripts/sync_calendar_events.py (hourly + on push)
-config/*.json           ← edit the rest of these: site info, theme, board, sponsors, flyers
+config/*.json           ← edit the rest of these: site info, theme, board, sponsors, flyers, nav
 src/                    ← the generator (templates + build script) — rarely touched
         ↓  python3 src/build.py
-pages/*.html            ← generated output
+pages/*.html            ← generated output (including pages/CNAME for the custom domain)
         ↓  git push → GitHub Actions
-https://techmaster-thespta.github.io/thespta/*.html   ← the live site
+https://www.thespta.org/*.html   ← the live site
 ```
 
 ## Quickstart
@@ -29,6 +28,10 @@ No dependencies beyond Python 3 — nothing to install.
 On every push to `main`, GitHub Actions does both of those automatically,
 then deploys the result to GitHub Pages (see `docs/github-pages-setup.md`).
 
+**Staging**: `techmaster-thespta/thespta-prestage` is a separate repo
+that mirrors this one for previewing changes before they hit production,
+live at `https://techmaster-thespta.github.io/thespta-prestage/`.
+
 ## Making a content change
 
 Almost everything is a config edit — see **`docs/SOP.md`** for the full
@@ -40,8 +43,7 @@ kind of addition, each scoped to config-only edits.
 
 ## First-time setup
 
-- **`docs/github-pages-setup.md`** — turning on GitHub Pages for this repo
-- **`docs/website-setup.md`** — creating the Google Site and embedding the 4 pages by URL
+- **`docs/github-pages-setup.md`** — turning on GitHub Pages and pointing the custom domain at it
 
 ## Repo layout
 

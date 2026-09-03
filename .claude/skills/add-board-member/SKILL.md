@@ -36,7 +36,7 @@ Order in the file is display order (grid, left-to-right/top-to-bottom).
 5. If a new headshot was supplied, save it into `assets/images/` (crop/save as needed) and set `photo_filename` to that filename.
 6. Run `python3 src/build.py`.
 7. Run `python3 test/validate_build.py` — confirm it passes.
-8. Report that `pages/about.html` changed and remind the user to push (`docs/SOP.md` Task 7) — GitHub Actions rebuilds and redeploys automatically, and the Google Sites embed picks it up with no further action there.
+8. Report that `pages/about.html` changed and remind the user to push (`docs/SOP.md` Task 7) — GitHub Actions rebuilds and redeploys automatically.
 
 ## Do not
 
