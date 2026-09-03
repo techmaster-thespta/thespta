@@ -357,7 +357,6 @@ def main():
 
     shared_markers = {
         "{{TOKENS}}": tokens,
-        "{{HEADER}}": header,
         "{{FOOTER}}": footer,
         "{{BOARD_CARDS}}": board_cards,
         "{{EVENTS_SECTION}}": home_events_section,
@@ -381,6 +380,15 @@ def main():
         text = render(text, page_context)
         for marker, value in shared_markers.items():
             text = text.replace(marker, value)
+
+        # Decoupled from each page template's own markup on purpose: the
+        # header is inserted structurally right after `<div class="thes">`
+        # opens, rather than relying on a `{{HEADER}}` marker every page
+        # template has to remember to include. A real page once shipped
+        # without one (copied from before this branch had a header at
+        # all) because nothing enforced its presence — this makes it
+        # impossible for any current or future page to omit it.
+        text = text.replace('<div class="thes">', f'<div class="thes">\n{header}', 1)
 
         leftover = PLACEHOLDER.findall(text)
         if leftover:
