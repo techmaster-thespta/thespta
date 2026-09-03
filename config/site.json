@@ -15,7 +15,7 @@
   "copyright_year": 2026,
   "custom_domain": "www.thespta.org",
   "page_urls": {
-    "home": "home",
+    "home": "index",
     "events": "events",
     "get_involved": "get-involved",
     "about": "about",

@@ -20,7 +20,7 @@ Both fields required. `href` should be the sponsor's actual website; use
 `"#"` only if the user genuinely doesn't have one yet and says so.
 
 **Important behavior to know**: when this file is `[]`, the entire "Our
-Sponsors" section is omitted from `pages/home.html` — not shown as an empty
+Sponsors" section is omitted from `pages/index.html` — not shown as an empty
 heading. Adding the first entry makes the section appear automatically;
 removing the last entry makes it disappear automatically. This is by
 design — don't "fix" it by editing templates.
@@ -33,7 +33,7 @@ design — don't "fix" it by editing templates.
 4. **Removing**: delete the entry.
 5. Run `python3 src/build.py`.
 6. Run `python3 test/validate_build.py` — confirm it passes.
-7. Report that `pages/home.html` changed (mention explicitly if the section just appeared or disappeared for the first time) and remind the user to push (`docs/SOP.md` Task 7) — GitHub Actions rebuilds and redeploys automatically.
+7. Report that `pages/index.html` changed (mention explicitly if the section just appeared or disappeared for the first time) and remind the user to push (`docs/SOP.md` Task 7) — GitHub Actions rebuilds and redeploys automatically.
 
 ## Do not
 

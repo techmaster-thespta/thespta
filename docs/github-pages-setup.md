@@ -16,8 +16,8 @@ nothing to re-embed anywhere.
 ## 2. Confirm it's live
 
 - Push anything to `main`, or go to **Actions** tab → "Build, validate, and deploy to GitHub Pages" → **Run workflow**.
-- Once green, visit `https://techmaster-thespta.github.io/thespta/home.html` — it should show the live Home page.
-- Each page is at its own URL: `.../home.html`, `.../about.html`, `.../get-involved.html`, `.../events.html`, `.../newsletter.html`.
+- Once green, visit `https://techmaster-thespta.github.io/thespta/` — it should show the live Home page (`index.html`, served automatically at the root — no filename needed in the URL).
+- Each other page is at its own URL: `.../about.html`, `.../get-involved.html`, `.../events.html`, `.../newsletter.html`.
 
 ## 3. Point the custom domain at GitHub Pages
 
@@ -40,9 +40,9 @@ this repo:
    take anywhere from a few minutes to about 24 hours after DNS
    propagates. Once the "Enforce HTTPS" checkbox becomes available,
    check it.
-3. **Verify**: once the cert is issued, `https://www.thespta.org/home.html`
-   should serve the live site directly (no more Google Sites in the
-   chain at all).
+3. **Verify**: once the cert is issued, `https://www.thespta.org/` should
+   serve the live site directly (no more Google Sites in the chain at
+   all).
 
 **If this domain was previously connected to a Google Site**: detach it
 there too (Google Sites → that site → **Settings → Custom URLs** → remove

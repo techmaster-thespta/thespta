@@ -61,7 +61,7 @@ Requires only Python 3 — no npm, no installs, nothing to configure.
 | `newsletter_href` | Footer "Subscribe" link, and the "Subscribe for Future Issues" button on the THES Happenings page — the real Smore newsletter URL |
 | `newsletter_embed_src` | The Smore URL actually embedded as an iframe on the THES Happenings page (same newsletter, with `?embedded` appended) — update both together if the Smore newsletter's URL ever changes |
 | `custom_domain` | The site's real domain (`www.thespta.org`) — `src/build.py` generates the `CNAME` file GitHub Pages needs from this value on every build. Only touch this if the domain itself changes; see `docs/github-pages-setup.md` for the DNS side. |
-| `page_urls.*` | The filename-minus-`.html` slug for each page (e.g. `"home"`, `"get-involved"`) — every internal link resolves as a plain relative filename (`home.html`, `get-involved.html`), which works identically whether the page is reached via the custom domain or the raw `*.github.io` URL |
+| `page_urls.*` | The filename-minus-`.html` slug for each page (e.g. `"index"` for Home, `"get-involved"`) — every internal link resolves as a plain relative filename (`index.html`, `get-involved.html`), which works identically whether the page is reached via the custom domain or the raw `*.github.io` URL. Home is named `index.html` on purpose, so it loads automatically at the domain root — the `page_urls` *key* is still `home` (used throughout templates as `{{page_urls.home}}`), only the underlying filename/value is `index`. |
 | `nav` | The header menu's contents, in display order — see Task 5 |
 | `copyright_year` | Footer copyright line |
 
@@ -287,7 +287,7 @@ change.
 ## Verification checklist (before/after pushing)
 
 - [ ] `python3 test/validate_build.py` passes with no failures (or the GitHub Actions run for your commit is green — check the **Actions** tab).
-- [ ] Visit the live URL directly (e.g. `https://www.thespta.org/home.html`) to confirm the change is really there.
+- [ ] Visit the live URL directly (e.g. `https://www.thespta.org/`) to confirm the change is really there.
 - [ ] If you changed `theme.json`, spot-checked every page, not just one — colors are shared.
 
 ---

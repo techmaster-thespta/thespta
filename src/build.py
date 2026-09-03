@@ -398,7 +398,10 @@ def main():
         # would silently break any @media query meant for phones — without
         # it, mobile browsers assume a fake ~980px desktop-width layout
         # viewport instead of the device's real width.
-        page_title = page_name.removesuffix(".html").replace("-", " ").title()
+        # index.html is the home page (named that so it loads automatically
+        # at the domain root) but should still say "Home" in the browser
+        # tab, not the literal filename.
+        page_title = "Home" if page_name == "index.html" else page_name.removesuffix(".html").replace("-", " ").title()
         text = (
             "<!DOCTYPE html>\n"
             '<html lang="en">\n<head>\n<meta charset="UTF-8">\n'
