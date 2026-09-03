@@ -120,8 +120,38 @@ def build_tokens(context):
     return render((TEMPLATES / "tokens.html.tmpl").read_text(), context)
 
 
+def render_nav_items(items, context):
+    """Render config/site.json's `nav` list into <li> menu items.
+
+    Each item is {"label": ..., "page_url": <a page_urls.* key>} and may
+    optionally have "children": [...same shape...] for a one-level
+    dropdown submenu — this is the hook for a future page to gain
+    subpages without touching this function again, just config. A parent
+    with children and no page_url of its own (omit "page_url") renders as
+    a non-link dropdown trigger rather than a page link."""
+    html = []
+    for item in items:
+        label = item["label"]
+        href = context[f"page_urls.{item['page_url']}"] if item.get("page_url") else None
+        children = item.get("children")
+        if children:
+            child_html = "".join(
+                f'<li><a href="{context[f"page_urls.{c["page_url"]}"]}">{c["label"]}</a></li>'
+                for c in children
+            )
+            trigger = f'<a href="{href}">{label}</a>' if href else f'<span class="thes__nav-trigger">{label}</span>'
+            html.append(
+                f'<li class="thes__nav-item thes__nav-item--parent">{trigger}'
+                f'<ul class="thes__nav-submenu">{child_html}</ul></li>'
+            )
+        else:
+            html.append(f'<li class="thes__nav-item"><a href="{href}">{label}</a></li>')
+    return "\n".join(html)
+
+
 def build_header(context):
-    return render((TEMPLATES / "header.html.tmpl").read_text(), context)
+    nav_items = render_nav_items(load_json("site.json").get("nav", []), context)
+    return render((TEMPLATES / "header.html.tmpl").read_text(), {**context, "NAV_ITEMS": nav_items})
 
 
 def build_footer(context):
@@ -289,6 +319,24 @@ def build_optional_section(config_name, card_template_name, section_template_nam
     return render(section_tmpl, {**context, cards_key: cards})
 
 
+def colorize_title_words(text):
+    """Alternate each word's color between the site's dark text tone and
+    teal — the same two-tone treatment already used in the home hero
+    image's headline ("Stronger Together." / "Better for Every Student.")
+    — applied here to the live <h1> text on every other page's header."""
+    classes = ["thes__title-a", "thes__title-b"]
+    words = text.split(" ")
+    return " ".join(f'<span class="{classes[i % 2]}">{w}</span>' for i, w in enumerate(words))
+
+
+PAGE_TITLES = {
+    "about.html": "Who We Are",
+    "get-involved.html": "Join Us — No Strings Attached",
+    "events.html": "Upcoming Events",
+    "newsletter.html": "The Newsletter",
+}
+
+
 def main():
     context = build_context()
     tokens = build_tokens(context)
@@ -326,8 +374,11 @@ def main():
 
     for tmpl_path in page_templates:
         page_name = tmpl_path.name.removesuffix(".tmpl")
+        page_context = context
+        if page_name in PAGE_TITLES:
+            page_context = {**context, "PAGE_TITLE": colorize_title_words(PAGE_TITLES[page_name])}
         text = tmpl_path.read_text()
-        text = render(text, context)
+        text = render(text, page_context)
         for marker, value in shared_markers.items():
             text = text.replace(marker, value)
 

@@ -22,6 +22,13 @@
     "about": "about",
     "newsletter": "newsletter"
   },
+  "nav": [
+    { "label": "Home", "page_url": "home" },
+    { "label": "About", "page_url": "about" },
+    { "label": "Get Involved", "page_url": "get_involved" },
+    { "label": "Events", "page_url": "events" },
+    { "label": "THES Happenings", "page_url": "newsletter" }
+  ],
   "hero_image_filename": "hero-banner.jpg",
   "page_header_image_filename": "page-header-no-text.jpg",
   "social": {
