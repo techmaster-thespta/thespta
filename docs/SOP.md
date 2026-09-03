@@ -235,6 +235,62 @@ existing one to the nav) is a bigger step — new template, new
 
 ---
 
+## Task 5b — Add, remove, or edit a committee
+
+**File:** `config/committees.json` · **Skill:** `.claude/skills/add-committee/`
+
+All committees live on **one** page, `/get-involved/committees` — there's
+no per-committee page or URL, by design (so adding a committee is a
+one-line config change, not a new page). Each entry:
+
+```json
+{ "name": "Hospitality", "slug": "hospitality", "status": "chair-needed", "chair": null,
+  "description": "...", "activities": ["...", "..."], "audiences": ["staff"],
+  "volunteerValue": "Hospitality" }
+```
+
+`status` (`"chair-needed"` or `"members-welcome"`) controls which of the
+page's two sections the card appears in and which badge it shows —
+moving a committee between them is just changing this one field (and
+`chair`, to match). See the skill for the full field reference.
+
+### One-time setup: the shared volunteer Google Form
+
+Every committee's "Volunteer with ___" button opens the **same** Google
+Form, with the committee name pre-filled via a
+[prefilled-link URL](https://support.google.com/docs/answer/9308501) —
+`config/site.json`'s `volunteerForm` block controls this for every
+committee at once:
+
+```json
+"volunteerForm": {
+  "baseUrl": "https://docs.google.com/forms/d/e/REPLACE_WITH_REAL_FORM_ID/viewform",
+  "committeeFieldId": "entry.REPLACE_WITH_REAL_ENTRY_ID"
+}
+```
+
+**This ships with placeholder values that don't go anywhere real yet.**
+To wire up the actual form:
+
+1. Create the Google Form (one "Committee" short-answer or dropdown
+   field, plus whatever else you want to collect).
+2. In the form editor, click the **⋮** menu → **Get pre-filled link**.
+3. Fill in the Committee field with any sample value, fill in nothing
+   else that should stay blank, then click **Get link**.
+4. Copy the generated URL — it looks like
+   `https://docs.google.com/forms/d/e/1FAI.../viewform?usp=pp_url&entry.123456789=Sample`.
+   Split it into the two config values:
+   - `baseUrl`: everything up to (not including) the `?` —
+     `https://docs.google.com/forms/d/e/1FAI.../viewform`
+   - `committeeFieldId`: the `entry.XXXXXXXXX` part right before `=Sample`
+     (drop `usp=pp_url` and the `=Sample` value — the site builds that
+     part itself per committee).
+5. Update both values in `config/site.json`, rebuild, and check a few
+   "Volunteer with ___" buttons on the live Committees page actually land
+   on the form with the right committee pre-filled.
+
+---
+
 ## Task 6 — Change the banner photo, page header photo, or add a logo
 
 Images live in `assets/images/` in this repo and are served directly by

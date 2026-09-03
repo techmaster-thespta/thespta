@@ -49,10 +49,10 @@ kind of addition, each scoped to config-only edits.
 
 | Path | What's in it |
 |---|---|
-| `config/` | All editable site content and settings |
+| `config/` | All editable site content and settings, including `committees.json` (Get Involved > Committees) |
 | `src/build.py` | The generator script |
-| `src/templates/` | Page structure and reusable component templates |
-| `pages/` | Generated HTML — deployed to GitHub Pages by CI |
+| `src/templates/` | Page structure and reusable component templates — `src/templates/pages/` mirrors the site's own nesting (e.g. `pages/get-involved/committees.html.tmpl`) for any page that lives below the site root |
+| `pages/` | Generated HTML — deployed to GitHub Pages by CI, nested subdirectories included |
 | `assets/images/` | Source images, served directly by GitHub Pages |
 | `scripts/` | `build.sh` (rebuild locally), `sync_calendar_events.py` (pull events from Google Calendar into `config/events.json`) |
 | `test/` | Build validation |

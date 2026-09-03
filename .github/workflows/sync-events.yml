@@ -77,8 +77,7 @@ jobs:
         if: steps.diff.outputs.changed == 'true'
         run: |
           mkdir -p site/images
-          cp pages/*.html site/
-          cp pages/CNAME site/
+          cp -r pages/. site/
           find assets/images -maxdepth 1 -type f ! -name "*.md" -exec cp {} site/images/ \;
 
       - name: Upload Pages artifact

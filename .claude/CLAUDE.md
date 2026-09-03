@@ -85,12 +85,43 @@ config-only approach can't do it, rather than silently editing `src/`.
   An OAuth-as-the-user variant was made to work, but GitHub Pages is
   simpler and was chosen instead — don't re-add either Drive approach.
 - **`page_urls.*` in `config/site.json` are the only correct way to link
-  between pages** — each value is a *slug* (e.g. `"get-involved"`), not a
-  full URL. `src/build.py` appends `.html` to it, and links resolve as
-  plain relative filenames against whatever domain currently serves the
-  page (the custom domain, or the raw `*.github.io` URL — both work
-  identically). Never hardcode an absolute path or a full URL into
-  `page_urls.*`.
+  between pages** — each value is a *slug* (e.g. `"get-involved"`, or
+  `"get-involved/committees"` for a nested page), not a full URL.
+  `src/build.py` appends `.html` and, for a page that itself lives below
+  the site root, prefixes the right number of `../` so the link still
+  resolves correctly from that depth (see "Nested pages" below). Never
+  hardcode an absolute path (`/events.html`) or a full URL into
+  `page_urls.*` — an absolute path breaks the moment a site is served
+  from a URL subpath instead of a domain root, which is exactly how the
+  `thespta-prestage` staging repo is hosted
+  (`techmaster-thespta.github.io/thespta-prestage/`).
+- **Nested pages (a page below the site root, e.g.
+  `pages/get-involved/committees.html`) need relative links built with
+  the right `../` depth — this is what `build_context(depth)` in
+  `build.py` is for.** `main()` discovers page templates recursively
+  (`(TEMPLATES / "pages").rglob("*.html.tmpl")`), computes each one's
+  `depth` from how many directories deep it lives under
+  `src/templates/pages/`, and calls `build_context(depth)` (memoized per
+  depth, since header/footer/nav links depend on it but content like
+  board/event/committee cards don't) — that's what prefixes every
+  `page_urls.*` value and the hero/page-header image URLs with the right
+  number of `"../"`. If you add another nested page, it gets this for
+  free just by living in a subdirectory of `src/templates/pages/`; you
+  don't need to touch `build_context` or `main()`. This was built
+  because root-absolute paths (`/get-involved.html`) would have been
+  simpler but silently broken on the staging repo's subpath hosting —
+  relative paths work at both.
+  Two real bugs already got caught by this depth change and are worth
+  knowing about if you touch page discovery or deployment again:
+  `test/validate_build.py` used to glob `pages/*.html` (flat) and would
+  silently skip any nested page during validation; and
+  `deploy.yml`/`sync-events.yml`'s "Assemble the deployed site" step used
+  to `cp pages/*.html site/` (also flat), which would have silently
+  **failed to deploy** a nested page even though it built and validated
+  fine locally. Both are now recursive (`glob(..., recursive=True)` and
+  `cp -r pages/. site/` respectively) — if you ever see a nested page
+  validate locally but 404 live, a flat glob/cp regression is the first
+  thing to check.
 - **Any new colored link/button variant must combine classes, not rely on
   a single one for color** — `.thes a { color: inherit; }` in
   `tokens.html.tmpl` has specificity (0,1,1), which beats a single-class
@@ -137,7 +168,7 @@ never requires touching `header.html.tmpl` or `build.py`.
 - `docs/SOP.md` — day-to-day content-editing tasks (the thing to read first for "how do I change X")
 - `docs/github-pages-setup.md` — one-time: turning on GitHub Pages and the custom domain for this repo
 - `.claude/skills/` — one skill per addable content type (`add-event`,
-  `add-board-member`, `add-sponsor`, `add-flyer`), the GitHub issue
+  `add-board-member`, `add-sponsor`, `add-flyer`, `add-committee`), the GitHub issue
   workflow (`create-issue` to plan a change and file it, `from-issue` to
   pull an issue by number, implement it, open a PR), `rebuild-now`
   (push pending changes + force an immediate rebuild/redeploy, for

@@ -235,6 +235,26 @@
 
   .thes__two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; align-items: start; }
 
+  /* ---- Committees (Get Involved > Committees) ---- */
+  .thes__committees-note { max-width: 62ch; margin: 0 auto 32px; text-align: center; color: var(--text-muted); background: var(--bg-tint); border-radius: 12px; padding: 14px 20px; }
+  .thes__committee-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .thes__committee-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+  .thes__committee-card h3 { font-size: 1.02rem; margin-top: 6px; }
+  .thes__committee-card > p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+  .thes__committee-chair { margin: 0; font-size: 0.82rem; font-weight: 700; color: var(--text); }
+  .thes__committee-card .thes__btn { margin-top: 8px; }
+  .thes__badge { display: inline-block; width: fit-content; padding: 4px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+  .thes__badge--chair-needed { background: var(--coral-tint); color: var(--coral); }
+  .thes__badge--members-welcome { background: var(--teal-tint); color: var(--teal); }
+  .thes__committee-more { margin-top: 4px; }
+  .thes__committee-more summary { cursor: pointer; font-weight: 700; font-size: 0.86rem; color: var(--blue); list-style: none; }
+  .thes__committee-more summary::-webkit-details-marker { display: none; }
+  .thes__committee-more summary::after { content: "\002B"; margin-left: 6px; }
+  .thes__committee-more[open] summary::after { content: "\2212"; }
+  .thes__committee-more-body { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: grid; gap: 8px; }
+  .thes__committee-more-body p { margin: 0; color: var(--text-muted); font-size: 0.86rem; }
+  .thes__checklist-plain { list-style: disc; margin: 0; padding-left: 20px; display: grid; gap: 4px; color: var(--text-muted); font-size: 0.86rem; }
+
   /* ---- Calendar embed (Events page) ---- */
   .thes__cal-frame { position: relative; padding-bottom: 75%; height: 0; overflow: hidden; max-width: 100%; border-radius: 14px; border: 1px solid var(--border); }
   .thes__cal-frame iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
@@ -268,7 +288,7 @@
       <ul>
 <li class="thes__nav-item"><a href="index.html">Home</a></li>
 <li class="thes__nav-item"><a href="about.html">About</a></li>
-<li class="thes__nav-item"><a href="get-involved.html">Get Involved</a></li>
+<li class="thes__nav-item thes__nav-item--parent"><a href="get-involved.html">Get Involved</a><ul class="thes__nav-submenu"><li><a href="get-involved/committees.html">Committees</a></li></ul></li>
 <li class="thes__nav-item"><a href="events.html">Events</a></li>
 <li class="thes__nav-item"><a href="newsletter.html">THES Happenings</a></li>
       </ul>
@@ -281,15 +301,63 @@
     <div class="thes__pagehead-text">
       <span class="thes__eyebrow">Get Involved</span>
       <h1><span class="thes__title-a">Join</span> <span class="thes__title-b">Us</span></h1>
-      <p>Becoming a member is the main thing we ask, and it's the only thing we ask. Attending meetings or volunteering is always completely optional.</p>
+      <p>However much time you have, there's a place for you at Thunder Hill — no pressure, no obligation, just an open door.</p>
     </div>
     <div class="thes__pagehead-media">
       <img src="images/page-header-no-text.jpg" alt="Thunder Hill Elementary School">
     </div>
   </div>
 
-  <!-- ===== Membership ===== -->
+  <!-- ===== Who benefits ===== -->
+  <section class="thes__section">
+    <div class="thes__wrap">
+      <div class="thes__section-head">
+        <span class="thes__eyebrow">Why It Matters</span>
+        <h2>Every Bit of Involvement Helps</h2>
+      </div>
+      <div class="thes__grid">
+
+        <div class="thes__icon-item">
+          <span class="thes__icon-circle thes__icon-circle--teal" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </span>
+          <h3>Students</h3>
+          <p>More programs, more events, and more resources dedicated to their school experience.</p>
+        </div>
+
+        <div class="thes__icon-item">
+          <span class="thes__icon-circle thes__icon-circle--yellow" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6"/><circle cx="17.5" cy="9" r="2.5"/><path d="M21.5 20c0-2.8-1.9-5-4.5-5.6"/></svg>
+          </span>
+          <h3>Families &amp; Parents</h3>
+          <p>A closer connection to the school community and a say in how it grows.</p>
+        </div>
+
+        <div class="thes__icon-item">
+          <span class="thes__icon-circle thes__icon-circle--coral" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 9c1.7 0 3.2 1.9 3.2 4.8 0 3.4-2 6.2-4.9 6.2-.9 0-1.4-.4-1.8-.4s-.9.4-1.8.4c-2.9 0-4.9-2.8-4.9-6.2C5.3 10.9 6.8 9 8.5 9c.9 0 1.6.5 2.3.5.6 0 1.2-.5 2-.5"/><path d="M12 8.7c0-1.3.9-2.3 2.2-2.5"/></svg>
+          </span>
+          <h3>Teachers &amp; Staff</h3>
+          <p>Extra support, appreciation, and resources that make their work easier.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Volunteering intro + CTA to Committees ===== -->
   <section class="thes__section thes__section--tint">
+    <div class="thes__wrap">
+      <div class="thes__join">
+        <h2>Volunteering Is Easy, Flexible, and Welcome</h2>
+        <p>You don't need experience, a big time commitment, or any special skills — just a willingness to pitch in when and how it works for you. Our committees are the easiest way to find a fit.</p>
+        <a class="thes__btn thes__btn--yellow" href="get-involved/committees.html">Explore Our Committees &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Membership ===== -->
+  <section class="thes__section">
     <div class="thes__wrap thes__two-col">
       <div>
         <span class="thes__eyebrow">Membership</span>
@@ -306,76 +374,6 @@
         <div class="thes__info-row"><span>Cost</span><span>$16 per year — student, individual, faculty/staff, and business memberships available</span></div>
         <div class="thes__info-row"><span>Required to attend or volunteer?</span><span>No — never</span></div>
         <div class="thes__info-row"><span>Renews</span><span>Every August</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== Ways to help (fully optional) ===== -->
-  <section class="thes__section">
-    <div class="thes__wrap">
-      <div class="thes__section-head">
-        <span class="thes__eyebrow">Completely Optional</span>
-        <h2>Want to Do More?</h2>
-        <p>A few ways to pitch in, whenever it works for you.</p>
-      </div>
-      <div class="thes__grid">
-
-        <div class="thes__card thes__card--teal">
-          <span class="thes__icon-circle thes__icon-circle--teal" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          </span>
-          <h3>Classroom Helper</h3>
-          <p>Read with students, help at parties, or assist teachers during the school day.</p>
-        </div>
-
-        <div class="thes__card thes__card--yellow">
-          <span class="thes__icon-circle thes__icon-circle--yellow" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          </span>
-          <h3>Event Volunteer</h3>
-          <p>Set up, run a table, or clean up at picnics, fairs, and fundraisers.</p>
-        </div>
-
-        <div class="thes__card thes__card--coral">
-          <span class="thes__icon-circle thes__icon-circle--coral" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
-          </span>
-          <h3>Committee Member</h3>
-          <p>Join a standing committee — fundraising, hospitality, or communications.</p>
-        </div>
-
-        <div class="thes__card thes__card--navy">
-          <span class="thes__icon-circle thes__icon-circle--navy" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
-          </span>
-          <h3>Run for the Board</h3>
-          <p>A bigger commitment with a bigger impact — elections happen every spring.</p>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== How it works (for anyone who does want to help) ===== -->
-  <section class="thes__section thes__section--tint">
-    <div class="thes__wrap">
-      <div class="thes__section-head">
-        <span class="thes__eyebrow">If You'd Like to Help</span>
-        <h2>Signing Up Takes Three Steps</h2>
-      </div>
-      <div class="thes__steps">
-        <div class="thes__step">
-          <h3>Tell us your availability</h3>
-          <p>Email the Volunteer Coordinator with the days and hours that work for you.</p>
-        </div>
-        <div class="thes__step">
-          <h3>Get matched to a role</h3>
-          <p>We'll match you to an open role that fits your schedule and interests.</p>
-        </div>
-        <div class="thes__step">
-          <h3>Get your event details</h3>
-          <p>You'll receive a short email with the time, location, and what to bring.</p>
-        </div>
       </div>
     </div>
   </section>

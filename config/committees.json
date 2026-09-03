@@ -1,0 +1,102 @@
+[
+  {
+    "name": "Hospitality",
+    "slug": "hospitality",
+    "status": "chair-needed",
+    "chair": null,
+    "description": "Support and celebrate teachers and staff through conference dinners, holiday treats, and other appreciation activities.",
+    "activities": ["Conference dinners", "Holiday treats for staff", "Teacher appreciation activities"],
+    "audiences": ["staff"],
+    "volunteerValue": "Hospitality"
+  },
+  {
+    "name": "Cultural Arts",
+    "slug": "cultural-arts",
+    "status": "chair-needed",
+    "chair": null,
+    "description": "Help bring enriching experiences to students through school assemblies, International Night, and cultural programming.",
+    "activities": ["School assemblies", "International Night", "Cultural programming"],
+    "audiences": ["students", "families"],
+    "volunteerValue": "Cultural Arts"
+  },
+  {
+    "name": "Fundraising",
+    "slug": "fundraising",
+    "status": "chair-needed",
+    "chair": null,
+    "description": "Help organize fundraising initiatives such as restaurant nights, spirit wear, Fun Run, Holiday Market, and Parent's Night Out.",
+    "activities": ["Restaurant nights", "Spirit wear", "Fun Run", "Holiday Market", "Parent's Night Out"],
+    "audiences": ["students", "families"],
+    "volunteerValue": "Fundraising"
+  },
+  {
+    "name": "Grants & Awards",
+    "slug": "grants-awards",
+    "status": "chair-needed",
+    "chair": null,
+    "description": "Identify and pursue grants and donations that provide additional resources and opportunities for students and staff.",
+    "activities": ["Researching grant opportunities", "Writing grant applications", "Pursuing donations"],
+    "audiences": ["students", "staff"],
+    "volunteerValue": "Grants & Awards"
+  },
+  {
+    "name": "Technology",
+    "slug": "technology",
+    "status": "chair-needed",
+    "chair": null,
+    "description": "Support the PTA website and digital platforms, provide technology assistance, and help strengthen the PTA's online presence.",
+    "activities": ["Maintaining the PTA website", "Technology assistance", "Growing the PTA's online presence"],
+    "audiences": ["families"],
+    "volunteerValue": "Technology"
+  },
+  {
+    "name": "Communications & Membership",
+    "slug": "communications-membership",
+    "status": "chair-needed",
+    "chair": null,
+    "description": "Help keep Thunder Hill families informed, promote PTA activities, and encourage community participation and PTA membership.",
+    "activities": ["Family communications", "Promoting PTA activities", "Membership outreach"],
+    "audiences": ["families"],
+    "volunteerValue": "Communications & Membership"
+  },
+  {
+    "name": "Budget",
+    "slug": "budget",
+    "status": "members-welcome",
+    "chair": "Rachel Swan",
+    "description": "Help develop the PTA's annual budget and determine how PTA funds can best support the school community.",
+    "activities": ["Developing the annual budget", "Reviewing fund allocation"],
+    "audiences": ["students", "families"],
+    "volunteerValue": "Budget"
+  },
+  {
+    "name": "Events",
+    "slug": "events-committee",
+    "status": "members-welcome",
+    "chair": "Leila Phillips",
+    "description": "Help plan and coordinate memorable events for Thunder Hill students, families, and staff.",
+    "activities": ["Planning school events", "Day-of event coordination"],
+    "audiences": ["students", "families", "staff"],
+    "volunteerValue": "Events"
+  },
+  {
+    "name": "After-School Programs",
+    "slug": "after-school-programs",
+    "status": "members-welcome",
+    "chair": "Amy Sontag",
+    "description": "Help coordinate enriching extracurricular and after-school opportunities for Thunder Hill students.",
+    "activities": ["Coordinating after-school programs", "Extracurricular opportunities"],
+    "audiences": ["students"],
+    "volunteerValue": "After-School Programs"
+  },
+  {
+    "name": "5th Grade",
+    "slug": "5th-grade",
+    "status": "members-welcome",
+    "chair": "Erin Adediran",
+    "description": "Help make the final elementary-school year special through activities such as signs, shirts, the 5th-grade picnic, and Battle of the Books.",
+    "activities": ["5th-grade signs & shirts", "5th-grade picnic", "Battle of the Books"],
+    "audiences": ["students", "families"],
+    "volunteerValue": "5th Grade"
+  }
+]

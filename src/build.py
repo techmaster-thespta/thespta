@@ -70,7 +70,17 @@ def load_json(name, default=None):
     return json.loads(path.read_text())
 
 
-def build_context():
+def build_context(depth=0):
+    """`depth` is how many directory levels below the site root the page
+    being built lives (0 for a top-level page like about.html, 1 for a
+    page one directory down like get-involved/committees.html, etc.) —
+    every relative path below is prefixed with the right number of "../"
+    so a page can correctly link to any other page or asset regardless of
+    how deep either one is nested. Deliberately relative rather than
+    root-absolute (e.g. "/about.html"): this repo also gets pushed as-is
+    to a staging repo served from a URL *subpath*
+    (.../thespta-prestage/...), not the domain root, where root-absolute
+    links would silently point at the wrong site."""
     site = load_json("site.json")
     theme = load_json("theme.json")
 
@@ -80,18 +90,21 @@ def build_context():
     context["google_fonts_url"] = theme["fonts"]["google_fonts_url"]
     context.update(flatten(theme["colors"], "colors"))
 
+    prefix = "../" * depth
+
     # Served by GitHub Pages alongside the HTML — see .github/workflows/deploy.yml,
     # which copies assets/images/* into site/images/ next to pages/*.html.
-    context["HERO_IMAGE_URL"] = f'images/{site["hero_image_filename"]}'
-    context["PAGE_HEADER_IMAGE_URL"] = f'images/{site["page_header_image_filename"]}'
+    context["HERO_IMAGE_URL"] = f'{prefix}images/{site["hero_image_filename"]}'
+    context["PAGE_HEADER_IMAGE_URL"] = f'{prefix}images/{site["page_header_image_filename"]}'
 
     # Internal links are plain relative filenames — `about`, `events`, etc.
-    # become `about.html`, `events.html` — resolved relative to whatever
-    # domain serves /pages directly (GitHub Pages' own URL, or the custom
-    # domain in `custom_domain` via the generated CNAME file below).
+    # become `about.html`, `events.html` (or `../about.html` etc. from one
+    # directory down) — resolved relative to whatever domain serves
+    # /pages directly (GitHub Pages' own URL, or the custom domain in
+    # `custom_domain` via the generated CNAME file below).
     for key in list(context.keys()):
         if key.startswith("page_urls."):
-            context[key] = f"{context[key]}.html"
+            context[key] = f"{prefix}{context[key]}.html"
 
     cal_id = site["calendar"]["calendar_id"]
     cal_id_q = urllib.parse.quote(cal_id, safe="")
@@ -317,6 +330,76 @@ def build_optional_section(config_name, card_template_name, section_template_nam
     return render(section_tmpl, {**context, cards_key: cards})
 
 
+COMMITTEE_STATUS_LABELS = {
+    "chair-needed": "Chair Needed",
+    "members-welcome": "Members Welcome",
+}
+
+
+def build_volunteer_form_url(volunteer_form, value):
+    """A Google Forms "prefilled response" URL — the same form for every
+    committee, with the committee field pre-filled to `value`, so no
+    per-committee page/link/form is ever needed (config/site.json's
+    `volunteerForm` ships with placeholder baseUrl/committeeFieldId until
+    a real Google Form exists — see docs/SOP.md for how to get the real
+    values from one)."""
+    base = volunteer_form["baseUrl"].rstrip("?")
+    field = volunteer_form["committeeFieldId"]
+    return f"{base}?{field}={urllib.parse.quote(value)}"
+
+
+def render_committee_card(committee, volunteer_form):
+    """One committee's card: status badge, one-line description, chair
+    (if any), a volunteer button that deep-links into the single shared
+    Google Form with this committee pre-selected, and a native <details>
+    disclosure for the rest — no JS, no separate page per committee, no
+    modal framework needed for "expand for more" to work on mobile."""
+    status = committee["status"]
+    chair = committee.get("chair")
+    chair_line = f'<p class="thes__committee-chair">Chair: {chair}</p>' if chair else ""
+    activities = "".join(f"<li>{a}</li>" for a in committee.get("activities", []))
+    status_note = (
+        "A chair is still needed for this committee — but you don't need to become chair to help."
+        if status == "chair-needed"
+        else "This committee already has a chair — members are always welcome."
+    )
+    form_url = build_volunteer_form_url(volunteer_form, committee["volunteerValue"])
+    return (
+        '<div class="thes__committee-card">'
+        f'<span class="thes__badge thes__badge--{status}">{COMMITTEE_STATUS_LABELS[status]}</span>'
+        f'<h3>{committee["name"]}</h3>'
+        f'<p>{committee["description"]}</p>'
+        f"{chair_line}"
+        f'<a class="thes__btn thes__btn--yellow" href="{form_url}" target="_blank" rel="noopener">Volunteer with {committee["name"]}</a>'
+        '<details class="thes__committee-more"><summary>Learn More</summary>'
+        '<div class="thes__committee-more-body">'
+        f'<ul class="thes__checklist-plain">{activities}</ul>'
+        f"<p>{status_note}</p>"
+        "</div></details>"
+        "</div>"
+    )
+
+
+def build_committees_section(committees, volunteer_form):
+    """Whole committees page body: the two sections the spec calls for
+    (chair-needed first, then members-welcome), each a card grid, plus a
+    closing "not sure where to help" CTA into the same form with no
+    committee — or rather a "help me choose" placeholder value —
+    pre-selected. All 10 committees live on this one page; no per-
+    committee URLs exist anywhere."""
+    chair_needed = [c for c in committees if c["status"] == "chair-needed"]
+    members_welcome = [c for c in committees if c["status"] == "members-welcome"]
+    chair_needed_html = "\n".join(indent(render_committee_card(c, volunteer_form), 6) for c in chair_needed)
+    members_welcome_html = "\n".join(indent(render_committee_card(c, volunteer_form), 6) for c in members_welcome)
+    not_sure_url = build_volunteer_form_url(volunteer_form, "Not sure — help me choose.")
+    section_tmpl = (TEMPLATES / "committees-section.html.tmpl").read_text()
+    return render(section_tmpl, {
+        "CHAIR_NEEDED_CARDS": chair_needed_html,
+        "MEMBERS_WELCOME_CARDS": members_welcome_html,
+        "NOT_SURE_FORM_URL": not_sure_url,
+    })
+
+
 def colorize_title_words(text):
     """Alternate each word's color between the site's dark text tone and
     teal — the same two-tone treatment already used in the home hero
@@ -332,45 +415,64 @@ PAGE_TITLES = {
     "get-involved.html": "Join Us",
     "events.html": "Upcoming Events",
     "newsletter.html": "The Newsletter",
+    "get-involved/committees.html": "Committees",
 }
 
 
 def main():
-    context = build_context()
-    tokens = build_tokens(context)
-    header = build_header(context)
-    footer = build_footer(context)
+    # These don't depend on page depth (no internal page_urls/image
+    # links of their own), so they're built once and reused for whatever
+    # page(s) actually reference them — same as before this file
+    # supported nested pages at all.
     board_cards = build_board_cards()
-
     events = load_json("events.json", default=[])
-    home_events_section = build_home_events_section(events, context)
-    events_page_section = build_events_page_section(events, context)
-
-    sponsors_section = build_optional_section(
-        "sponsors.json", "card-sponsor.html.tmpl", "sponsors-section.html.tmpl", "SPONSOR_CARDS", context
-    )
-    flyers_section = build_optional_section(
-        "flyers.json", "card-flyer.html.tmpl", "flyers-section.html.tmpl", "FLYER_CARDS", context
+    committees_section = build_committees_section(
+        load_json("committees.json", default=[]), load_json("site.json")["volunteerForm"]
     )
 
-    shared_markers = {
-        "{{TOKENS}}": tokens,
-        "{{FOOTER}}": footer,
-        "{{BOARD_CARDS}}": board_cards,
-        "{{EVENTS_SECTION}}": home_events_section,
-        "{{EVENTS_LIST_SECTION}}": events_page_section,
-        "{{SPONSORS_SECTION}}": sponsors_section,
-        "{{FLYERS_SECTION}}": flyers_section,
-    }
-
-    page_templates = sorted((TEMPLATES / "pages").glob("*.html.tmpl"))
+    page_templates = sorted((TEMPLATES / "pages").rglob("*.html.tmpl"))
     if not page_templates:
         raise SystemExit("No page templates found in src/templates/pages/")
 
     PAGES_OUT.mkdir(exist_ok=True)
+    context_by_depth = {}
 
     for tmpl_path in page_templates:
-        page_name = tmpl_path.name.removesuffix(".tmpl")
+        rel = tmpl_path.relative_to(TEMPLATES / "pages")
+        depth = len(rel.parts) - 1
+        page_name = str(rel).removesuffix(".tmpl")
+
+        # Everything that depends on page_urls.*/HERO_IMAGE_URL/etc has to
+        # be rebuilt per depth — a page one directory down needs "../"
+        # prefixes a top-level page doesn't. Cheap to just rebuild (this
+        # site has a handful of pages total) and memoizing per depth
+        # avoids redoing it once per page at the same depth.
+        if depth not in context_by_depth:
+            context_by_depth[depth] = build_context(depth)
+        context = context_by_depth[depth]
+        tokens = build_tokens(context)
+        header = build_header(context)
+        footer = build_footer(context)
+        home_events_section = build_home_events_section(events, context)
+        events_page_section = build_events_page_section(events, context)
+        sponsors_section = build_optional_section(
+            "sponsors.json", "card-sponsor.html.tmpl", "sponsors-section.html.tmpl", "SPONSOR_CARDS", context
+        )
+        flyers_section = build_optional_section(
+            "flyers.json", "card-flyer.html.tmpl", "flyers-section.html.tmpl", "FLYER_CARDS", context
+        )
+
+        shared_markers = {
+            "{{TOKENS}}": tokens,
+            "{{FOOTER}}": footer,
+            "{{BOARD_CARDS}}": board_cards,
+            "{{EVENTS_SECTION}}": home_events_section,
+            "{{EVENTS_LIST_SECTION}}": events_page_section,
+            "{{SPONSORS_SECTION}}": sponsors_section,
+            "{{FLYERS_SECTION}}": flyers_section,
+            "{{COMMITTEES_SECTION}}": committees_section,
+        }
+
         page_context = context
         if page_name in PAGE_TITLES:
             page_context = {**context, "PAGE_TITLE": colorize_title_words(PAGE_TITLES[page_name])}
@@ -400,8 +502,11 @@ def main():
         # viewport instead of the device's real width.
         # index.html is the home page (named that so it loads automatically
         # at the domain root) but should still say "Home" in the browser
-        # tab, not the literal filename.
-        page_title = "Home" if page_name == "index.html" else page_name.removesuffix(".html").replace("-", " ").title()
+        # tab, not the literal filename. For any other page, use just the
+        # last path segment (Path.stem) as the title base, ignoring any
+        # parent directories — "get-involved/committees.html" should say
+        # "Committees", not "Get-Involved/Committees".
+        page_title = "Home" if page_name == "index.html" else Path(page_name).stem.replace("-", " ").title()
         text = (
             "<!DOCTYPE html>\n"
             '<html lang="en">\n<head>\n<meta charset="UTF-8">\n'
@@ -411,6 +516,7 @@ def main():
         )
 
         out_path = PAGES_OUT / page_name
+        out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(text)
         print(f"  built {out_path.relative_to(ROOT)}")
 
@@ -421,7 +527,7 @@ def main():
     # can never drift out of sync with what the site actually claims to
     # be. .github/workflows/deploy.yml copies this into site/ alongside
     # pages/*.html and assets/images/*.
-    custom_domain = context.get("custom_domain")
+    custom_domain = load_json("site.json").get("custom_domain")
     if custom_domain:
         (PAGES_OUT / "CNAME").write_text(custom_domain + "\n")
         print(f"  built {(PAGES_OUT / 'CNAME').relative_to(ROOT)} ({custom_domain})")

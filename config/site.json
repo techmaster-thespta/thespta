@@ -19,15 +19,22 @@
     "events": "events",
     "get_involved": "get-involved",
     "about": "about",
-    "newsletter": "newsletter"
+    "newsletter": "newsletter",
+    "committees": "get-involved/committees"
   },
   "nav": [
     { "label": "Home", "page_url": "home" },
     { "label": "About", "page_url": "about" },
-    { "label": "Get Involved", "page_url": "get_involved" },
+    { "label": "Get Involved", "page_url": "get_involved", "children": [
+      { "label": "Committees", "page_url": "committees" }
+    ] },
     { "label": "Events", "page_url": "events" },
     { "label": "THES Happenings", "page_url": "newsletter" }
   ],
+  "volunteerForm": {
+    "baseUrl": "https://docs.google.com/forms/d/e/REPLACE_WITH_REAL_FORM_ID/viewform",
+    "committeeFieldId": "entry.REPLACE_WITH_REAL_ENTRY_ID"
+  },
   "hero_image_filename": "hero-banner.jpg",
   "page_header_image_filename": "page-header-no-text.jpg",
   "social": {

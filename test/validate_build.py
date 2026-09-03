@@ -76,7 +76,7 @@ def main():
         print("No /pages directory found — run `python3 src/build.py` first.")
         return 1
 
-    page_files = sorted(glob.glob(str(PAGES / "*.html")))
+    page_files = sorted(glob.glob(str(PAGES / "**" / "*.html"), recursive=True))
     if not page_files:
         print("No generated pages found in /pages — run `python3 src/build.py` first.")
         return 1
