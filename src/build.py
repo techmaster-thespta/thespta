@@ -234,7 +234,7 @@ def render_event_attachments(attachments):
         if thumb_url:
             items.append(
                 f'<a class="thes__flyer" href="{a["href"]}" target="_blank" rel="noopener">'
-                f'<img src="{thumb_url}" alt="" width="72" height="72" loading="lazy">'
+                f'<img src="{thumb_url}" alt="" width="120" height="120" loading="lazy">'
                 f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
             )
         else:
