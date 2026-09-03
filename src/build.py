@@ -139,20 +139,32 @@ def render_nav_items(items, context):
     dropdown submenu — this is the hook for a future page to gain
     subpages without touching this function again, just config. A parent
     with children and no page_url of its own (omit "page_url") renders as
-    a non-link dropdown trigger rather than a page link."""
+    a non-link dropdown trigger rather than a page link.
+
+    A parent item gets its own checkbox (the same pure-CSS checkbox-hack
+    the mobile hamburger menu itself uses) so its submenu is collapsed by
+    default on mobile and only expands when its caret is tapped — on
+    desktop this checkbox/caret pair sits unused and the submenu opens on
+    hover/focus instead. See the ".thes__submenu-toggle" rules in
+    tokens.html.tmpl."""
     html = []
-    for item in items:
+    for i, item in enumerate(items):
         label = item["label"]
         href = context[f"page_urls.{item['page_url']}"] if item.get("page_url") else None
         children = item.get("children")
         if children:
+            toggle_id = f"thes-nav-toggle-{i}"
             child_html = "".join(
                 f'<li><a href="{context[f"page_urls.{c["page_url"]}"]}">{c["label"]}</a></li>'
                 for c in children
             )
             trigger = f'<a href="{href}">{label}</a>' if href else f'<span class="thes__nav-trigger">{label}</span>'
             html.append(
-                f'<li class="thes__nav-item thes__nav-item--parent">{trigger}'
+                f'<li class="thes__nav-item thes__nav-item--parent">'
+                f'<input type="checkbox" id="{toggle_id}" class="thes__submenu-toggle">'
+                f'<span class="thes__nav-item-row">{trigger}'
+                f'<label for="{toggle_id}" class="thes__nav-caret" aria-label="Show {label} submenu"></label>'
+                f'</span>'
                 f'<ul class="thes__nav-submenu">{child_html}</ul></li>'
             )
         else:

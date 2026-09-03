@@ -69,8 +69,10 @@
      render_nav_items) — a flat list today, but any item can carry a
      "children" list to become a one-level dropdown, so a future subpage
      is a config change, not a template change. Desktop shows a dropdown
-     on hover/focus; mobile just lists children indented, always visible
-     once the mobile menu itself is open (no nested toggle needed). */
+     on hover/focus; mobile keeps it collapsed behind a caret the same
+     way the hamburger menu itself is a checkbox-hack toggle — tapping
+     the parent label doesn't expand it (that's the checkbox's own
+     hidden native behavior being sidestepped), tapping the caret does. */
   .thes__header { background: #fff; border-bottom: 1px solid var(--border); }
   .thes__header-wrap { max-width: 1200px; margin: 0 auto; padding: 14px 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
   .thes__header-brand { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--navy); text-decoration: none; }
@@ -78,12 +80,19 @@
   .thes__header-nav a, .thes__nav-trigger { text-decoration: none; font-weight: 700; font-size: 0.88rem; color: var(--text); cursor: pointer; }
   .thes__header-nav a:hover, .thes__nav-trigger:hover { color: var(--blue); }
   .thes__nav-item { position: relative; }
+  .thes__nav-item-row { display: flex; align-items: center; gap: 4px; }
   .thes__nav-submenu { display: none; list-style: none; margin: 0; padding: 8px 0; position: absolute; top: 100%; left: 0; min-width: 190px; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 24px rgba(7,59,104,0.12); z-index: 20; }
   .thes__nav-item--parent:hover .thes__nav-submenu, .thes__nav-item--parent:focus-within .thes__nav-submenu { display: block; }
   .thes__nav-submenu a { display: block; padding: 8px 16px; }
   .thes__nav-submenu a:hover { background: var(--bg-tint); }
-  .thes__menu-toggle { display: none; }
+  .thes__menu-toggle, .thes__submenu-toggle { display: none; }
   .thes__menu-btn { display: none; }
+  .thes__nav-caret { display: none; }
+  .thes__nav-caret::before {
+    content: ""; display: block; width: 8px; height: 8px;
+    border-right: 2px solid var(--navy); border-bottom: 2px solid var(--navy);
+    transform: rotate(45deg); transition: transform 0.15s ease;
+  }
   @media (max-width: 699px) {
     .thes__header-wrap { position: relative; padding-left: 60px; }
     .thes__menu-btn {
@@ -98,7 +107,14 @@
     .thes__header-nav ul { flex-direction: column; gap: 0; }
     .thes__header-nav a, .thes__nav-trigger { padding: 10px 2px; }
     .thes__menu-toggle:checked ~ .thes__header-nav { display: block; }
-    .thes__nav-submenu { display: block; position: static; box-shadow: none; border: none; padding: 0 0 4px 16px; }
+    .thes__nav-item-row { justify-content: space-between; }
+    .thes__nav-caret {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; margin: -6px 0; cursor: pointer;
+    }
+    .thes__submenu-toggle:checked ~ .thes__nav-item-row .thes__nav-caret::before { transform: rotate(-135deg); }
+    .thes__nav-submenu { display: none; position: static; box-shadow: none; border: none; padding: 0 0 4px 16px; }
+    .thes__submenu-toggle:checked ~ .thes__nav-submenu { display: block; }
   }
 
   /* ---- Page header (About / Get Involved / Events) ----
@@ -291,7 +307,7 @@
       <ul>
 <li class="thes__nav-item"><a href="index.html">Home</a></li>
 <li class="thes__nav-item"><a href="about.html">About</a></li>
-<li class="thes__nav-item thes__nav-item--parent"><a href="get-involved.html">Get Involved</a><ul class="thes__nav-submenu"><li><a href="get-involved/committees.html">Committees</a></li></ul></li>
+<li class="thes__nav-item thes__nav-item--parent"><input type="checkbox" id="thes-nav-toggle-2" class="thes__submenu-toggle"><span class="thes__nav-item-row"><a href="get-involved.html">Get Involved</a><label for="thes-nav-toggle-2" class="thes__nav-caret" aria-label="Show Get Involved submenu"></label></span><ul class="thes__nav-submenu"><li><a href="get-involved/committees.html">Committees</a></li></ul></li>
 <li class="thes__nav-item"><a href="events.html">Events</a></li>
 <li class="thes__nav-item"><a href="newsletter.html">THES Happenings</a></li>
       </ul>
