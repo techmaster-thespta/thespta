@@ -115,10 +115,17 @@ scripts/build.sh                # same as the first command, path-independent
 - `.claude/skills/` — one skill per addable content type (`add-event`,
   `add-board-member`, `add-sponsor`, `add-flyer`), the GitHub issue
   workflow (`create-issue` to plan a change and file it, `from-issue` to
-  pull an issue by number, implement it, open a PR), and `rebuild-now`
+  pull an issue by number, implement it, open a PR), `rebuild-now`
   (push pending changes + force an immediate rebuild/redeploy, for
   last-minute changes the user wants live right away rather than waiting
-  on the hourly sync or normal push pipeline).
+  on the hourly sync or normal push pipeline), and `release` (verify
+  `main`, bump `VERSION`, write a board-friendly `CHANGELOG.md` entry,
+  cut a tagged GitHub Release — only when the user actually asks for one,
+  not automatically on every change).
+- `VERSION` / `CHANGELOG.md` — the site's version number and a
+  plain-language changelog meant to be shared with the PTA board, not
+  just developers. Both only ever move together, via the `release` skill
+  — don't hand-edit either mid-change.
 - `scripts/sync_calendar_events.py` — generates `config/events.json` from
   the public Google Calendar `.ics` feed (stdlib-only RRULE expansion, no
   API key), including any file attached to an event (rendered as a

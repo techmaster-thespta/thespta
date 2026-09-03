@@ -188,12 +188,10 @@
   .thes__event-description { margin: 6px 0 0; color: var(--text-muted); font-size: 0.86rem; line-height: 1.5; }
 
   /* ---- Flyer preview on an event (from a Calendar file attachment) ---- */
-  .thes__event-attachments { margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-  .thes__event-attachments-label { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); }
-  .thes__event-attachments .thes__flyer { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-size: 0.82rem; font-weight: 700; color: var(--blue); }
-  .thes__flyer img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); background: #fff; flex-shrink: 0; }
+  .thes__event-attachments { margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .thes__event-attachments .thes__flyer { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-size: 0.82rem; font-weight: 700; color: var(--blue); }
+  .thes__flyer img { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); background: #fff; flex-shrink: 0; }
   .thes__event-attachments .thes__flyer:hover span { text-decoration: underline; }
-  .thes__featured-event .thes__event-attachments-label { color: rgba(255,255,255,0.7); }
   .thes__featured-event .thes__event-attachments .thes__flyer { color: var(--yellow); }
 
   /* ---- Join / CTA band ---- */
@@ -208,6 +206,8 @@
   .thes__info-row a { text-decoration: none; font-weight: 600; overflow-wrap: anywhere; }
   .thes__board { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
   .thes__board-member { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px; min-width: 0; }
+  .thes__board-photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+  .thes__board-photo-placeholder { width: 100%; aspect-ratio: 4 / 5; border-radius: 8px; margin-bottom: 10px; background: var(--bg-tint); display: flex; align-items: center; justify-content: center; color: var(--border); }
   .thes__board-role { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--blue); }
   .thes__board-name { font-weight: 700; margin-top: 4px; }
   .thes__board-email { display: block; margin-top: 4px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; overflow-wrap: anywhere; }
@@ -232,6 +232,9 @@
   .thes__footer p, .thes__footer a { font-size: 0.88rem; color: rgba(255,255,255,0.8); text-decoration: none; margin: 0; }
   .thes__footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
   .thes__footer a:hover { text-decoration: underline; }
+  .thes__social-links { display: flex; gap: 12px; margin-top: 8px; }
+  .thes__social-links a { display: inline-flex; }
+  .thes__social-links a:hover { color: #fff; text-decoration: none; }
   .thes__footer-bottom { border-top: 1px solid rgba(255,255,255,0.15); text-align: center; padding: 14px; font-size: 0.78rem; color: rgba(255,255,255,0.6); }
 </style>
 
@@ -257,17 +260,49 @@
   <div class="thes__pagehead">
     <div class="thes__pagehead-text">
       <span class="thes__eyebrow">Get Involved</span>
-      <h1>There's a Place for Every Family</h1>
-      <p>No time commitment is too small. Whether you have five minutes or five hours a month, there's a way to pitch in.</p>
+      <h1>Join Us — No Strings Attached</h1>
+      <p>Becoming a member is the main thing we ask, and it's the only thing we ask. Attending meetings or volunteering is always completely optional.</p>
     </div>
     <div class="thes__pagehead-media">
       <img src="images/page-header-no-text.jpg" alt="Thunder Hill Elementary School">
     </div>
   </div>
 
-  <!-- ===== Ways to help ===== -->
+  <!-- ===== Membership ===== -->
+  <section class="thes__section thes__section--tint">
+    <div class="thes__wrap thes__two-col">
+      <div>
+        <span class="thes__eyebrow">Membership</span>
+        <h2 style="margin-top:8px; font-size:clamp(1.3rem,2.6vw,1.7rem);">Become a Member</h2>
+        <p style="color:var(--text-muted); margin-top:14px;">
+          Joining Thunder Hill Elementary PTA is how you support Thunder Hill — full stop.
+          There's no expectation that members attend meetings, volunteer at events,
+          or join a committee. Your membership alone already helps cover the cost
+          of the programs we fund.
+        </p>
+        <p style="color:var(--text-muted); margin-top:14px;">
+          If you'd ever like to do more, membership also gives you a vote at meetings
+          and priority for volunteer sign-ups — but that part is always up to you.
+        </p>
+        <a class="thes__btn thes__btn--navy" href="https://1thes.givebacks.com/shop?search=Membership" target="_blank" rel="noopener" style="margin-top:18px;">Join via Membership Portal</a>
+      </div>
+      <div class="thes__info-card">
+        <div class="thes__info-row"><span>Cost</span><span>$16 per year — student, individual, faculty/staff, and business memberships available</span></div>
+        <div class="thes__info-row"><span>Required to attend or volunteer?</span><span>No — never</span></div>
+        <div class="thes__info-row"><span>Includes</span><span>Voting rights &amp; volunteer priority, if you want them</span></div>
+        <div class="thes__info-row"><span>Renews</span><span>Every August</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Ways to help (fully optional) ===== -->
   <section class="thes__section">
     <div class="thes__wrap">
+      <div class="thes__section-head">
+        <span class="thes__eyebrow">Completely Optional</span>
+        <h2>Want to Do More?</h2>
+        <p>None of this is expected of members — it's only here for anyone who has a few minutes or a few hours to spare and wants to pitch in beyond joining.</p>
+      </div>
       <div class="thes__grid">
 
         <div class="thes__card thes__card--teal">
@@ -306,32 +341,11 @@
     </div>
   </section>
 
-  <!-- ===== Membership ===== -->
+  <!-- ===== How it works (for anyone who does want to help) ===== -->
   <section class="thes__section thes__section--tint">
-    <div class="thes__wrap thes__two-col">
-      <div>
-        <span class="thes__eyebrow">Membership</span>
-        <h2 style="margin-top:8px; font-size:clamp(1.3rem,2.6vw,1.7rem);">Become a Member</h2>
-        <p style="color:var(--text-muted); margin-top:14px;">
-          Membership is $10 per family, per school year and includes a vote at general meetings,
-          member-only volunteer sign-ups, and a say in how funds are spent. Everyone
-          is welcome at events and to volunteer whether or not you're a member.
-        </p>
-        <a class="thes__btn thes__btn--navy" href="https://1thes.givebacks.com/shop?search=Membership" target="_blank" rel="noopener" style="margin-top:18px;">Join via Membership Portal</a>
-      </div>
-      <div class="thes__info-card">
-        <div class="thes__info-row"><span>Cost</span><span>$10 per family, per school year</span></div>
-        <div class="thes__info-row"><span>Includes</span><span>Voting rights &amp; volunteer sign-up priority</span></div>
-        <div class="thes__info-row"><span>Renews</span><span>Every August</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== How it works ===== -->
-  <section class="thes__section">
     <div class="thes__wrap">
       <div class="thes__section-head">
-        <span class="thes__eyebrow">How It Works</span>
+        <span class="thes__eyebrow">If You'd Like to Help</span>
         <h2>Signing Up Takes Three Steps</h2>
       </div>
       <div class="thes__steps">
@@ -357,7 +371,7 @@
       <div class="thes__footer-grid">
         <div>
           <div class="thes__footer-brand">Thunder Hill Elementary PTA</div>
-          <p>Thunder Hill Elementary School<br>9357 Scaggsville Rd<br>Columbia, MD 21045</p>
+          <p>Thunder Hill Elementary School<br>9357 Mellenbrook Road<br>Columbia, MD 21045</p>
         </div>
         <div>
           <h4>Quick Links</h4>
@@ -366,18 +380,26 @@
             <li><a href="events.html" target="_top">Events</a></li>
             <li><a href="get-involved.html" target="_top">Get Involved</a></li>
             <li><a href="about.html" target="_top">About</a></li>
+            <li><a href="newsletter.html" target="_top">THES Happenings</a></li>
             <li><a href="https://1thes.givebacks.com/shop" target="_blank" rel="noopener">Shop</a></li>
           </ul>
         </div>
         <div>
           <h4>Connect</h4>
-          <p><a href="mailto:pta@thunderhillpta.org">pta@thunderhillpta.org</a></p>
-          <p style="margin-top:6px;"><a href="#">Facebook</a> &middot; <a href="#">Instagram</a></p>
+          <p><a href="mailto:president.thespta@gmail.com">president.thespta@gmail.com</a></p>
+          <p class="thes__social-links">
+            <a href="https://www.facebook.com/share/195cbRL7Qp/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Facebook">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V8c0-.9.2-1.5 1.6-1.5H17V3.7C16.6 3.6 15.4 3.5 14 3.5c-2.8 0-4.7 1.7-4.7 4.9V10H6.5v3.1h2.8V21h4.2z"/></svg>
+            </a>
+            <a href="https://www.instagram.com/thunderhilles_pta?igsi=MTVsYW5reXl0MXd5Yw==" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="0.6" fill="currentColor" stroke="none"/></svg>
+            </a>
+          </p>
         </div>
         <div>
           <h4>Stay in the Know</h4>
           <p>Subscribe to our newsletter for the latest updates.</p>
-          <p style="margin-top:6px;"><a href="#">Subscribe &rarr;</a></p>
+          <p style="margin-top:6px;"><a href="https://app.smore.com/n/mahp4">Subscribe &rarr;</a></p>
         </div>
       </div>
       <div class="thes__footer-bottom">&copy; 2026 Thunder Hill Elementary PTA. All rights reserved.</div>

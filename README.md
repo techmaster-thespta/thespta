@@ -58,3 +58,4 @@ kind of addition, each scoped to config-only edits.
 | `.github/workflows/` | `deploy.yml` (build → validate → deploy-to-Pages, on push), `sync-events.yml` (hourly calendar sync) |
 | `.claude/` | Instructions and skills for AI agents working in this repo |
 | `.mcp.json` | GitHub MCP server declaration (token via env var, not committed) — see `docs/github-agent-setup.md` |
+| `VERSION` / `CHANGELOG.md` | The site's version and a plain-language changelog, shareable with the PTA board — see the `release` skill |

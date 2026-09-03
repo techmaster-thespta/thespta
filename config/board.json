@@ -1,10 +1,10 @@
 [
-  { "role": "President", "name": "Maria Alvarez", "email": "president@thunderhillpta.org" },
-  { "role": "Vice President, Programs", "name": "James Whitfield", "email": "programs@thunderhillpta.org" },
-  { "role": "Vice President, Volunteers", "name": "Priya Nair", "email": "volunteers@thunderhillpta.org" },
-  { "role": "Treasurer", "name": "Daniel Osei", "email": "treasurer@thunderhillpta.org" },
-  { "role": "Secretary", "name": "Lin Chen", "email": "secretary@thunderhillpta.org" },
-  { "role": "Fundraising Chair", "name": "Sofia Ramirez", "email": "fundraising@thunderhillpta.org" },
-  { "role": "Membership Chair", "name": "Kevin Brooks", "email": "membership@thunderhillpta.org" },
-  { "role": "Communications Chair", "name": "Aisha Bello", "email": "communications@thunderhillpta.org" }
+  { "role": "President", "name": "Natalie Miskimins", "email": "president.thespta@gmail.com", "photo_filename": "board-natalie-miskimins.jpg" },
+  { "role": "1st Vice President & Events Committee Chair", "name": "Leila Phillips", "photo_filename": "board-leila-phillips.jpg" },
+  { "role": "2nd Vice President & Fundraising Committee Chair", "name": "Vacant" },
+  { "role": "Treasurer & Budget Committee Chair", "name": "Rachel Swan", "photo_filename": "board-rachel-swan.jpg" },
+  { "role": "Recording Secretary & Grants Committee Chair", "name": "Sarah Murray", "photo_filename": "board-sarah-murray.jpg" },
+  { "role": "Finance Secretary & Financial Review Committee Chair", "name": "Erin Adediran", "photo_filename": "board-erin-adediran.jpg" },
+  { "role": "PTACHC Representative", "name": "Meghan Thon", "photo_filename": "board-meghan-thon.jpg" },
+  { "role": "PTACHC Representative", "name": "Vacant" }
 ]

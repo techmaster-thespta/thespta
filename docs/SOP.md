@@ -59,7 +59,8 @@ Requires only Python 3 — no npm, no installs, nothing to configure.
 | `membership_portal_href` | Where "Join PTA" / "Become a Member" buttons point. Currently the Givebacks shop pre-filtered to membership items: `https://1thes.givebacks.com/shop?search=Membership` — the shop lists each membership tier (student, individual, faculty/staff, business, etc.) as a separately named product, and this one search catches all of them. If a tier ever needs its own dedicated link instead, add a new `*_membership_href` field per tier and wire it in wherever that tier should link. |
 | `shop_href` | The Givebacks shop's own landing page (`https://1thes.givebacks.com/shop`) — linked from the footer's Quick Links as "Shop" |
 | `social.facebook_href`, `social.instagram_href` | Footer social links |
-| `newsletter_href` | Footer "Subscribe" link |
+| `newsletter_href` | Footer "Subscribe" link, and the "Subscribe for Future Issues" button on the THES Happenings page — the real Smore newsletter URL |
+| `newsletter_embed_src` | The Smore URL actually embedded as an iframe on the THES Happenings page (same newsletter, with `?embedded` appended) — update both together if the Smore newsletter's URL ever changes |
 | `google_sites_base_url` | The Google Site's base URL — currently the custom domain `https://www.thespta.org` (see `docs/website-setup.md` → "Custom domain"). Only touch this if the domain ever changes or is removed. |
 | `page_urls.*` | The **slug** of each page's Google Sites sub-page (e.g. `"home"`, `"get-involved"`) — every internal link (nav cards, buttons) is built as `google_sites_base_url` + `/` + this slug, so clicking a link keeps the visitor inside Google Sites' own nav/header/footer instead of dropping them onto a bare embedded page |
 | `copyright_year` | Footer copyright line |
@@ -95,10 +96,15 @@ the `<link>` URL it gives you).
 
 **File:** `config/board.json` · **Skill:** `.claude/skills/add-board-member/`
 
-Each entry is `{ "role": "...", "name": "...", "email": "..." }`. Add a new
-`{ }` entry (comma-separated) for a new board member, delete one to remove
-someone, or edit the text directly. This list appears once, on the About
-page.
+Each entry is `{ "role": "...", "name": "...", "email": "...", "photo_filename": "..." }`.
+`role` and `name` are required; `email` and `photo_filename` are both
+optional — a seat with no photo gets a neutral placeholder icon instead
+of a broken image, and a vacant seat (`"name": "Vacant"`) should have
+neither. Photo files go in `assets/images/` (flat, no subfolder), same as
+the hero/page-header images. Add a new `{ }` entry (comma-separated) for
+a new board member, delete one to remove someone (or set its name to
+`"Vacant"` if the seat still exists but is unfilled), or edit the text
+directly. This list appears once, on the About page.
 
 ---
 
@@ -241,6 +247,15 @@ pipeline or the hourly calendar sync? Trigger a rebuild directly:
 **Actions** tab → "Build, validate, and deploy to GitHub Pages" → **Run
 workflow**. If you're asking an AI agent to do this, it's the
 `rebuild-now` skill (`.claude/skills/rebuild-now/`).
+
+**Want a shareable summary of what's new** — e.g. to send the board an
+update? That's a release, not just a push: ask an AI agent to use the
+`release` skill (`.claude/skills/release/`), which bumps `VERSION`,
+writes a plain-language entry in `CHANGELOG.md`, and cuts a tagged
+GitHub Release at
+`https://github.com/techmaster-thespta/thespta/releases`. Only do this
+when you actually want a shareable snapshot — not after every small
+change.
 
 ---
 

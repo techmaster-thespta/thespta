@@ -128,10 +128,40 @@ def build_footer(context):
     return render((TEMPLATES / "footer.html.tmpl").read_text(), context)
 
 
+def render_board_photo(member):
+    """A board member's headshot, served from assets/images/ like the
+    hero/page-header images — or a neutral placeholder for a vacant seat
+    (no `photo_filename` in config/board.json), so the grid stays visually
+    aligned instead of some cards being taller than others."""
+    filename = member.get("photo_filename")
+    if filename:
+        return f'<img class="thes__board-photo" src="images/{filename}" alt="{member["name"]}">'
+    return (
+        '<div class="thes__board-photo-placeholder" aria-hidden="true">'
+        '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">'
+        '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 4-7 8-7s8 2.5 8 7"/></svg>'
+        "</div>"
+    )
+
+
+def render_board_email(member):
+    """Omit the email line entirely rather than link to a blank/guessed
+    address — not every real board member has a published email, and a
+    vacant seat never does."""
+    email = member.get("email")
+    if not email:
+        return ""
+    return f'<a class="thes__board-email" href="mailto:{email}">{email}</a>'
+
+
 def build_board_cards():
     board = load_json("board.json", default=[])
     card_tmpl = (TEMPLATES / "card-board-member.html.tmpl").read_text()
-    return "\n".join(indent(render(card_tmpl, member)) for member in board)
+    cards = []
+    for member in board:
+        ctx = {**member, "PHOTO": render_board_photo(member), "EMAIL_LINK": render_board_email(member)}
+        cards.append(indent(render(card_tmpl, ctx)))
+    return "\n".join(cards)
 
 
 DRIVE_FILE_ID = re.compile(r"/file/d/([\w-]+)|[?&]id=([\w-]+)")
@@ -159,10 +189,13 @@ def render_event_attachments(attachments):
     thumbnail preview, or a plain text link when there's no thumbnail to
     show. Returns "" if the event has none.
 
-    The link text is always ATTACHMENT_LINK_TEXT, not the attachment's own
-    filename — Calendar attachments commonly get an auto-generated
-    filename (a photo upload UUID, a scan's default name), which reads as
-    noise/clutter next to an event, not useful link text."""
+    The thumbnail is sized big enough that the picture itself is
+    recognizable (not just a tiny icon) — that's what signals "there's
+    more here," so no "Flyer:" label is needed alongside it, just the
+    click-through text. The link text is always ATTACHMENT_LINK_TEXT, not
+    the attachment's own filename — Calendar attachments commonly get an
+    auto-generated filename (a photo upload UUID, a scan's default name),
+    which reads as noise/clutter next to an event, not useful link text."""
     if not attachments:
         return ""
     items = []
@@ -171,13 +204,12 @@ def render_event_attachments(attachments):
         if thumb_url:
             items.append(
                 f'<a class="thes__flyer" href="{a["href"]}" target="_blank" rel="noopener">'
-                f'<img src="{thumb_url}" alt="" width="40" height="40" loading="lazy">'
+                f'<img src="{thumb_url}" alt="" width="72" height="72" loading="lazy">'
                 f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
             )
         else:
             items.append(f'<a class="thes__flyer" href="{a["href"]}" target="_blank" rel="noopener"><span>{ATTACHMENT_LINK_TEXT}</span></a>')
-    label = "Flyers" if len(attachments) > 1 else "Flyer"
-    return f'<div class="thes__event-attachments"><span class="thes__event-attachments-label">{label}:</span>{"".join(items)}</div>'
+    return f'<div class="thes__event-attachments">{"".join(items)}</div>'
 
 
 def render_event_description(description):
