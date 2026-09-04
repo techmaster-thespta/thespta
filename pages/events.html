@@ -26,19 +26,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
+  /* Palette roles, deliberately: navy for headings/structural chrome
+     (footer, event-date badges, step numbers), teal for every link and
+     CTA (eyebrows, nav hover, "Learn More"/"View all" links, primary
+     buttons), yellow reserved for small cheerful accents rather than
+     big surfaces (icon circles, badges, and the highlights already used
+     against the navy featured-event card). --bg-tint is a warm light
+     teal, not the previous cold pale blue, and is what every
+     .thes__section--tint block alternates against plain white for
+     visual depth — never applied to hero/page-header photos. The old
+     --blue token is retired: everything that used it now reads --teal,
+     since the request was to standardize on navy/teal/yellow/white
+     rather than keep a fifth accent color with an overlapping role. */
   .thes {
     --navy: #073B68;
-    --blue: #0874B9;
     --yellow: #FFD719;
     --yellow-text: #8A6C00;
     --teal: #159C9C;
     --teal-tint: #E1F3F3;
     --coral: #F2645A;
     --coral-tint: #FDE7E5;
-    --bg-tint: #159C9C1A;
+    --bg-tint: #EAF6F1;
     --text: #172B3D;
     --text-muted: #566878;
-    --border: #DCE7EE;
+    --border: #DCE5EA;
 
     color: var(--text);
     font-family: 'Lato', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -56,7 +67,7 @@
   .thes__section-head { max-width: 620px; margin: 0 auto 28px; text-align: center; }
   .thes__section-head h2 { font-size: clamp(1.35rem, 4vw, 1.8rem); }
   .thes__section-head p { color: var(--text-muted); margin: 8px 0 0; }
-  .thes__eyebrow { display: inline-block; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue); }
+  .thes__eyebrow { display: inline-block; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--teal); }
 
   /* ---- Header/nav (self-hosted — no Google Sites chrome to rely on) ----
      Desktop: brand + inline nav, unchanged. Below 700px: a three-line
@@ -101,7 +112,7 @@
      open/close toggle (checkbox, class, or inline style) tried to set. */
   .thes__header-nav > ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 20px; }
   .thes__header-nav a, .thes__nav-trigger { text-decoration: none; font-weight: 700; font-size: 0.88rem; color: var(--text); cursor: pointer; }
-  .thes__header-nav a:hover, .thes__nav-trigger:hover { color: var(--blue); }
+  .thes__header-nav a:hover, .thes__nav-trigger:hover { color: var(--teal); }
   .thes__nav-item { position: relative; }
   .thes__nav-item-row { display: flex; align-items: center; gap: 4px; }
   .thes__nav-submenu { display: none; list-style: none; margin: 0; padding: 8px 0; position: absolute; top: 100%; left: 0; min-width: 190px; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 24px rgba(7,59,104,0.12); z-index: 20; }
@@ -160,7 +171,7 @@
      fixed compact height instead of following the aspect ratio. */
   .thes__pagehead { width: 100%; max-width: 1200px; margin: 0 auto; overflow: hidden; }
   .thes__pagehead-text { padding: 28px clamp(20px, 4vw, 48px); min-width: 0; }
-  .thes__pagehead-text .thes__eyebrow { color: var(--blue); }
+  .thes__pagehead-text .thes__eyebrow { color: var(--teal); }
   .thes__pagehead-text h1 { font-size: clamp(1.5rem, 4.4vw, 2.3rem); line-height: 1.15; margin-top: 6px; }
   /* Alternating word colors on page titles, matching the two-tone style
      already baked into the home hero image's headline. */
@@ -189,6 +200,7 @@
      selector here was losing to it, rendering every button's text as
      inherited near-black instead of its intended color (invisible on the
      navy Subscribe/Add-to-Calendar buttons specifically). */
+  .thes__btn.thes__btn--teal { background: var(--teal); color: #fff; }
   .thes__btn.thes__btn--yellow { background: var(--yellow); color: var(--navy); }
   .thes__btn.thes__btn--navy { background: var(--navy); color: #fff; }
   .thes__btn.thes__btn--outline { background: transparent; border-color: var(--navy); color: var(--navy); }
@@ -196,7 +208,7 @@
   /* ---- Icon badges ---- */
   .thes__icon-circle {
     width: 46px; height: 46px; min-width: 46px; border-radius: 999px; display: flex;
-    align-items: center; justify-content: center; color: #fff; background: var(--blue);
+    align-items: center; justify-content: center; color: #fff; background: var(--teal);
   }
   .thes__icon-circle--teal { background: var(--teal); }
   .thes__icon-circle--yellow { background: var(--yellow); color: var(--navy); }
@@ -244,7 +256,7 @@
   .thes__more-events-row:last-child { border-bottom: none; }
   .thes__more-events-row strong { font-size: 0.92rem; }
   .thes__more-events-row span { color: var(--text-muted); font-size: 0.84rem; }
-  .thes__more-events > a { margin-top: 8px; font-weight: 700; font-size: 0.86rem; color: var(--blue); text-decoration: none; }
+  .thes__more-events > a { margin-top: 8px; font-weight: 700; font-size: 0.86rem; color: var(--teal); text-decoration: none; }
 
   .thes__event-list { display: grid; gap: 10px; }
   .thes__events-empty { text-align: center; color: var(--text-muted); background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
@@ -259,7 +271,7 @@
 
   /* ---- Flyer preview on an event (from a Calendar file attachment) ---- */
   .thes__event-attachments { margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-  .thes__event-attachments .thes__flyer { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-size: 0.82rem; font-weight: 700; color: var(--blue); }
+  .thes__event-attachments .thes__flyer { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-size: 0.82rem; font-weight: 700; color: var(--teal); }
   .thes__flyer img { width: 160px; height: auto; border-radius: 8px; border: 1px solid var(--border); background: #fff; flex-shrink: 0; }
   .thes__event-attachments .thes__flyer:hover span { text-decoration: underline; }
   .thes__featured-event .thes__event-attachments .thes__flyer { color: var(--yellow); }
@@ -278,13 +290,13 @@
   .thes__board-member { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px; min-width: 0; }
   .thes__board-photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
   .thes__board-photo-placeholder { width: 100%; aspect-ratio: 4 / 5; border-radius: 8px; margin-bottom: 10px; background: var(--bg-tint); display: flex; align-items: center; justify-content: center; color: var(--border); }
-  .thes__board-role { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--blue); }
+  .thes__board-role { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--teal); }
   .thes__board-name { font-weight: 700; margin-top: 4px; }
   .thes__board-email { display: block; margin-top: 4px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; overflow-wrap: anywhere; }
 
   .thes__checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
   .thes__checklist li { display: flex; gap: 10px; align-items: flex-start; }
-  .thes__checklist svg { flex-shrink: 0; margin-top: 3px; color: var(--blue); }
+  .thes__checklist svg { flex-shrink: 0; margin-top: 3px; color: var(--teal); }
 
   .thes__two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; align-items: start; }
 
@@ -300,7 +312,7 @@
   .thes__badge--chair-needed { background: var(--coral-tint); color: var(--coral); }
   .thes__badge--members-welcome { background: var(--teal-tint); color: var(--teal); }
   .thes__committee-more { margin-top: 4px; }
-  .thes__committee-more summary { cursor: pointer; font-weight: 700; font-size: 0.86rem; color: var(--blue); list-style: none; }
+  .thes__committee-more summary { cursor: pointer; font-weight: 700; font-size: 0.86rem; color: var(--teal); list-style: none; }
   .thes__committee-more summary::-webkit-details-marker { display: none; }
   .thes__committee-more summary::after { content: "\002B"; margin-left: 6px; }
   .thes__committee-more[open] summary::after { content: "\2212"; }

@@ -6,16 +6,15 @@
   },
   "colors": {
     "navy": "#073B68",
-    "blue": "#0874B9",
     "yellow": "#FFD719",
     "yellow_text": "#8A6C00",
     "teal": "#159C9C",
     "teal_tint": "#E1F3F3",
     "coral": "#F2645A",
     "coral_tint": "#FDE7E5",
-    "bg_tint": "#159C9C1A",
+    "bg_tint": "#EAF6F1",
     "text": "#172B3D",
     "text_muted": "#566878",
-    "border": "#DCE7EE"
+    "border": "#DCE5EA"
   }
 }

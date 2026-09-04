@@ -383,7 +383,7 @@ def render_committee_card(committee, volunteer_form):
         f'<h3>{committee["name"]}</h3>'
         f'<p>{committee["description"]}</p>'
         f"{chair_line}"
-        f'<a class="thes__btn thes__btn--yellow" href="{form_url}" target="_blank" rel="noopener">Volunteer with {committee["name"]}</a>'
+        f'<a class="thes__btn thes__btn--teal" href="{form_url}" target="_blank" rel="noopener">Volunteer with {committee["name"]}</a>'
         '<details class="thes__committee-more"><summary>Learn More</summary>'
         '<div class="thes__committee-more-body">'
         f'<ul class="thes__checklist-plain">{activities}</ul>'
