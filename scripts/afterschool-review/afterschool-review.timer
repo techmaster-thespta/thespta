@@ -1,0 +1,9 @@
+[Unit]
+Description=Run the Thunder Hill PTA afterschool-program flyer review daily at noon
+
+[Timer]
+OnCalendar=*-*-* 12:03:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
