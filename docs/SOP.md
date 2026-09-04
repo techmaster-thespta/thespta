@@ -73,16 +73,34 @@ Rebuild + push: `python3 src/build.py` then `git push` (or just push — see Tas
 
 **File:** `config/theme.json`
 
-Every color on the site is one of six named roles — change the hex value once, it updates on all 4 pages the next time you rebuild:
+Every color on the site is one named role in `theme.json`'s `colors`
+block — change a hex value once here, it updates everywhere that role is
+used, on every page, the next time you rebuild. There's no other place
+colors live: templates only ever reference a role by name (e.g.
+`var(--teal)`), never a hardcoded hex, so this file is genuinely the one
+place to edit.
 
 | Role | Default | Where it shows up |
 |---|---|---|
-| `navy` | `#073B68` | Page headers, footer, featured event card, the live calendar's event color |
-| `blue` | `#0874B9` | Links, icon circles |
-| `yellow` | `#FFD719` | Primary buttons (Donate, Join the PTA) |
-| `teal` | `#159C9C` | Accent 1 (Support THES icon, etc.) |
-| `coral` | `#F2645A` | Accent 2 (Join Us icon, etc.) |
-| `bg_tint` | `#EFF7FA` | Alternating light section backgrounds |
+| `navy` | `#073B68` | Headings, footer, featured event card, event-date badges, step numbers |
+| `yellow` | `#FFD719` | Small cheerful accents only — icon circles, and highlights on the navy featured-event card. Deliberately *not* used for big surfaces or primary buttons. |
+| `yellow_text` | `#8A6C00` | Text color paired with a yellow icon-circle background (needs to stay dark for contrast) |
+| `teal` | `#159C9C` | Links, eyebrow labels, hover states, and every primary "join in" CTA button (Explore Our Committees, Join the PTA, Volunteer with \_\_\_, etc.) |
+| `teal_tint` | `#E1F3F3` | "Members Welcome" committee status badge |
+| `coral` | `#F2645A` | One of the "who benefits" icon colors; "Chair Needed" committee status badge |
+| `coral_tint` | `#FDE7E5` | "Chair Needed" committee status badge background |
+| `bg_tint` | `#EAF6F1` | The alternating section background (a warm light teal) used sitewide for visual rhythm between white and tinted sections — never applied to hero/banner photos |
+| `text` / `text_muted` | `#172B3D` / `#566878` | Body text / secondary text |
+| `border` | `#DCE5EA` | Card borders (light blue-gray) |
+
+To recolor the site's teal accent everywhere at once, change `teal` (the
+saturated version, used for links/buttons/text) and `bg_tint` (its very
+light background counterpart) — those two together are what create the
+white/teal alternating look. Secondary/utility buttons (calendar
+subscribe, newsletter subscribe, membership portal) intentionally stay
+navy rather than teal, for visual hierarchy against the primary teal
+CTAs — see `src/templates/tokens.html.tmpl`'s `.thes__btn--navy` /
+`.thes__btn--teal` if you ever want to change which buttons use which.
 
 Fonts are set under `fonts.display` (headings — Montserrat) and
 `fonts.body` (paragraphs — Lato). To change either, you need a font name
