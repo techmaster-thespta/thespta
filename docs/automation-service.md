@@ -44,27 +44,31 @@ why) and verifies the live site afterward before finishing.
 - The repo cloned at `~/devel/pta` (the unit files below assume this
   path via `%h/devel/pta`; edit both `.service` and `.timer`'s
   `WorkingDirectory`/`ExecStart` lines if your clone lives elsewhere).
-- `systemd --user` available and lingering enabled for your account, so
-  the timer still fires when you're not actively logged in:
-
-  ```bash
-  loginctl enable-linger "$(whoami)"
-  ```
+- `systemd --user` available. Lingering (so the timer still fires when
+  you're not actively logged in) is enabled automatically by
+  `install.sh` below if it isn't already on.
 
 ## One-time install
 
 ```bash
-mkdir -p ~/.config/systemd/user
-ln -s ~/devel/pta/scripts/afterschool-review/afterschool-review.service ~/.config/systemd/user/
-ln -s ~/devel/pta/scripts/afterschool-review/afterschool-review.timer ~/.config/systemd/user/
-
-systemctl --user daemon-reload
-systemctl --user enable --now afterschool-review.timer
+bash scripts/afterschool-review/install.sh
 ```
 
-Symlinking (rather than copying) means editing the unit files in the
-repo and running `systemctl --user daemon-reload` is enough to pick up
-changes — no need to re-copy anything.
+This symlinks (not copies) the unit files into
+`~/.config/systemd/user/`, enables lingering if it isn't already on,
+and runs `daemon-reload` + `enable --now`. Symlinking means editing the
+unit files in the repo and re-running `systemctl --user daemon-reload`
+is enough to pick up changes — no need to re-install.
+
+To uninstall:
+
+```bash
+bash scripts/afterschool-review/uninstall.sh
+```
+
+This only removes the schedule — the skill, the script, and the unit
+file templates all stay in the repo either way; re-running `install.sh`
+brings it back.
 
 ## Checking on it
 
@@ -81,14 +85,3 @@ since that's much longer than what belongs in the systemd journal:
 ```bash
 ls ~/.local/state/thespta-afterschool-review/
 ```
-
-## Uninstalling
-
-```bash
-systemctl --user disable --now afterschool-review.timer
-rm ~/.config/systemd/user/afterschool-review.service ~/.config/systemd/user/afterschool-review.timer
-systemctl --user daemon-reload
-```
-
-(This only removes the schedule — the skill, the script, and the unit
-file templates all stay in the repo either way.)
