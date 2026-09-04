@@ -413,6 +413,72 @@ def build_committees_section(committees, volunteer_form):
     })
 
 
+def render_afterschool_program_card(program):
+    """One afterschool program's card: run by an outside provider (iCode,
+    KidzArt, a theatre company, etc.), not the PTA — the flyer image is
+    the source of truth, hotlinked from Drive exactly like an event
+    attachment (see drive_thumbnail_url/render_event_attachments above),
+    never downloaded into this repo. `content_hash` on each config entry
+    is bookkeeping only (lets a future refresh tell which flyers actually
+    changed vs. which are untouched) and is never rendered."""
+    parts = [f'<h3>{program["name"]}</h3>']
+    if program.get("provider"):
+        parts.append(f'<p class="thes__program-provider">{program["provider"]}</p>')
+    if program.get("description"):
+        parts.append(f'<p>{program["description"]}</p>')
+
+    meta_bits = [b for b in (program.get("day_time"), program.get("grades"), program.get("price")) if b]
+    if meta_bits:
+        parts.append(f'<p class="thes__program-meta">{" &middot; ".join(meta_bits)}</p>')
+    if program.get("date_range"):
+        parts.append(f'<p class="thes__program-meta">{program["date_range"]}</p>')
+    if program.get("show_date"):
+        parts.append(f'<p class="thes__program-meta">Show: {program["show_date"]}</p>')
+
+    sessions = program.get("sessions") or []
+    if sessions:
+        rows = "".join(
+            f'<li><strong>{s["label"]}:</strong> {s["dates"]} &mdash; {s.get("classes", "")}, {s.get("price", "")}</li>'
+            for s in sessions
+        )
+        parts.append(f'<ul class="thes__checklist-plain">{rows}</ul>')
+
+    if program.get("contact"):
+        parts.append(f'<p class="thes__program-meta">{program["contact"]}</p>')
+
+    file_id = program.get("flyer_drive_file_id")
+    if file_id:
+        flyer_href = f"https://drive.google.com/file/d/{file_id}/view"
+        thumb_url = drive_thumbnail_url(flyer_href)
+        parts.append(
+            f'<a class="thes__flyer" href="{flyer_href}" target="_blank" rel="noopener">'
+            f'<img src="{thumb_url}" alt="" width="160" loading="lazy">'
+            f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
+        )
+
+    if program.get("registration_href"):
+        parts.append(
+            f'<a class="thes__btn thes__btn--teal" href="{program["registration_href"]}" '
+            f'target="_blank" rel="noopener">Register &rarr;</a>'
+        )
+    if program.get("registration_note"):
+        parts.append(f'<p class="thes__program-meta">{program["registration_note"]}</p>')
+
+    return f'<div class="thes__program-card">{"".join(parts)}</div>'
+
+
+def build_afterschool_programs_section(programs):
+    """Whole Afterschool Programs page body. Same empty-means-no-content
+    pattern as sponsors/flyers/events, except this page always exists
+    (it's in the nav) so an empty config shows a short "nothing posted
+    yet" message rather than the page vanishing."""
+    if not programs:
+        return (TEMPLATES / "afterschool-programs-empty.html.tmpl").read_text()
+    cards = "\n".join(indent(render_afterschool_program_card(p), 6) for p in programs)
+    section_tmpl = (TEMPLATES / "afterschool-programs-section.html.tmpl").read_text()
+    return render(section_tmpl, {"AFTERSCHOOL_PROGRAM_CARDS": cards})
+
+
 def colorize_title_words(text):
     """Alternate each word's color between the site's dark text tone and
     teal — the same two-tone treatment already used in the home hero
@@ -429,6 +495,7 @@ PAGE_TITLES = {
     "events.html": "Upcoming Events",
     "newsletter.html": "The Newsletter",
     "get-involved/committees.html": "Committees",
+    "afterschool-programs.html": "Afterschool Programs",
 }
 
 
@@ -441,6 +508,9 @@ def main():
     events = load_json("events.json", default=[])
     committees_section = build_committees_section(
         load_json("committees.json", default=[]), load_json("site.json")["volunteerForm"]
+    )
+    afterschool_programs_section = build_afterschool_programs_section(
+        load_json("afterschool-programs.json", default=[])
     )
 
     page_templates = sorted((TEMPLATES / "pages").rglob("*.html.tmpl"))
@@ -484,6 +554,7 @@ def main():
             "{{SPONSORS_SECTION}}": sponsors_section,
             "{{FLYERS_SECTION}}": flyers_section,
             "{{COMMITTEES_SECTION}}": committees_section,
+            "{{AFTERSCHOOL_PROGRAMS_SECTION}}": afterschool_programs_section,
         }
 
         page_context = context
