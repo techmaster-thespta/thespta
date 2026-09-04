@@ -132,7 +132,15 @@
       flex-direction: column; gap: 0; width: fit-content; max-width: 100%;
       border-top: 1px solid var(--border); padding-top: 8px;
     }
-    .thes__header-nav a, .thes__nav-trigger { padding: 10px 2px; }
+    /* display: block matters here, not just cosmetic: a plain top-level
+       link's <a> stays an inline element (its vertical padding doesn't
+       count toward the <li>'s layout height), but a dropdown item's <a>
+       sits inside .thes__nav-item-row (display: flex), which blockifies
+       it automatically per the flex spec — so its same padding *does*
+       count there. That mismatch is what made "Get Involved" visibly
+       taller than "Home"/"About". Forcing block here unifies both cases
+       so every top-level item measures the same height. */
+    .thes__header-nav a, .thes__nav-trigger { padding: 10px 2px; display: block; }
     .thes__nav-item-row { justify-content: flex-start; }
     .thes__nav-caret {
       display: flex; align-items: center; justify-content: center;
