@@ -13,7 +13,8 @@
     "registration_href": null,
     "registration_note": "Scan the QR code on the flyer to register.",
     "flyer_drive_file_id": "1jYwU1sHU0ESSUFEOSCU3LUUlVIApi_sp",
-    "content_hash": "6ef36cbb1cd12129ddbfc1013eb5af682cfbab7793b2537e406f75a5edae3d33"
+    "content_hash": "59104f9ea3d65b77bc55afbe1673c28b",
+    "needs_review": false
   },
   {
     "name": "KidzArt at Thunder Hill",
@@ -35,7 +36,8 @@
     "registration_href": "https://centralmd.kidzart.com/",
     "registration_note": "Register for any session securely online, then click “Register Now.”",
     "flyer_drive_file_id": "1dDeweTGT_tpNy7yRec7AH8it7SSX5IGs",
-    "content_hash": "f965185b62e8b0c352604ee6754951377d6a490c49460de2b5cabead2f60de7a"
+    "content_hash": "1a9c75dc74dbf336bc297b192aa08460",
+    "needs_review": false
   },
   {
     "name": "Disney's The Lion King JR",
@@ -51,6 +53,7 @@
     "registration_href": "https://www.cctarts.shop",
     "registration_note": null,
     "flyer_drive_file_id": "1FPUOuNyQVgnsdW2fgiSsup-GGwZMdDCM",
-    "content_hash": "f61de963898dc3490c8bf4728c2880c6f1e8dd0d2d9c4dc4e940988754b9d05f"
+    "content_hash": "8cc8576c86dad06b66050d0b1a2f0f93",
+    "needs_review": false
   }
 ]

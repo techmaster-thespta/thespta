@@ -309,6 +309,72 @@ To wire up the actual form:
 
 ---
 
+## Task 5c — Add, remove, or edit an afterschool program
+
+**File:** `config/afterschool-programs.json` · **Skill:** `.claude/skills/add-afterschool-program/`
+
+Every program on `/afterschool-programs` is run by an outside provider
+(iCode, KidzArt, a theatre company, etc.) — **not** the PTA or the
+school — so the page says so explicitly, and every card is expected to
+carry its own registration link/contact info. Each entry's flyer is a
+Google Drive file, shown as a thumbnail exactly the way an event's
+calendar attachment already is — no image is ever downloaded into this
+repo.
+
+### This page is normally kept up to date automatically
+
+`.github/workflows/sync-afterschool-flyers.yml` runs daily and
+reconciles `config/afterschool-programs.json` against whatever's
+actually in the shared Drive folder
+(`config/site.json`'s `afterschool_flyers_folder_id`):
+
+- A flyer removed from the folder → its card disappears.
+- A brand-new flyer → a placeholder card appears (name guessed from the
+  filename, flagged `"needs_review": true`) until someone fills in the
+  real program details.
+- A changed flyer (same file, different content) → flagged
+  `"needs_review": true`, old details left in place rather than wiped.
+
+**Reading what a flyer actually says (writing the real name, schedule,
+price, description) is not something this automation can do on its
+own** — that's the same kind of visual-understanding task the first
+version of this page was built with. Whenever an entry is flagged
+`needs_review`, open its `flyer_drive_file_id` in Drive (or ask an agent
+to), read the flyer, and update the entry by hand — then clear the flag.
+
+### One-time setup: the Drive API key
+
+The daily sync needs a `GOOGLE_DRIVE_API_KEY` repo secret to actually
+list the folder (unlike the events calendar, Drive has no equivalent
+public, unauthenticated feed for "list a folder's files" — this is the
+one piece of afterschool-programs automation that genuinely needs a
+credential). Until this secret exists, the workflow no-ops harmlessly
+(no daily failure emails) — the page just doesn't auto-update until it's
+set up.
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), create
+   or pick a project, then **APIs & Services → Library**, and enable the
+   **Google Drive API**.
+2. **APIs & Services → Credentials → Create Credentials → API key.**
+3. Click into the new key and, under **API restrictions**, restrict it
+   to **Google Drive API** only (defense in depth — an API key alone,
+   with no OAuth identity attached, can only ever read files that are
+   already public, so a leaked key can't expose anything private
+   regardless, but restricting it limits what it's good for if leaked).
+4. Copy the key. In this GitHub repo: **Settings → Secrets and
+   variables → Actions → New repository secret**, name it
+   `GOOGLE_DRIVE_API_KEY`, paste the value.
+5. Trigger the workflow once by hand (`gh workflow run
+   sync-afterschool-flyers.yml` or the Actions tab's "Run workflow"
+   button) and watch it succeed.
+
+If the shared folder itself ever needs to change, update
+`afterschool_flyers_folder_id` in `config/site.json` — it's the last
+segment of the folder's URL
+(`drive.google.com/drive/folders/<this-part>`).
+
+---
+
 ## Task 6 — Change the banner photo, page header photo, or add a logo
 
 Images live in `assets/images/` in this repo and are served directly by

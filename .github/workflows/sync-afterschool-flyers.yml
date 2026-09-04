@@ -1,0 +1,108 @@
+name: Sync Afterschool Programs flyers from Google Drive
+
+# A separate, self-contained daily pipeline (distinct from deploy.yml's
+# push-triggered one and sync-events.yml's hourly one) that reconciles
+# config/afterschool-programs.json against the fixed Drive folder in
+# config/site.json's afterschool_flyers_folder_id — see
+# scripts/sync_afterschool_flyers.py for exactly what "reconciles" means
+# (removes entries whose flyer disappeared, adds a placeholder for a
+# brand-new one, flags a changed one for review) and why writing a
+# flyer's actual program details is a follow-up for a human/agent, not
+# something this script does.
+#
+# Runs daily rather than hourly like the calendar: this folder is a
+# handful of flyers that change far less often than the events calendar
+# does, and each run costs a Drive API quota unit, so there's no reason
+# to poll it as often.
+#
+# Requires the GOOGLE_DRIVE_API_KEY secret (a Drive-API-restricted,
+# key-only credential — no OAuth, since the folder is shared as "anyone
+# with the link"). See docs/SOP.md for how to create one. Deliberately
+# no-ops (not a failure) when that secret isn't set yet, so forgetting
+# to configure it doesn't produce a daily failure email.
+#
+# Does its own full build+validate+deploy rather than just committing
+# config/afterschool-programs.json and counting on deploy.yml's `push`
+# trigger to pick it up, for the same reason sync-events.yml does: a
+# GITHUB_TOKEN-authored push never triggers another workflow's `push`
+# trigger (GitHub's own loop-prevention), so that handoff would
+# silently never fire.
+
+on:
+  schedule:
+    - cron: "0 13 * * *"  # once daily, ~9am US Eastern during standard time
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"  # shared with deploy.yml/sync-events.yml — all three deploy to Pages and must not run at once
+  cancel-in-progress: false
+
+jobs:
+  sync-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      GOOGLE_DRIVE_API_KEY: ${{ secrets.GOOGLE_DRIVE_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.x"
+
+      - name: Sync afterschool program flyers from Google Drive
+        if: env.GOOGLE_DRIVE_API_KEY != ''
+        run: python3 scripts/sync_afterschool_flyers.py
+
+      - name: Check whether the folder actually changed anything
+        id: diff
+        run: |
+          if git diff --quiet -- config/afterschool-programs.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build pages from config
+        if: steps.diff.outputs.changed == 'true'
+        run: python3 src/build.py
+
+      - name: Validate generated pages
+        if: steps.diff.outputs.changed == 'true'
+        run: python3 test/validate_build.py
+
+      - name: Commit config/afterschool-programs.json and regenerated pages
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "thespta-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add config/afterschool-programs.json pages/
+          git commit -m "chore: sync afterschool program flyers from Drive, regenerate pages [skip ci]"
+          git push
+
+      - name: Assemble the deployed site
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          mkdir -p site/images
+          cp -r pages/. site/
+          find assets/images -maxdepth 1 -type f ! -name "*.md" -exec cp {} site/images/ \;
+
+      - name: Upload Pages artifact
+        if: steps.diff.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        if: steps.diff.outputs.changed == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v5

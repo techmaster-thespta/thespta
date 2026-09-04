@@ -23,6 +23,7 @@
     "committees": "get-involved/committees",
     "afterschool_programs": "afterschool-programs"
   },
+  "afterschool_flyers_folder_id": "1zPdzyymaO5LcrSEEL4TwHTNFeg0EcOze",
   "nav": [
     { "label": "Home", "page_url": "home" },
     { "label": "About", "page_url": "about" },

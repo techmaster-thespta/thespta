@@ -182,7 +182,8 @@ never requires touching `header.html.tmpl` or `build.py`.
 - `docs/SOP.md` — day-to-day content-editing tasks (the thing to read first for "how do I change X")
 - `docs/github-pages-setup.md` — one-time: turning on GitHub Pages and the custom domain for this repo
 - `.claude/skills/` — one skill per addable content type (`add-event`,
-  `add-board-member`, `add-sponsor`, `add-flyer`, `add-committee`), the GitHub issue
+  `add-board-member`, `add-sponsor`, `add-flyer`, `add-committee`,
+  `add-afterschool-program`), the GitHub issue
   workflow (`create-issue` to plan a change and file it, `from-issue` to
   pull an issue by number, implement it, open a PR), `rebuild-now`
   (push pending changes + force an immediate rebuild/redeploy, for
@@ -202,6 +203,18 @@ never requires touching `header.html.tmpl` or `build.py`.
   feed includes `ATTACH` properties). Run by
   `.github/workflows/sync-events.yml` (hourly) and by `deploy.yml` (every
   push/manual run). See `docs/SOP.md` Task 4.
+- `scripts/sync_afterschool_flyers.py` — reconciles
+  `config/afterschool-programs.json` against the fixed Drive folder in
+  `config/site.json`'s `afterschool_flyers_folder_id`: removes an entry
+  whose flyer disappeared, adds a `needs_review` placeholder for a new
+  one, flags a changed one. Unlike the calendar sync, Drive has no
+  public unauthenticated "list a folder" feed, so this needs a
+  `GOOGLE_DRIVE_API_KEY` repo secret (see `docs/SOP.md` Task 5c) and
+  no-ops harmlessly without one. It deliberately can't write a flyer's
+  actual program details (name/schedule/price) — that's a
+  vision/understanding step for a human or an agent, done via
+  `.claude/skills/add-afterschool-program/`. Run by
+  `.github/workflows/sync-afterschool-flyers.yml` (daily).
 - `docs/github-agent-setup.md` — GitHub access setup for agents: `gh` CLI
   (shell-capable agents) or the GitHub MCP server declared in `.mcp.json`
   (any MCP-compatible agent). Use whichever this session actually has —
