@@ -423,26 +423,42 @@ def build_committees_section(committees, volunteer_form):
 
 
 def render_afterschool_program_card(program):
-    """One afterschool program's card: run by an outside provider (iCode,
-    KidzArt, a theatre company, etc.), not the PTA — the flyer image is
-    the source of truth, hotlinked from Drive exactly like an event
-    attachment (see drive_thumbnail_url/render_event_attachments above),
-    never downloaded into this repo. `content_hash` on each config entry
-    is bookkeeping only (lets a future refresh tell which flyers actually
+    """One afterschool program's card: a short always-visible summary
+    (name, provider, one compact meta line, Register button) plus a
+    native <details> "Details" disclosure for everything else —
+    description, full schedule/sessions, contact, the flyer, fine print.
+    Same zero-JS expand/collapse pattern committees already use
+    (render_committee_card above); added because showing every field for
+    all 10 programs at once on one page read as far too much text.
+
+    Run by an outside provider (iCode, KidzArt, a theatre company,
+    etc.), not the PTA — the flyer image is the source of truth,
+    hotlinked from Drive exactly like an event attachment (see
+    drive_thumbnail_url/render_event_attachments above), never
+    downloaded into this repo. `content_hash` on each config entry is
+    bookkeeping only (lets a future refresh tell which flyers actually
     changed vs. which are untouched) and is never rendered."""
-    parts = [f'<h3>{program["name"]}</h3>']
+    summary = [f'<h3>{program["name"]}</h3>']
     if program.get("provider"):
-        parts.append(f'<p class="thes__program-provider">{program["provider"]}</p>')
-    if program.get("description"):
-        parts.append(f'<p>{program["description"]}</p>')
+        summary.append(f'<p class="thes__program-provider">{program["provider"]}</p>')
 
     meta_bits = [b for b in (program.get("day_time"), program.get("grades"), program.get("price")) if b]
     if meta_bits:
-        parts.append(f'<p class="thes__program-meta">{" &middot; ".join(meta_bits)}</p>')
+        summary.append(f'<p class="thes__program-meta">{" &middot; ".join(meta_bits)}</p>')
+
+    if program.get("registration_href"):
+        summary.append(
+            f'<a class="thes__btn thes__btn--teal" href="{program["registration_href"]}" '
+            f'target="_blank" rel="noopener">Register &rarr;</a>'
+        )
+
+    details = []
+    if program.get("description"):
+        details.append(f'<p>{program["description"]}</p>')
     if program.get("date_range"):
-        parts.append(f'<p class="thes__program-meta">{program["date_range"]}</p>')
+        details.append(f'<p>{program["date_range"]}</p>')
     if program.get("show_date"):
-        parts.append(f'<p class="thes__program-meta">Show: {program["show_date"]}</p>')
+        details.append(f'<p>Show: {program["show_date"]}</p>')
 
     sessions = program.get("sessions") or []
     if sessions:
@@ -450,30 +466,32 @@ def render_afterschool_program_card(program):
             f'<li><strong>{s["label"]}:</strong> {s["dates"]} &mdash; {s.get("classes", "")}, {s.get("price", "")}</li>'
             for s in sessions
         )
-        parts.append(f'<ul class="thes__checklist-plain">{rows}</ul>')
+        details.append(f'<ul class="thes__checklist-plain">{rows}</ul>')
 
     if program.get("contact"):
-        parts.append(f'<p class="thes__program-meta">{program["contact"]}</p>')
+        details.append(f'<p>{program["contact"]}</p>')
 
     file_id = program.get("flyer_drive_file_id")
     if file_id:
         flyer_href = f"https://drive.google.com/file/d/{file_id}/view"
         thumb_url = drive_thumbnail_url(flyer_href)
-        parts.append(
+        details.append(
             f'<a class="thes__flyer" href="{flyer_href}" target="_blank" rel="noopener">'
             f'<img src="{thumb_url}" alt="" width="160" loading="lazy">'
             f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
         )
 
-    if program.get("registration_href"):
-        parts.append(
-            f'<a class="thes__btn thes__btn--teal" href="{program["registration_href"]}" '
-            f'target="_blank" rel="noopener">Register &rarr;</a>'
-        )
     if program.get("registration_note"):
-        parts.append(f'<p class="thes__program-meta">{program["registration_note"]}</p>')
+        details.append(f'<p>{program["registration_note"]}</p>')
 
-    return f'<div class="thes__program-card">{"".join(parts)}</div>'
+    details_html = ""
+    if details:
+        details_html = (
+            '<details class="thes__program-more"><summary>Details</summary>'
+            f'<div class="thes__program-more-body">{"".join(details)}</div></details>'
+        )
+
+    return f'<div class="thes__program-card">{"".join(summary)}{details_html}</div>'
 
 
 def build_afterschool_programs_section(programs):

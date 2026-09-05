@@ -314,6 +314,13 @@
   .thes__program-provider { font-weight: 700; color: var(--text) !important; }
   .thes__program-meta { font-size: 0.84rem !important; }
   .thes__program-card .thes__btn { margin-top: 4px; }
+  .thes__program-more { margin-top: 4px; }
+  .thes__program-more summary { cursor: pointer; font-weight: 700; font-size: 0.86rem; color: var(--teal); list-style: none; }
+  .thes__program-more summary::-webkit-details-marker { display: none; }
+  .thes__program-more summary::after { content: "\002B"; margin-left: 6px; }
+  .thes__program-more[open] summary::after { content: "\2212"; }
+  .thes__program-more-body { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: grid; gap: 8px; }
+  .thes__program-more-body p { margin: 0; color: var(--text-muted); font-size: 0.86rem; }
 
   /* ---- Committees (Get Involved > Committees) ---- */
   .thes__committees-note { max-width: 62ch; margin: 0 auto 32px; text-align: center; color: var(--text-muted); background: var(--bg-tint); border-radius: 12px; padding: 14px 20px; }
