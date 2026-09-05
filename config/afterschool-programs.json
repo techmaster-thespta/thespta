@@ -2,14 +2,14 @@
   {
     "name": "Fall STEM Innovators: Robotics & 3D Design/Printing",
     "provider": "iCode Columbia",
-    "description": "Thunder Hill's after-school tech club — a 6-week STEM program. Build & program cool robots, and design & print in 3D!",
-    "day_time": "3:55 – 5:00 PM",
-    "date_range": "Sept 28 – Nov 2, 2026 (6 classes: 9/28, 10/5, 10/12, 10/19, 10/26, 11/2)",
+    "description": "Thunder Hill's after-school tech club \u2014 a 6-week STEM program. Build & program cool robots, and design & print in 3D!",
+    "day_time": "3:55 \u2013 5:00 PM",
+    "date_range": "Sept 28 \u2013 Nov 2, 2026 (6 classes: 9/28, 10/5, 10/12, 10/19, 10/26, 11/2)",
     "grades": null,
     "price": "$159",
     "sessions": [],
     "show_date": null,
-    "contact": "410-454-9878 · columbia@icodeschool.com",
+    "contact": "410-454-9878 \u00b7 columbia@icodeschool.com",
     "registration_href": null,
     "registration_note": "Scan the QR code on the flyer to register.",
     "flyer_drive_file_id": "1jYwU1sHU0ESSUFEOSCU3LUUlVIApi_sp",
@@ -19,22 +19,47 @@
   {
     "name": "KidzArt at Thunder Hill",
     "provider": "KidzArt (in partnership with the PTA)",
-    "description": "A fun art-enrichment program designed to build drawing skills and confidence. Certified instructors guide students through original works using artist-grade materials — oil and chalk pastels, watercolor, charcoal, clay, and more. Projects never repeat.",
-    "day_time": "Mondays, 4:00 – 5:15 PM",
+    "description": "A fun art-enrichment program designed to build drawing skills and confidence. Certified instructors guide students through original works using artist-grade materials \u2014 oil and chalk pastels, watercolor, charcoal, clay, and more. Projects never repeat.",
+    "day_time": "Mondays, 4:00 \u2013 5:15 PM",
     "date_range": "Runs in 5 sessions across the school year (see below)",
-    "grades": "K–5",
-    "price": "$139–$225 per session",
+    "grades": "K\u20135",
+    "price": "$139\u2013$225 per session",
     "sessions": [
-      { "label": "Session 1", "dates": "9/28, 10/5, 10/12, 10/19, 10/26", "classes": "5 classes", "price": "$139" },
-      { "label": "Session 2", "dates": "11/2, 11/9, 11/16, 11/30, 12/7, 12/14, 12/21, 1/4 (no class 11/23, 12/28)", "classes": "8 classes", "price": "$225" },
-      { "label": "Session 3", "dates": "1/11, 1/25, 2/1, 2/8, 2/22 (no class 1/18, 2/15)", "classes": "5 classes", "price": "$139" },
-      { "label": "Session 4", "dates": "3/1, 3/8, 3/15, 4/5, 4/12 (no class 3/22, 3/29)", "classes": "5 classes", "price": "$139" },
-      { "label": "Session 5", "dates": "4/19, 4/26, 5/3, 5/10, 5/24 (no class 5/17)", "classes": "5 classes", "price": "$139" }
+      {
+        "label": "Session 1",
+        "dates": "9/28, 10/5, 10/12, 10/19, 10/26",
+        "classes": "5 classes",
+        "price": "$139"
+      },
+      {
+        "label": "Session 2",
+        "dates": "11/2, 11/9, 11/16, 11/30, 12/7, 12/14, 12/21, 1/4 (no class 11/23, 12/28)",
+        "classes": "8 classes",
+        "price": "$225"
+      },
+      {
+        "label": "Session 3",
+        "dates": "1/11, 1/25, 2/1, 2/8, 2/22 (no class 1/18, 2/15)",
+        "classes": "5 classes",
+        "price": "$139"
+      },
+      {
+        "label": "Session 4",
+        "dates": "3/1, 3/8, 3/15, 4/5, 4/12 (no class 3/22, 3/29)",
+        "classes": "5 classes",
+        "price": "$139"
+      },
+      {
+        "label": "Session 5",
+        "dates": "4/19, 4/26, 5/3, 5/10, 5/24 (no class 5/17)",
+        "classes": "5 classes",
+        "price": "$139"
+      }
     ],
     "show_date": null,
     "contact": null,
     "registration_href": "https://centralmd.kidzart.com/",
-    "registration_note": "Register for any session securely online, then click “Register Now.”",
+    "registration_note": "Register for any session securely online, then click \u201cRegister Now.\u201d",
     "flyer_drive_file_id": "1dDeweTGT_tpNy7yRec7AH8it7SSX5IGs",
     "content_hash": "1a9c75dc74dbf336bc297b192aa08460",
     "needs_review": false
@@ -43,17 +68,34 @@
     "name": "Disney's The Lion King JR",
     "provider": "Columbia Center for Theatrical Arts (CCTA)",
     "description": "Thunder Hill Elementary's after-school theatre program, staging Disney's The Lion King JR.",
-    "day_time": "Tuesdays, 3:55 – 5:10 PM",
+    "day_time": "Tuesdays, 3:55 \u2013 5:10 PM",
     "date_range": "Oct 20, Oct 27, Nov 10, Nov 17, Dec 1, Dec 8, Dec 15, Dec 22, Jan 5, Jan 12 (no class 11/3, 11/24, 1/19)",
     "grades": null,
     "price": null,
     "sessions": [],
     "show_date": "January 26",
-    "contact": "410.381.0700 · admin@cctarts.org",
+    "contact": "410.381.0700 \u00b7 admin@cctarts.org",
     "registration_href": "https://www.cctarts.shop",
     "registration_note": null,
     "flyer_drive_file_id": "1FPUOuNyQVgnsdW2fgiSsup-GGwZMdDCM",
     "content_hash": "8cc8576c86dad06b66050d0b1a2f0f93",
     "needs_review": false
+  },
+  {
+    "name": "Chess",
+    "provider": null,
+    "description": "New flyer \u2014 needs review to fill in the real program details.",
+    "day_time": null,
+    "date_range": null,
+    "grades": null,
+    "price": null,
+    "sessions": [],
+    "show_date": null,
+    "contact": null,
+    "registration_href": null,
+    "registration_note": null,
+    "flyer_drive_file_id": "1OEyopNcExQA6mJV6afZ5vmVlGI2YgNap",
+    "content_hash": "1bc38a89c5b51b23578e174f065e4686",
+    "needs_review": true
   }
 ]
