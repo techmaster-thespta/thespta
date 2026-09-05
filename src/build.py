@@ -496,6 +496,7 @@ PAGE_TITLES = {
     "newsletter.html": "The Newsletter",
     "get-involved/committees.html": "Committees",
     "afterschool-programs.html": "Afterschool Programs",
+    "shop.html": "Shop",
 }
 
 

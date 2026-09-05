@@ -12,6 +12,7 @@
   "membership_portal_href": "https://1thes.givebacks.com/shop?search=Membership",
   "donate_href": "https://1thes.givebacks.com/shop?search=Donation",
   "shop_href": "https://1thes.givebacks.com/shop",
+  "spirit_wear_shop_href": "https://thunderhillfall2026.itemorder.com/",
   "copyright_year": 2026,
   "custom_domain": "www.thespta.org",
   "page_urls": {
@@ -21,7 +22,8 @@
     "about": "about",
     "newsletter": "newsletter",
     "committees": "get-involved/committees",
-    "afterschool_programs": "afterschool-programs"
+    "afterschool_programs": "afterschool-programs",
+    "shop": "shop"
   },
   "afterschool_flyers_folder_id": "1zPdzyymaO5LcrSEEL4TwHTNFeg0EcOze",
   "nav": [
@@ -32,7 +34,8 @@
     ] },
     { "label": "Events", "page_url": "events" },
     { "label": "Afterschool Programs", "page_url": "afterschool_programs" },
-    { "label": "THES Happenings", "page_url": "newsletter" }
+    { "label": "THES Happenings", "page_url": "newsletter" },
+    { "label": "Shop", "page_url": "shop" }
   ],
   "volunteerForm": {
     "baseUrl": "https://docs.google.com/forms/d/e/REPLACE_WITH_REAL_FORM_ID/viewform",

@@ -56,7 +56,8 @@ Requires only Python 3 — no npm, no installs, nothing to configure.
 | `meeting_schedule`, `membership_cost` | Text on About / Get Involved |
 | `donate_href` | Where the "Donate" buttons point (Support THES card). Currently the Givebacks shop pre-filtered to donation items: `https://1thes.givebacks.com/shop?search=Donation` |
 | `membership_portal_href` | Where "Join PTA" / "Become a Member" buttons point. Currently the Givebacks shop pre-filtered to membership items: `https://1thes.givebacks.com/shop?search=Membership` — the shop lists each membership tier (student, individual, faculty/staff, business, etc.) as a separately named product, and this one search catches all of them. If a tier ever needs its own dedicated link instead, add a new `*_membership_href` field per tier and wire it in wherever that tier should link. |
-| `shop_href` | The Givebacks shop's own landing page (`https://1thes.givebacks.com/shop`) — linked from the footer's Quick Links as "Shop" |
+| `shop_href` | The Givebacks shop's own landing page (`https://1thes.givebacks.com/shop`) — linked from the `/shop` page's "Visit the PTA Shop" button |
+| `spirit_wear_shop_href` | The seasonal spirit wear store (a separate site, e.g. `thunderhillfall2026.itemorder.com`) linked from the `/shop` page's "Shop Spirit Wear" button. **This URL is seasonal — it changes name each time a new spirit wear sale opens** (fall/winter/spring), so check it's still live occasionally and update it when a new sale replaces the old one. |
 | `social.facebook_href`, `social.instagram_href` | Footer social links |
 | `newsletter_href` | Footer "Subscribe" link, and the "Subscribe for Future Issues" button on the THES Happenings page — the real Smore newsletter URL |
 | `newsletter_embed_src` | The Smore URL actually embedded as an iframe on the THES Happenings page (same newsletter, with `?embedded` appended) — update both together if the Smore newsletter's URL ever changes |
