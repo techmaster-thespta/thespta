@@ -308,6 +308,9 @@ def build_home_events_section(events, context):
     return render(section_tmpl, {**context, "FEATURED_EVENT": featured_html, "MORE_EVENTS": more_rows})
 
 
+EVENTS_PAGE_MAX = 4
+
+
 def build_events_page_section(events, context):
     """Whole quick-scan highlights section on the Events page. Unlike the
     Home page teaser (which just disappears when there are no events —
@@ -316,14 +319,20 @@ def build_events_page_section(events, context):
     instead of vanishing, since this list is the site's main date-sorted
     view of what's coming up and a visitor expects to see *something*
     here. The live calendar embed further down the page renders either
-    way, regardless of this section."""
+    way, regardless of this section.
+
+    Capped at EVENTS_PAGE_MAX (4) events — config/events.json is already
+    date-ascending (see scripts/sync_calendar_events.py), so this is
+    simply the next 4 chronologically. No "view more" link is needed for
+    anything beyond that: the live calendar embed further down this same
+    page already shows everything."""
     section_tmpl = (TEMPLATES / "events-list-section.html.tmpl").read_text()
     if not events:
         empty_tmpl = (TEMPLATES / "events-list-empty.html.tmpl").read_text()
         return render(empty_tmpl, context)
     row_tmpl = (TEMPLATES / "event-row.html.tmpl").read_text()
     section_tmpl = (TEMPLATES / "events-list-section.html.tmpl").read_text()
-    rows = "\n".join(indent(render(row_tmpl, {**context, **with_event_extras(e)}), 8) for e in events)
+    rows = "\n".join(indent(render(row_tmpl, {**context, **with_event_extras(e)}), 8) for e in events[:EVENTS_PAGE_MAX])
     return render(section_tmpl, {**context, "EVENTS_LIST": rows})
 
 
