@@ -82,20 +82,20 @@
     "needs_review": false
   },
   {
-    "name": "Chess",
-    "provider": null,
-    "description": "New flyer \u2014 needs review to fill in the real program details.",
-    "day_time": null,
-    "date_range": null,
-    "grades": null,
-    "price": null,
+    "name": "Chess Wizards",
+    "provider": "Chess Wizards",
+    "description": "Challenging chess lessons, fun group activities, and exciting tournaments. Brand-new players and seasoned checkmate artists both welcome \u2014 kindergartners and new chess players welcome!",
+    "day_time": "Fridays, 4:00 \u2013 5:00 PM",
+    "date_range": "9/25, 10/2, 10/9, 10/16, 10/23, 10/30, 11/6, 11/13 (8 classes)",
+    "grades": "K\u20135",
+    "price": "$184",
     "sessions": [],
     "show_date": null,
-    "contact": null,
-    "registration_href": null,
-    "registration_note": null,
+    "contact": "+1 866-949-4386",
+    "registration_href": "https://www.chesswizards.com/",
+    "registration_note": "Or scan the QR code on the flyer to register.",
     "flyer_drive_file_id": "1OEyopNcExQA6mJV6afZ5vmVlGI2YgNap",
     "content_hash": "1bc38a89c5b51b23578e174f065e4686",
-    "needs_review": true
+    "needs_review": false
   }
 ]
