@@ -38,8 +38,8 @@
     { "label": "Shop", "page_url": "shop" }
   ],
   "volunteerForm": {
-    "baseUrl": "https://docs.google.com/forms/d/e/REPLACE_WITH_REAL_FORM_ID/viewform",
-    "committeeFieldId": "entry.REPLACE_WITH_REAL_ENTRY_ID"
+    "baseUrl": "https://docs.google.com/forms/d/e/1FAIpQLSedGcSFvc4gYfGj4rX6_u7Sn1Bkstcc-mPg8WEIv8dbKNKvpw/viewform",
+    "committeeFieldId": "entry.2055232012"
   },
   "hero_image_filename": "hero-banner.jpg",
   "page_header_image_filename": "page-header-no-text.jpg",

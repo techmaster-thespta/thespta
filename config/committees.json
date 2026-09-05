@@ -7,7 +7,7 @@
     "description": "Support and celebrate teachers and staff through conference dinners, holiday treats, and other appreciation activities.",
     "activities": ["Conference dinners", "Holiday treats for staff", "Teacher appreciation activities"],
     "audiences": ["staff"],
-    "volunteerValue": "Hospitality"
+    "volunteerValue": "Hospitality Committee"
   },
   {
     "name": "Cultural Arts",
@@ -27,7 +27,7 @@
     "description": "Help organize fundraising initiatives such as restaurant nights, spirit wear, Fun Run, Holiday Market, and Parent's Night Out.",
     "activities": ["Restaurant nights", "Spirit wear", "Fun Run", "Holiday Market", "Parent's Night Out"],
     "audiences": ["students", "families"],
-    "volunteerValue": "Fundraising"
+    "volunteerValue": "Fundraising Committee"
   },
   {
     "name": "Grants & Awards",
@@ -37,7 +37,7 @@
     "description": "Identify and pursue grants and donations that provide additional resources and opportunities for students and staff.",
     "activities": ["Researching grant opportunities", "Writing grant applications", "Pursuing donations"],
     "audiences": ["students", "staff"],
-    "volunteerValue": "Grants & Awards"
+    "volunteerValue": "Grant Writing Committee"
   },
   {
     "name": "Technology",
@@ -47,7 +47,7 @@
     "description": "Support the PTA website and digital platforms, provide technology assistance, and help strengthen the PTA's online presence.",
     "activities": ["Maintaining the PTA website", "Technology assistance", "Growing the PTA's online presence"],
     "audiences": ["families"],
-    "volunteerValue": "Technology"
+    "volunteerValue": "Technology & Social Media Committee"
   },
   {
     "name": "Communications & Membership",
@@ -57,7 +57,7 @@
     "description": "Help keep Thunder Hill families informed, promote PTA activities, and encourage community participation and PTA membership.",
     "activities": ["Family communications", "Promoting PTA activities", "Membership outreach"],
     "audiences": ["families"],
-    "volunteerValue": "Communications & Membership"
+    "volunteerValue": "Membership & Volunteers Committee"
   },
   {
     "name": "Budget",
@@ -67,7 +67,7 @@
     "description": "Help develop the PTA's annual budget and determine how PTA funds can best support the school community.",
     "activities": ["Developing the annual budget", "Reviewing fund allocation"],
     "audiences": ["students", "families"],
-    "volunteerValue": "Budget"
+    "volunteerValue": "Budget Committee"
   },
   {
     "name": "Events",
@@ -77,7 +77,7 @@
     "description": "Help plan and coordinate memorable events for Thunder Hill students, families, and staff.",
     "activities": ["Planning school events", "Day-of event coordination"],
     "audiences": ["students", "families", "staff"],
-    "volunteerValue": "Events"
+    "volunteerValue": "Events Committee"
   },
   {
     "name": "After-School Programs",
@@ -87,7 +87,7 @@
     "description": "Help coordinate enriching extracurricular and after-school opportunities for Thunder Hill students.",
     "activities": ["Coordinating after-school programs", "Extracurricular opportunities"],
     "audiences": ["students"],
-    "volunteerValue": "After-School Programs"
+    "volunteerValue": "Afterschool Committee"
   },
   {
     "name": "5th Grade",
@@ -97,6 +97,6 @@
     "description": "Help make the final elementary-school year special through activities such as signs, shirts, the 5th-grade picnic, and Battle of the Books.",
     "activities": ["5th-grade signs & shirts", "5th-grade picnic", "Battle of the Books"],
     "audiences": ["students", "families"],
-    "volunteerValue": "5th Grade"
+    "volunteerValue": "5th Grade Committee"
   }
 ]
