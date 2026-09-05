@@ -9,7 +9,13 @@
   "address_line2": "Columbia, MD 21045",
   "email": "president.thespta@gmail.com",
   "meeting_schedule": "First Tuesday of each month, 6:30 PM · School Library",
-  "membership_cost": "$16 per year — student, individual, faculty/staff, and business memberships available",
+  "membership_cost": "$11–$30 per year, depending on membership type",
+  "membership_tiers": {
+    "student": "$11",
+    "individual": "$16",
+    "teacher_staff": "$12",
+    "business": "$30"
+  },
   "membership_portal_href": "https://1thes.givebacks.com/shop?search=Membership",
   "donate_href": "https://1thes.givebacks.com/shop?search=Donation",
   "shop_href": "https://1thes.givebacks.com/shop",
