@@ -10,8 +10,8 @@
     "sessions": [],
     "show_date": null,
     "contact": "410-454-9878 \u00b7 columbia@icodeschool.com",
-    "registration_href": null,
-    "registration_note": "Scan the QR code on the flyer to register.",
+    "registration_href": "https://secure-portal.icodeschool.com/base/EmbeddedUrl/E13025EB35",
+    "registration_note": "Or scan the QR code on the flyer.",
     "flyer_drive_file_id": "1jYwU1sHU0ESSUFEOSCU3LUUlVIApi_sp",
     "content_hash": "59104f9ea3d65b77bc55afbe1673c28b",
     "needs_review": false
