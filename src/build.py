@@ -479,27 +479,6 @@ def build_afterschool_programs_section(programs):
     return render(section_tmpl, {"AFTERSCHOOL_PROGRAM_CARDS": cards})
 
 
-def build_analytics_snippet(ga_id):
-    """Google Analytics 4's standard gtag.js snippet for config/site.json's
-    `google_analytics_id`. Returns "" (nothing rendered, no third-party
-    script at all) when it's blank — this ships with zero tracking until
-    a real Measurement ID (looks like "G-XXXXXXXXXX") is configured.
-    flatten() stringifies every context value, so this also guards
-    against the literal string "None" a JSON `null` would otherwise
-    produce here — use "" in config, not null, to turn this off."""
-    if not ga_id or ga_id == "None":
-        return ""
-    return (
-        f'<script async src="https://www.googletagmanager.com/gtag/js?id={ga_id}"></script>\n'
-        "<script>\n"
-        "  window.dataLayer = window.dataLayer || [];\n"
-        "  function gtag(){dataLayer.push(arguments);}\n"
-        "  gtag('js', new Date());\n"
-        f"  gtag('config', '{ga_id}');\n"
-        "</script>\n"
-    )
-
-
 def colorize_title_words(text):
     """Alternate each word's color between the site's dark text tone and
     teal — the same two-tone treatment already used in the home hero
@@ -613,13 +592,11 @@ def main():
         # parent directories — "get-involved/committees.html" should say
         # "Committees", not "Get-Involved/Committees".
         page_title = "Home" if page_name == "index.html" else Path(page_name).stem.replace("-", " ").title()
-        analytics_snippet = build_analytics_snippet(context.get("google_analytics_id", ""))
         text = (
             "<!DOCTYPE html>\n"
             '<html lang="en">\n<head>\n<meta charset="UTF-8">\n'
             '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
             f"<title>{context.get('org_name', '')} — {page_title}</title>\n"
-            f"{analytics_snippet}"
             f"</head>\n<body>\n{text}\n</body>\n</html>\n"
         )
 
