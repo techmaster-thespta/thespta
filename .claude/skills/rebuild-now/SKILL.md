@@ -14,7 +14,18 @@ pipeline (`.github/workflows/deploy.yml`) to get to it on their own.
 
 ## Steps
 
-1. **Check for local changes first:**
+1. **Pick up the latest afterschool-program flyer info first.** Run the
+   `review-afterschool-flyers` skill (checks `config/afterschool-programs.json`
+   for anything flagged `needs_review`, reads the actual flyer, and fills
+   in the real details — see that skill for the full process). This is
+   normally handled by the daily `scripts/afterschool-review/` systemd
+   service, but a "make it live right now" request should pick up
+   whatever that service hasn't gotten to yet rather than waiting for its
+   next scheduled run. If it finds nothing to review, that's a normal,
+   silent no-op — move on to step 2. Anything it does change becomes
+   part of the "local changes" step 2 picks up and pushes.
+
+2. **Check for local changes:**
    ```bash
    git status --short
    ```
@@ -25,9 +36,9 @@ pipeline (`.github/workflows/deploy.yml`) to get to it on their own.
    - If everything is already pushed and the user just wants to force a
      fresh rebuild/redeploy right now (e.g. to pick up a calendar change
      immediately instead of waiting for the hourly sync), skip straight
-     to step 2.
+     to step 3.
 
-2. **Trigger the workflow manually:**
+3. **Trigger the workflow manually:**
    ```bash
    gh workflow run deploy.yml
    ```
@@ -35,7 +46,7 @@ pipeline (`.github/workflows/deploy.yml`) to get to it on their own.
    deploy) against whatever is currently on `main`, regardless of whether
    anything actually changed.
 
-3. **Watch it to completion — don't just fire and report success:**
+4. **Watch it to completion — don't just fire and report success:**
    ```bash
    run_id=$(gh run list --workflow=deploy.yml --limit 1 --json databaseId --jq '.[0].databaseId')
    gh run watch "$run_id" --exit-status
@@ -43,7 +54,7 @@ pipeline (`.github/workflows/deploy.yml`) to get to it on their own.
    If it fails, read the failing step's log (`gh run view "$run_id" --log-failed`)
    and fix the underlying issue rather than re-running blindly.
 
-4. **Verify it's actually live**, don't just trust the green checkmark —
+5. **Verify it's actually live**, don't just trust the green checkmark —
    this repo has a history of GitHub Pages reporting a successful deploy
    while still serving stale/broken content (see
    `docs/github-pages-setup.md` → "Workflow is green but the live URL
@@ -59,6 +70,6 @@ pipeline (`.github/workflows/deploy.yml`) to get to it on their own.
   other skill fits (`add-board-member`, `add-sponsor`, `add-flyer`,
   `add-event`) or a direct `config/*.json` edit. This skill is purely
   about forcing the publish step to happen now instead of later.
-- Do not skip step 4. A workflow run reporting success is not the same as
+- Do not skip step 5. A workflow run reporting success is not the same as
   confirming the live site changed — verify with an actual request
   against the live URL.
