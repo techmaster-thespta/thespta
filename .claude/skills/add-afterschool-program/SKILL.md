@@ -7,7 +7,7 @@ description: Add, edit, remove, or review a flagged entry on the Afterschool Pro
 
 Use this when the user asks to add a program, update one's details,
 remove one, or review something a daily sync flagged. Every program on
-`/afterschool-programs` is run by an **outside provider** (iCode,
+`/before-after-school-programs` is run by an **outside provider** (iCode,
 KidzArt, a theatre company, etc.) — never the PTA or the school — the
 page says so explicitly and every card should carry its own
 registration link/contact info.
@@ -92,15 +92,15 @@ or an agent, not the plain-Python sync script.
    `needs_review` placeholder — remove the file from the folder too if
    it should stay gone for good.)
 5. Run `python3 src/build.py` then `python3 test/validate_build.py`.
-6. Report that `pages/afterschool-programs.html` changed and remind the
+6. Report that `pages/before-after-school-programs.html` changed and remind the
    user to push (`docs/SOP.md` Task 7).
 
 ## Do not
 
 - Do not create a new page, template, or URL for an individual program
-  — they all live on the one `/afterschool-programs` page.
+  — they all live on the one `/before-after-school-programs` page.
 - Do not edit `src/templates/afterschool-programs-section.html.tmpl`,
-  `src/templates/pages/afterschool-programs.html.tmpl`, or
+  `src/templates/pages/before-after-school-programs.html.tmpl`, or
   `render_afterschool_program_card()`/`build_afterschool_programs_section()`
   in `src/build.py`. If the request needs a different card layout or a
   new field, stop and tell the user that's a template change, not a

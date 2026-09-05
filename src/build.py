@@ -477,10 +477,13 @@ def render_afterschool_program_card(program):
 
 
 def build_afterschool_programs_section(programs):
-    """Whole Afterschool Programs page body. Same empty-means-no-content
-    pattern as sponsors/flyers/events, except this page always exists
-    (it's in the nav) so an empty config shows a short "nothing posted
-    yet" message rather than the page vanishing."""
+    """Whole Before & After School Programs page body (function/config
+    names kept the shorter "afterschool" name for simplicity even after
+    the page itself was retitled to explicitly cover before-school
+    programs too). Same empty-means-no-content pattern as
+    sponsors/flyers/events, except this page always exists (it's in the
+    nav) so an empty config shows a short "nothing posted yet" message
+    rather than the page vanishing."""
     if not programs:
         return (TEMPLATES / "afterschool-programs-empty.html.tmpl").read_text()
     cards = "\n".join(indent(render_afterschool_program_card(p), 6) for p in programs)
@@ -528,7 +531,7 @@ PAGE_TITLES = {
     "events.html": "Upcoming Events",
     "newsletter.html": "The Newsletter",
     "get-involved/committees.html": "Committees",
-    "afterschool-programs.html": "Afterschool Programs",
+    "before-after-school-programs.html": "Before & After School Programs",
     "shop.html": "Shop",
 }
 

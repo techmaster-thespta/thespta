@@ -315,7 +315,7 @@ To wire up the actual form:
 
 **File:** `config/afterschool-programs.json` · **Skill:** `.claude/skills/add-afterschool-program/`
 
-Every program on `/afterschool-programs` is run by an outside provider
+Every program on `/before-after-school-programs` is run by an outside provider
 (iCode, KidzArt, a theatre company, etc.) — **not** the PTA or the
 school — so the page says so explicitly, and every card is expected to
 carry its own registration link/contact info. Each entry's flyer is a

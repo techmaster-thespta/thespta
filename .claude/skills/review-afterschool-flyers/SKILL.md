@@ -54,7 +54,7 @@ summary instead of asking.
 8. Verify, don't just trust a green checkmark: `gh run list
    --workflow=deploy.yml --limit 1`, then `gh run watch <id>
    --exit-status` to confirm the push's deploy actually succeeded, then
-   `curl` the live `https://www.thespta.org/afterschool-programs.html`
+   `curl` the live `https://www.thespta.org/before-after-school-programs.html`
    page to confirm the new content is actually there.
 9. Report a short summary: how many entries were reviewed/filled in
    (name each one), or that there was nothing to do.
