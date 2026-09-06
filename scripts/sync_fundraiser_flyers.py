@@ -2,13 +2,12 @@
 """
 Thunder Hill Elementary PTA — Fundraiser flyer sync.
 
-Reads the fixed Google Drive folder (config/site.json's
-`fundraiser_flyers_folder_id`) via the Drive API v3 `files.list`
-endpoint, and reconciles config/fundraisers.json against what's
-actually in that folder right now. Same mechanism as
-sync_afterschool_flyers.py (Drive-computed md5Checksum, no downloads),
-but fundraisers behave differently from afterschool programs in one
-important way this script has to account for:
+Reconciles config/fundraisers.json against whatever's actually in
+assets/flyers/fundraising/ right now. Same mechanism as
+sync_afterschool_flyers.py (sha256 of the file bytes, no external
+service involved at all), but fundraisers behave differently from
+afterschool programs in one important way this script has to account
+for:
 
 An afterschool program's flyer basically *is* the program — no flyer,
 no listing. A fundraiser is usually a standing campaign (Box Tops,
@@ -16,22 +15,22 @@ RaiseRight, Membership...) that exists independently of whether a
 current flyer image happens to sit in the folder, and — this is the
 part that actually bit us — a *new* flyer file is more often a reprint
 of an existing campaign than a brand-new one (four flyers landed in
-this folder once: three were obviously existing campaigns by name,
-and the fourth, "buy-a-box.jpg", turned out to be the See's Candies
-flyer under a name that shares no words with "See's Candies
+the old Drive folder once: three were obviously existing campaigns by
+name, and the fourth, "buy-a-box.jpg", turned out to be the See's
+Candies flyer under a name that shares no words with "See's Candies
 Fundraiser" at all — only actually reading the image showed that).
 So this script:
 
   - A file no longer in the folder, whose entry already has real
     content (a real cta_href/description, not the generic placeholder
-    text) -> just detaches the flyer (`flyer_drive_file_id`/
-    `content_hash` cleared). The campaign itself isn't flyer-dependent,
-    so it stays on the page.
+    text) -> just detaches the flyer (`flyer_filename`/`content_hash`
+    cleared). The campaign itself isn't flyer-dependent, so it stays
+    on the page.
   - A file no longer in the folder, whose entry is *still* an
     unreviewed placeholder (nothing but the generic "New flyer..."
     text) -> removed outright, same as afterschool — there was never
     any real content to lose.
-  - A file id not yet attached to anything: tries a cheap, deliberately
+  - A file not yet attached to anything: tries a cheap, deliberately
     conservative filename-vs-campaign-name match first (see
     `guess_existing_match` — normalizes both to bare alnum strings and
     checks substring containment, so "Raise-Right.jpg" matches
@@ -48,30 +47,34 @@ So this script:
     `needs_review: true`, hash updated, old details left in place.
   - Unchanged files are left untouched entirely.
 
-Requires the GOOGLE_DRIVE_API_KEY environment variable — see
-docs/SOP.md for how to create one (the same key already used for
-sync_afterschool_flyers.py works here too; it's just a Drive-API-scoped
-key, not tied to one folder).
+This originally read a shared Google Drive folder via the Drive API
+(needing a GOOGLE_DRIVE_API_KEY secret and a personal Google account in
+good standing to own the folder). That whole dependency was removed
+after the owning account got flagged by Google and every file in it —
+even ones served by a plain public link — started 403ing with "you
+can't access this item, it violates our Terms of Service." Flyers now
+just live in this repo (assets/flyers/fundraising/), uploaded via
+GitHub's own web UI or a normal git push — no external account, no API
+key, nothing for a third party to flag. This also means the mechanical
+reconciliation can run on every push instead of polling on a schedule
+(see .github/workflows/deploy.yml) — a file landing in the repo *is*
+the event, there's no external state to poll for anymore.
 
-Run by .github/workflows/sync-fundraiser-flyers.yml (daily) and can be
-run locally too:
+Run as a step in .github/workflows/deploy.yml, and can be run locally
+too:
 
-    GOOGLE_DRIVE_API_KEY=xxx python3 scripts/sync_fundraiser_flyers.py
+    python3 scripts/sync_fundraiser_flyers.py
 
 No dependencies beyond the Python 3 standard library.
 """
+import hashlib
 import json
-import os
 import re
-import urllib.parse
-import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG = ROOT / "config"
-
-DRIVE_API_KEY = os.environ.get("GOOGLE_DRIVE_API_KEY")
-DRIVE_FILES_LIST_URL = "https://www.googleapis.com/drive/v3/files"
+FLYERS_DIR = ROOT / "assets" / "flyers" / "fundraising"
 
 PLACEHOLDER_DESCRIPTION = "New flyer — needs review to fill in the real campaign details."
 
@@ -83,22 +86,16 @@ def load_json(name, default=None):
     return json.loads(path.read_text())
 
 
-def list_folder_files(folder_id, api_key):
-    """Every non-trashed file directly inside the folder, as
-    {id, name, md5Checksum, mimeType}. One API call, no file downloads —
-    Drive already computes the checksum server-side."""
-    params = {
-        "q": f"'{folder_id}' in parents and trashed = false",
-        "fields": "files(id,name,md5Checksum,mimeType)",
-        "key": api_key,
-        "pageSize": "1000",
+def list_flyer_files():
+    """Every real file directly inside the flyers folder, as
+    {filename: sha256_hex}. .gitkeep and any dotfile are ignored."""
+    if not FLYERS_DIR.exists():
+        return {}
+    return {
+        f.name: hashlib.sha256(f.read_bytes()).hexdigest()
+        for f in FLYERS_DIR.iterdir()
+        if f.is_file() and not f.name.startswith(".")
     }
-    url = f"{DRIVE_FILES_LIST_URL}?{urllib.parse.urlencode(params)}"
-    with urllib.request.urlopen(url, timeout=30) as resp:
-        data = json.loads(resp.read())
-    if "error" in data:
-        raise SystemExit(f"Drive API error: {data['error'].get('message', data['error'])}")
-    return data.get("files", [])
 
 
 def normalize(text):
@@ -139,7 +136,7 @@ def guess_display_name(filename):
     return " ".join(w.capitalize() for w in words) or filename
 
 
-def blank_campaign(file_id, filename):
+def blank_campaign(filename):
     return {
         "name": guess_display_name(filename),
         "category": "everyday",
@@ -152,66 +149,56 @@ def blank_campaign(file_id, filename):
         "enrollment_code": None,
         "dates": [],
         "contact": None,
-        "flyer_drive_file_id": file_id,
+        "flyer_filename": filename,
         "content_hash": None,
         "needs_review": True,
     }
 
 
 def main():
-    if not DRIVE_API_KEY:
-        raise SystemExit("GOOGLE_DRIVE_API_KEY is not set — see docs/SOP.md for how to create one.")
-
-    site = load_json("site.json", default={})
-    folder_id = site.get("fundraiser_flyers_folder_id")
-    if not folder_id:
-        raise SystemExit("config/site.json is missing fundraiser_flyers_folder_id.")
-
-    live_files = list_folder_files(folder_id, DRIVE_API_KEY)
-    live_by_id = {f["id"]: f for f in live_files}
+    live_files = list_flyer_files()
 
     campaigns = load_json("fundraisers.json", default=[])
     kept = []
-    seen_ids = set()
+    seen_filenames = set()
     changed = False
 
     for campaign in campaigns:
-        file_id = campaign.get("flyer_drive_file_id")
-        if not file_id:
+        filename = campaign.get("flyer_filename")
+        if not filename:
             kept.append(campaign)
             continue
-        live = live_by_id.get(file_id)
-        if live is None:
+        if filename not in live_files:
             if campaign.get("description") == PLACEHOLDER_DESCRIPTION:
                 print(f"  - removed (unreviewed placeholder, flyer gone): {campaign['name']}")
                 changed = True
                 continue
             print(f"  - flyer detached (file removed from folder, campaign kept): {campaign['name']}")
-            campaign = {**campaign, "flyer_drive_file_id": None, "content_hash": None}
+            campaign = {**campaign, "flyer_filename": None, "content_hash": None}
             changed = True
             kept.append(campaign)
             continue
-        seen_ids.add(file_id)
-        if live.get("md5Checksum") != campaign.get("content_hash"):
+        seen_filenames.add(filename)
+        if live_files[filename] != campaign.get("content_hash"):
             print(f"  ! flyer changed, flagging for review: {campaign['name']}")
-            campaign = {**campaign, "content_hash": live.get("md5Checksum"), "needs_review": True}
+            campaign = {**campaign, "content_hash": live_files[filename], "needs_review": True}
             changed = True
         kept.append(campaign)
 
-    for file_id, live in live_by_id.items():
-        if file_id in seen_ids:
+    for filename, file_hash in live_files.items():
+        if filename in seen_filenames:
             continue
-        match = guess_existing_match(live["name"], kept)
+        match = guess_existing_match(filename, kept)
         if match is not None:
-            print(f"  ~ new flyer {live['name']!r} looks like an existing campaign, attaching + flagging: {match['name']}")
-            match["flyer_drive_file_id"] = file_id
-            match["content_hash"] = live.get("md5Checksum")
+            print(f"  ~ new flyer {filename!r} looks like an existing campaign, attaching + flagging: {match['name']}")
+            match["flyer_filename"] = filename
+            match["content_hash"] = file_hash
             match["needs_review"] = True
             changed = True
             continue
-        print(f"  + new flyer, adding placeholder: {live['name']}")
-        entry = blank_campaign(file_id, live["name"])
-        entry["content_hash"] = live.get("md5Checksum")
+        print(f"  + new flyer, adding placeholder: {filename}")
+        entry = blank_campaign(filename)
+        entry["content_hash"] = file_hash
         kept.append(entry)
         changed = True
 

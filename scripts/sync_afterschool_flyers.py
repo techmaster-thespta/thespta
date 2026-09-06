@@ -2,52 +2,50 @@
 """
 Thunder Hill Elementary PTA — Afterschool Programs flyer sync.
 
-Reads the fixed Google Drive folder (config/site.json's
-`afterschool_flyers_folder_id`) via the Drive API v3 `files.list`
-endpoint, and reconciles config/afterschool-programs.json against
-what's actually in that folder right now:
+Reconciles config/afterschool-programs.json against whatever's actually
+in assets/flyers/before-after-school/ right now:
 
   - A file no longer in the folder -> its config entry is removed.
-  - A file id not yet in config -> a placeholder entry is added (a
+  - A file not yet in config -> a placeholder entry is added (a
     readable name guessed from the filename, description flagged as
     needing review). Writing the program's *real* name/schedule/price
     is a vision/understanding task — reading what the flyer actually
     says — which this script can't do; that's a follow-up a human or
-    an agent does by looking at the flyer, same as the first pass that
-    built this file originally.
-  - A file already in config whose content changed (Drive computes and
-    exposes each file's md5Checksum itself, so this needs no download)
-    -> flagged `needs_review: true` and its hash updated, but its old
-    details are left in place rather than wiped, since stale-but-present
-    beats blank.
+    an agent does by looking at the flyer.
+  - A file already in config whose content changed (sha256 of the file
+    bytes differs from the stored content_hash) -> flagged
+    `needs_review: true` and its hash updated, but its old details are
+    left in place rather than wiped, since stale-but-present beats
+    blank.
   - Unchanged files are left untouched entirely.
 
-Requires the GOOGLE_DRIVE_API_KEY environment variable — an API-key-only
-(no OAuth) credential restricted to the Drive API. Since the folder is
-shared as "anyone with the link," a bare API key is enough to read it;
-Drive API keys without an attached OAuth identity can only ever see
-already-public content, so a leaked key doesn't expose anything private.
-See docs/SOP.md for how to create one.
+This originally read a shared Google Drive folder via the Drive API
+(needing a GOOGLE_DRIVE_API_KEY secret and a personal Google account in
+good standing to own the folder). That whole dependency was removed
+after the owning account got flagged by Google and every file in it —
+even ones served by a plain public link — started 403ing with "you
+can't access this item, it violates our Terms of Service." Flyers now
+just live in this repo (assets/flyers/before-after-school/), uploaded
+via GitHub's own web UI or a normal git push — no external account, no
+API key, nothing for a third party to flag. This also means the
+mechanical reconciliation can run on every push instead of polling on a
+schedule (see .github/workflows/deploy.yml) — a file landing in the
+repo *is* the event, there's no external state to poll for anymore.
 
-Run by .github/workflows/sync-afterschool-flyers.yml (daily — this
-folder changes far less often than the events calendar) and can be run
-locally too:
+Run as a step in .github/workflows/deploy.yml, and can be run locally
+too:
 
-    GOOGLE_DRIVE_API_KEY=xxx python3 scripts/sync_afterschool_flyers.py
+    python3 scripts/sync_afterschool_flyers.py
 
 No dependencies beyond the Python 3 standard library.
 """
+import hashlib
 import json
-import os
-import urllib.parse
-import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG = ROOT / "config"
-
-DRIVE_API_KEY = os.environ.get("GOOGLE_DRIVE_API_KEY")
-DRIVE_FILES_LIST_URL = "https://www.googleapis.com/drive/v3/files"
+FLYERS_DIR = ROOT / "assets" / "flyers" / "before-after-school"
 
 
 def load_json(name, default=None):
@@ -57,22 +55,16 @@ def load_json(name, default=None):
     return json.loads(path.read_text())
 
 
-def list_folder_files(folder_id, api_key):
-    """Every non-trashed file directly inside the folder, as
-    {id, name, md5Checksum, mimeType}. One API call, no file downloads —
-    Drive already computes the checksum server-side."""
-    params = {
-        "q": f"'{folder_id}' in parents and trashed = false",
-        "fields": "files(id,name,md5Checksum,mimeType)",
-        "key": api_key,
-        "pageSize": "1000",
+def list_flyer_files():
+    """Every real file directly inside the flyers folder, as
+    {filename: sha256_hex}. .gitkeep and any dotfile are ignored."""
+    if not FLYERS_DIR.exists():
+        return {}
+    return {
+        f.name: hashlib.sha256(f.read_bytes()).hexdigest()
+        for f in FLYERS_DIR.iterdir()
+        if f.is_file() and not f.name.startswith(".")
     }
-    url = f"{DRIVE_FILES_LIST_URL}?{urllib.parse.urlencode(params)}"
-    with urllib.request.urlopen(url, timeout=30) as resp:
-        data = json.loads(resp.read())
-    if "error" in data:
-        raise SystemExit(f"Drive API error: {data['error'].get('message', data['error'])}")
-    return data.get("files", [])
 
 
 def guess_name(filename):
@@ -83,9 +75,9 @@ def guess_name(filename):
     return " ".join(w.capitalize() for w in words) or filename
 
 
-def blank_program(file_id, name):
+def blank_program(filename):
     return {
-        "name": guess_name(name),
+        "name": guess_name(filename),
         "provider": None,
         "description": "New flyer — needs review to fill in the real program details.",
         "day_time": None,
@@ -97,49 +89,42 @@ def blank_program(file_id, name):
         "contact": None,
         "registration_href": None,
         "registration_note": None,
-        "flyer_drive_file_id": file_id,
+        "flyer_filename": filename,
         "content_hash": None,
         "needs_review": True,
     }
 
 
 def main():
-    if not DRIVE_API_KEY:
-        raise SystemExit("GOOGLE_DRIVE_API_KEY is not set — see docs/SOP.md for how to create one.")
-
-    site = load_json("site.json", default={})
-    folder_id = site.get("afterschool_flyers_folder_id")
-    if not folder_id:
-        raise SystemExit("config/site.json is missing afterschool_flyers_folder_id.")
-
-    live_files = list_folder_files(folder_id, DRIVE_API_KEY)
-    live_by_id = {f["id"]: f for f in live_files}
+    live_files = list_flyer_files()
 
     programs = load_json("afterschool-programs.json", default=[])
     kept = []
-    seen_ids = set()
+    seen_filenames = set()
     changed = False
 
     for program in programs:
-        file_id = program.get("flyer_drive_file_id")
-        live = live_by_id.get(file_id)
-        if live is None:
-            print(f"  - removed (no longer in folder): {program['name']}")
-            changed = True
+        filename = program.get("flyer_filename")
+        if filename is None or filename not in live_files:
+            if filename is not None:
+                print(f"  - removed (no longer in folder): {program['name']}")
+                changed = True
+                continue
+            kept.append(program)
             continue
-        seen_ids.add(file_id)
-        if live.get("md5Checksum") != program.get("content_hash"):
+        seen_filenames.add(filename)
+        if live_files[filename] != program.get("content_hash"):
             print(f"  ! flyer changed, flagging for review: {program['name']}")
-            program = {**program, "content_hash": live.get("md5Checksum"), "needs_review": True}
+            program = {**program, "content_hash": live_files[filename], "needs_review": True}
             changed = True
         kept.append(program)
 
-    for file_id, live in live_by_id.items():
-        if file_id in seen_ids:
+    for filename, file_hash in live_files.items():
+        if filename in seen_filenames:
             continue
-        print(f"  + new flyer, adding placeholder: {live['name']}")
-        entry = blank_program(file_id, live["name"])
-        entry["content_hash"] = live.get("md5Checksum")
+        print(f"  + new flyer, adding placeholder: {filename}")
+        entry = blank_program(filename)
+        entry["content_hash"] = file_hash
         kept.append(entry)
         changed = True
 

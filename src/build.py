@@ -97,6 +97,14 @@ def build_context(depth=0):
     context["HERO_IMAGE_URL"] = f'{prefix}images/{site["hero_image_filename"]}'
     context["PAGE_HEADER_IMAGE_URL"] = f'{prefix}images/{site["page_header_image_filename"]}'
 
+    # Same idea, for content-type flyers (afterschool programs,
+    # fundraisers) — see .github/workflows/deploy.yml, which copies
+    # assets/flyers/** into site/flyers/** next to pages/*.html. These
+    # used to be Google Drive hotlinks; moved into the repo after the
+    # Drive account got flagged and every file in it — even ones on a
+    # plain public link — started 403ing.
+    context["FLYER_BASE_URL"] = f"{prefix}flyers"
+
     # Internal links are plain relative filenames — `about`, `events`, etc.
     # become `about.html`, `events.html` (or `../about.html` etc. from one
     # directory down) — resolved relative to whatever domain serves
@@ -422,7 +430,7 @@ def build_committees_section(committees, volunteer_form):
     })
 
 
-def render_afterschool_program_card(program):
+def render_afterschool_program_card(program, context):
     """One afterschool program's card: a short always-visible summary
     (name, provider, one compact meta line, Register button) plus a
     native <details> "Details" disclosure for everything else —
@@ -432,10 +440,11 @@ def render_afterschool_program_card(program):
     all 10 programs at once on one page read as far too much text.
 
     Run by an outside provider (iCode, KidzArt, a theatre company,
-    etc.), not the PTA — the flyer image is the source of truth,
-    hotlinked from Drive exactly like an event attachment (see
-    drive_thumbnail_url/render_event_attachments above), never
-    downloaded into this repo. `content_hash` on each config entry is
+    etc.), not the PTA — the flyer image is the source of truth, a
+    plain file in assets/flyers/before-after-school/ (previously
+    hotlinked from Google Drive; moved into the repo after the Drive
+    account got flagged and every file in it started 403ing, even ones
+    on a plain public link). `content_hash` on each config entry is
     bookkeeping only (lets a future refresh tell which flyers actually
     changed vs. which are untouched) and is never rendered."""
     summary = [f'<h3>{program["name"]}</h3>']
@@ -473,13 +482,12 @@ def render_afterschool_program_card(program):
     if program.get("contact"):
         details.append(f'<p>{program["contact"]}</p>')
 
-    file_id = program.get("flyer_drive_file_id")
-    if file_id:
-        flyer_href = f"https://drive.google.com/file/d/{file_id}/view"
-        thumb_url = drive_thumbnail_url(flyer_href)
+    flyer_filename = program.get("flyer_filename")
+    if flyer_filename:
+        flyer_url = f'{context["FLYER_BASE_URL"]}/before-after-school/{flyer_filename}'
         details.append(
-            f'<a class="thes__flyer" href="{flyer_href}" target="_blank" rel="noopener">'
-            f'<img src="{thumb_url}" alt="" width="160" loading="lazy">'
+            f'<a class="thes__flyer" href="{flyer_url}" target="_blank" rel="noopener">'
+            f'<img src="{flyer_url}" alt="" width="160" loading="lazy">'
             f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
         )
 
@@ -496,7 +504,7 @@ def render_afterschool_program_card(program):
     return f'<div class="thes__program-card">{"".join(summary)}{details_html}</div>'
 
 
-def build_afterschool_programs_section(programs):
+def build_afterschool_programs_section(programs, context):
     """Whole Before & After School Programs page body (function/config
     names kept the shorter "afterschool" name for simplicity even after
     the page itself was retitled to explicitly cover before-school
@@ -506,7 +514,7 @@ def build_afterschool_programs_section(programs):
     rather than the page vanishing."""
     if not programs:
         return (TEMPLATES / "afterschool-programs-empty.html.tmpl").read_text()
-    cards = "\n".join(indent(render_afterschool_program_card(p), 6) for p in programs)
+    cards = "\n".join(indent(render_afterschool_program_card(p, context), 6) for p in programs)
     section_tmpl = (TEMPLATES / "afterschool-programs-section.html.tmpl").read_text()
     return render(section_tmpl, {"AFTERSCHOOL_PROGRAM_CARDS": cards})
 
@@ -599,13 +607,12 @@ def render_fundraiser_card(campaign, context):
         parts.append('<div class="thes__fund-actions">' + "".join(buttons) + "</div>")
 
     details = []
-    file_id = campaign.get("flyer_drive_file_id")
-    if file_id:
-        flyer_href = f"https://drive.google.com/file/d/{file_id}/view"
-        thumb_url = drive_thumbnail_url(flyer_href)
+    flyer_filename = campaign.get("flyer_filename")
+    if flyer_filename:
+        flyer_url = f'{context["FLYER_BASE_URL"]}/fundraising/{flyer_filename}'
         details.append(
-            f'<a class="thes__flyer" href="{flyer_href}" target="_blank" rel="noopener">'
-            f'<img src="{thumb_url}" alt="" width="160" loading="lazy">'
+            f'<a class="thes__flyer" href="{flyer_url}" target="_blank" rel="noopener">'
+            f'<img src="{flyer_url}" alt="" width="160" loading="lazy">'
             f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
         )
     if campaign.get("contact"):
@@ -739,9 +746,6 @@ def main():
     committees_section = build_committees_section(
         load_json("committees.json", default=[]), load_json("site.json")["volunteerForm"]
     )
-    afterschool_programs_section = build_afterschool_programs_section(
-        load_json("afterschool-programs.json", default=[])
-    )
 
     page_templates = sorted((TEMPLATES / "pages").rglob("*.html.tmpl"))
     if not page_templates:
@@ -776,6 +780,9 @@ def main():
         )
         fundraising_section = build_fundraising_section(
             load_json("fundraisers.json", default=[]), context
+        )
+        afterschool_programs_section = build_afterschool_programs_section(
+            load_json("afterschool-programs.json", default=[]), context
         )
 
         shared_markers = {

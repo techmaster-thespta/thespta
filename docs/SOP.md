@@ -319,61 +319,50 @@ Every program on `/before-after-school-programs` is run by an outside provider
 (iCode, KidzArt, a theatre company, etc.) — **not** the PTA or the
 school — so the page says so explicitly, and every card is expected to
 carry its own registration link/contact info. Each entry's flyer is a
-Google Drive file, shown as a thumbnail exactly the way an event's
-calendar attachment already is — no image is ever downloaded into this
-repo.
+plain image file in `assets/flyers/before-after-school/` in this repo,
+shown as a thumbnail exactly the way an event's calendar attachment
+already is.
+
+(This used to be a shared Google Drive folder read via the Drive API.
+That was migrated into the repo after the account that owned the folder
+got flagged by Google, and every file in it — even ones on a plain
+public link — started returning "you can't access this item, it
+violates our Terms of Service." Nothing about a personal account's
+standing can take this down anymore.)
+
+### Adding a flyer
+
+Anyone with repo write access can drop a flyer in without touching git
+directly: on GitHub's website, go to
+`https://github.com/techmaster-thespta/thespta/upload/main/assets/flyers/before-after-school`,
+drag the image in, write a commit message, and commit. The next push
+(this one included) runs the sync below automatically.
 
 ### This page is normally kept up to date automatically
 
-`.github/workflows/sync-afterschool-flyers.yml` runs daily and
-reconciles `config/afterschool-programs.json` against whatever's
-actually in the shared Drive folder
-(`config/site.json`'s `afterschool_flyers_folder_id`):
+`scripts/sync_afterschool_flyers.py` runs as a step in
+`.github/workflows/deploy.yml` — on *every* push, not on a schedule, since
+a file landing in the repo is itself the event; there's no external
+state left to poll for. It reconciles `config/afterschool-programs.json`
+against whatever's actually in `assets/flyers/before-after-school/`:
 
-- A flyer removed from the folder → its card disappears.
+- A flyer file removed from that folder → its card disappears.
 - A brand-new flyer → a placeholder card appears (name guessed from the
   filename, flagged `"needs_review": true`) until someone fills in the
   real program details.
-- A changed flyer (same file, different content) → flagged
+- A changed flyer (same filename, different content) → flagged
   `"needs_review": true`, old details left in place rather than wiped.
 
 **Reading what a flyer actually says (writing the real name, schedule,
 price, description) is not something this automation can do on its
 own** — that's the same kind of visual-understanding task the first
 version of this page was built with. Whenever an entry is flagged
-`needs_review`, open its `flyer_drive_file_id` in Drive (or ask an agent
-to), read the flyer, and update the entry by hand — then clear the flag.
-
-### One-time setup: the Drive API key
-
-The daily sync needs a `GOOGLE_DRIVE_API_KEY` repo secret to actually
-list the folder (unlike the events calendar, Drive has no equivalent
-public, unauthenticated feed for "list a folder's files" — this is the
-one piece of afterschool-programs automation that genuinely needs a
-credential). Until this secret exists, the workflow no-ops harmlessly
-(no daily failure emails) — the page just doesn't auto-update until it's
-set up.
-
-1. In [Google Cloud Console](https://console.cloud.google.com/), create
-   or pick a project, then **APIs & Services → Library**, and enable the
-   **Google Drive API**.
-2. **APIs & Services → Credentials → Create Credentials → API key.**
-3. Click into the new key and, under **API restrictions**, restrict it
-   to **Google Drive API** only (defense in depth — an API key alone,
-   with no OAuth identity attached, can only ever read files that are
-   already public, so a leaked key can't expose anything private
-   regardless, but restricting it limits what it's good for if leaked).
-4. Copy the key. In this GitHub repo: **Settings → Secrets and
-   variables → Actions → New repository secret**, name it
-   `GOOGLE_DRIVE_API_KEY`, paste the value.
-5. Trigger the workflow once by hand (`gh workflow run
-   sync-afterschool-flyers.yml` or the Actions tab's "Run workflow"
-   button) and watch it succeed.
-
-If the shared folder itself ever needs to change, update
-`afterschool_flyers_folder_id` in `config/site.json` — it's the last
-segment of the folder's URL
-(`drive.google.com/drive/folders/<this-part>`).
+`needs_review`, open `assets/flyers/before-after-school/<flyer_filename>`
+(or ask an agent to), read the flyer, and update the entry by hand —
+then clear the flag. See
+`.claude/skills/review-afterschool-flyers/SKILL.md` for the full
+process; the daily `scripts/flyer-review/` service also runs this
+automatically (see `docs/automation-service.md`).
 
 ---
 
@@ -386,48 +375,42 @@ unlike afterschool programs, these aren't third-party providers running
 something at the school. Each entry belongs to one of five `category`
 values (`recurring`, `seasonal`, `annual`, `everyday`, `direct`) that
 control both its badge and which section of the page it lands in — see
-the skill file for what each means.
+the skill file for what each means. Flyers live in
+`assets/flyers/fundraising/` in this repo (same Drive-to-repo migration
+as Task 5c, for the same reason).
+
+### Adding a flyer
+
+Same as Task 5c, just the other folder:
+`https://github.com/techmaster-thespta/thespta/upload/main/assets/flyers/fundraising`.
 
 ### This page is normally kept up to date automatically
 
-`.github/workflows/sync-fundraiser-flyers.yml` runs daily and
-reconciles `config/fundraisers.json` against whatever's actually in the
-shared Drive folder (`config/site.json`'s `fundraiser_flyers_folder_id`)
-— same mechanism as the afterschool sync (Task 5c), with one real
-difference: a fundraiser campaign isn't flyer-dependent the way an
-afterschool program is. Box Tops, RaiseRight, and the rest stay on the
-page even if their current flyer image is removed from the folder (the
-flyer is just detached, not the campaign deleted) — only an unreviewed
-placeholder that never got real content is removed when its flyer
-disappears. And because a *new* flyer file is often a reprint of a
-campaign that's already on the page rather than a genuinely new one
-(this actually happened — a flyer named "buy-a-box.jpg" turned out to
-be the See's Candies flyer), the sync script makes a conservative
-filename-vs-campaign-name guess before creating a placeholder, so an
-obvious reprint gets attached to its existing card automatically
-instead of creating a duplicate.
+`scripts/sync_fundraiser_flyers.py` runs as a step in
+`.github/workflows/deploy.yml` on every push — same mechanism as the
+afterschool sync (Task 5c), with one real difference: a fundraiser
+campaign isn't flyer-dependent the way an afterschool program is. Box
+Tops, RaiseRight, and the rest stay on the page even if their current
+flyer image is removed from the folder (the flyer is just detached, not
+the campaign deleted) — only an unreviewed placeholder that never got
+real content is removed when its flyer disappears. And because a *new*
+flyer file is often a reprint of a campaign that's already on the page
+rather than a genuinely new one (this actually happened — a flyer named
+"buy-a-box.jpg" turned out to be the See's Candies flyer), the sync
+script makes a conservative filename-vs-campaign-name guess before
+creating a placeholder, so an obvious reprint gets attached to its
+existing card automatically instead of creating a duplicate.
 
 **Neither the mechanical sync nor a filename guess can write real
 campaign details, or tell a reprint from a genuinely new flyer with full
 confidence** — that requires actually looking at the flyer. Whenever an
-entry is flagged `needs_review`, open its `flyer_drive_file_id` in Drive
-(or ask an agent to), look at it, and either fill in a new campaign's
-real details or merge a reprint into the existing campaign it actually
-belongs to — then clear the flag. See
-`.claude/skills/review-fundraiser-flyers/SKILL.md` for the full process.
-
-### One-time setup: the Drive API key
-
-Uses the same `GOOGLE_DRIVE_API_KEY` repo secret the afterschool sync
-does (Task 5c) — it's a Drive-API-scoped key, not tied to one folder, so
-no second key is needed. If that secret is already set up, this sync
-just works; if not, follow Task 5c's setup steps once and both syncs
-start working.
-
-If the shared folder itself ever needs to change, update
-`fundraiser_flyers_folder_id` in `config/site.json` — it's the last
-segment of the folder's URL
-(`drive.google.com/drive/folders/<this-part>`).
+entry is flagged `needs_review`, open
+`assets/flyers/fundraising/<flyer_filename>` (or ask an agent to), look
+at it, and either fill in a new campaign's real details or merge a
+reprint into the existing campaign it actually belongs to — then clear
+the flag. See `.claude/skills/review-fundraiser-flyers/SKILL.md` for the
+full process; the daily `scripts/flyer-review/` service also runs this
+automatically.
 
 ---
 

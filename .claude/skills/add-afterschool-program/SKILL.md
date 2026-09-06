@@ -6,7 +6,7 @@ description: Add, edit, remove, or review a flagged entry on the Afterschool Pro
 # Add / edit / remove an afterschool program
 
 Use this when the user asks to add a program, update one's details,
-remove one, or review something a daily sync flagged. Every program on
+remove one, or review something the sync flagged. Every program on
 `/before-after-school-programs` is run by an **outside provider** (iCode,
 KidzArt, a theatre company, etc.) — never the PTA or the school — the
 page says so explicitly and every card should carry its own
@@ -30,7 +30,7 @@ registration link/contact info.
   "contact": "410-454-9878 · columbia@icodeschool.com",
   "registration_href": null,
   "registration_note": "Scan the QR code on the flyer to register.",
-  "flyer_drive_file_id": "1jYwU1sHU0ESSUFEOSCU3LUUlVIApi_sp",
+  "flyer_filename": "fall-stem-innovators.jpg",
   "content_hash": "59104f9ea3d65b77bc55afbe1673c28b",
   "needs_review": false
 }
@@ -45,12 +45,14 @@ registration link/contact info.
   is free text for anything a link can't capture (e.g. "scan the QR code
   on the flyer" when there's no plain URL to link to). Either, both, or
   neither can be set.
-- `flyer_drive_file_id` is the Google Drive file ID for that program's
-  flyer image — the card shows it as a thumbnail exactly the way an
-  event's calendar attachment already does (`drive_thumbnail_url()` in
-  `src/build.py`), hotlinked from Drive, never downloaded into this
-  repo. Get the ID from the file's share link
-  (`drive.google.com/file/d/<this-part>/view`).
+- `flyer_filename` is the bare filename of that program's flyer image
+  inside `assets/flyers/before-after-school/` (e.g.
+  `"fall-stem-innovators.jpg"`, not a path or URL) — the card shows it
+  as a thumbnail exactly the way an event's calendar attachment does,
+  just served from this repo instead of hotlinked. (This used to be a
+  Google Drive file ID; moved into the repo after the Drive account
+  hosting these got flagged and every file in it started 403ing, even
+  ones on a plain public link — see `docs/SOP.md` Task 5c.)
 - `content_hash` and `needs_review` are bookkeeping for the automated
   sync (see below) — **don't hand-edit `content_hash`** unless you're
   intentionally telling the sync "this is the current version," and
@@ -59,21 +61,32 @@ registration link/contact info.
 
 ## This page is normally kept in sync automatically
 
-`.github/workflows/sync-afterschool-flyers.yml` runs daily against the
-fixed Drive folder in `config/site.json`'s `afterschool_flyers_folder_id`
-(see `docs/SOP.md` Task 5c for the one-time API key setup this needs).
-It removes entries whose flyer disappeared from the folder, and adds a
-placeholder (`needs_review: true`, name guessed from the filename) for
-any brand-new flyer. **It cannot write the real program details** —
-that requires actually looking at the flyer, which is a job for a human
-or an agent, not the plain-Python sync script.
+`scripts/sync_afterschool_flyers.py` runs as a step in
+`.github/workflows/deploy.yml` — on *every* push, not on a schedule,
+since the flyers now live in this repo (`assets/flyers/before-after-school/`)
+and a push is the only way they can change; there's no external state
+left to poll for. It reconciles `config/afterschool-programs.json`
+against whatever's actually in that folder: removes an entry whose
+flyer disappeared, adds a placeholder (`needs_review: true`, name
+guessed from the filename) for any brand-new flyer, flags a changed one.
+**It cannot write the real program details** — that requires actually
+looking at the flyer, which is a job for a human or an agent
+(`review-afterschool-flyers`), not the plain-Python sync script.
+
+### Adding a flyer without touching git directly
+
+Anyone with repo access can drop a flyer in without using the command
+line: on GitHub's website, go to
+`https://github.com/techmaster-thespta/thespta/upload/main/assets/flyers/before-after-school`,
+drag the image in, and commit. The next push-triggered deploy picks it
+up automatically and flags it for review.
 
 ### Reviewing a flagged entry
 
 1. Find entries with `"needs_review": true` in
    `config/afterschool-programs.json`.
-2. Open `https://drive.google.com/file/d/<flyer_drive_file_id>/view` (or
-   ask an agent to) and read the flyer.
+2. Open `assets/flyers/before-after-school/<flyer_filename>` (or ask an
+   agent to) and read the flyer.
 3. Fill in `name`, `provider`, `description`, `day_time`, `date_range`
    (or `sessions`), `grades`, `price`, `contact`, and
    `registration_href`/`registration_note` from what the flyer actually
@@ -87,10 +100,10 @@ or an agent, not the plain-Python sync script.
 2. **Adding**: append a new entry — ask for (or read from the flyer)
    the fields above rather than inventing any of them.
 3. **Editing**: change the relevant field(s) in place.
-4. **Removing**: delete the entry. (Note: if its flyer is still in the
-   Drive folder, the next daily sync will re-add it as a fresh
-   `needs_review` placeholder — remove the file from the folder too if
-   it should stay gone for good.)
+4. **Removing**: delete the entry. (Note: if its flyer file is still in
+   `assets/flyers/before-after-school/`, the next push will re-add it as
+   a fresh `needs_review` placeholder — delete the file too if it should
+   stay gone for good.)
 5. Run `python3 src/build.py` then `python3 test/validate_build.py`.
 6. Report that `pages/before-after-school-programs.html` changed and remind the
    user to push (`docs/SOP.md` Task 7).
@@ -105,9 +118,6 @@ or an agent, not the plain-Python sync script.
   in `src/build.py`. If the request needs a different card layout or a
   new field, stop and tell the user that's a template change, not a
   config change.
-- Do not download a flyer image into `assets/images/` or this repo —
-  the whole point of `flyer_drive_file_id` is that Drive keeps hosting
-  it, exactly like event attachments.
 - Do not remove the "not sponsored or endorsed by the school" language
   from `afterschool-programs-section.html.tmpl`'s note — it's there on
   purpose since every program listed is run by a third party.

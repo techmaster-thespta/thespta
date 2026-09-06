@@ -98,6 +98,14 @@ config-only approach can't do it, rather than silently editing `src/`.
   upload failed with `storageQuotaExceeded` regardless of folder sharing.
   An OAuth-as-the-user variant was made to work, but GitHub Pages is
   simpler and was chosen instead — don't re-add either Drive approach.
+  The same lesson repeated later with a different feature: afterschool-
+  program and fundraiser flyers were briefly Drive-hosted too (a shared
+  folder read via the Drive API), until the account that owned the
+  folder got flagged by Google and every file in it — even ones on a
+  plain public link — started returning "you can't access this item, it
+  violates our Terms of Service." Those flyers now live in
+  `assets/flyers/before-after-school/` and `assets/flyers/fundraising/`
+  in this repo instead — don't reintroduce Drive for these either.
 - **`page_urls.*` in `config/site.json` are the only correct way to link
   between pages** — each value is a *slug* (e.g. `"get-involved"`, or
   `"get-involved/committees"` for a nested page), not a full URL.
@@ -203,18 +211,26 @@ never requires touching `header.html.tmpl` or `build.py`.
   feed includes `ATTACH` properties). Run by
   `.github/workflows/sync-events.yml` (hourly) and by `deploy.yml` (every
   push/manual run). See `docs/SOP.md` Task 4.
-- `scripts/sync_afterschool_flyers.py` — reconciles
-  `config/afterschool-programs.json` against the fixed Drive folder in
-  `config/site.json`'s `afterschool_flyers_folder_id`: removes an entry
+- `scripts/sync_afterschool_flyers.py` / `scripts/sync_fundraiser_flyers.py`
+  — reconcile `config/afterschool-programs.json` /
+  `config/fundraisers.json` against whatever's actually in
+  `assets/flyers/before-after-school/` / `assets/flyers/fundraising/`:
+  removes (or, for a fundraiser with real content, detaches) an entry
   whose flyer disappeared, adds a `needs_review` placeholder for a new
-  one, flags a changed one. Unlike the calendar sync, Drive has no
-  public unauthenticated "list a folder" feed, so this needs a
-  `GOOGLE_DRIVE_API_KEY` repo secret (see `docs/SOP.md` Task 5c) and
-  no-ops harmlessly without one. It deliberately can't write a flyer's
-  actual program details (name/schedule/price) — that's a
+  one, flags a changed one. These flyers used to be a shared Google
+  Drive folder read via the Drive API (needing a `GOOGLE_DRIVE_API_KEY`
+  secret); migrated into the repo after the account that owned the
+  folder got flagged by Google and every file in it — even ones on a
+  plain public link — started returning "you can't access this item, it
+  violates our Terms of Service." Being plain files in the repo means
+  the sync can run as a step in `.github/workflows/deploy.yml` on every
+  push instead of polling on a schedule — see "Hard-won constraints"
+  below. Neither script can write a flyer's actual details
+  (name/schedule/price, or for a fundraiser, telling a reprint of an
+  existing campaign apart from a genuinely new one) — that's a
   vision/understanding step for a human or an agent, done via
-  `.claude/skills/add-afterschool-program/`. Run by
-  `.github/workflows/sync-afterschool-flyers.yml` (daily).
+  `.claude/skills/add-afterschool-program/` /
+  `.claude/skills/add-fundraiser/` and their matching `review-*` skills.
 - `docs/github-agent-setup.md` — GitHub access setup for agents: `gh` CLI
   (shell-capable agents) or the GitHub MCP server declared in `.mcp.json`
   (any MCP-compatible agent). Use whichever this session actually has —

@@ -11,10 +11,9 @@ scheduled systemd timer (see `docs/automation-service.md`) — this skill
 is what that automation actually invokes for the fundraising side; it
 has no separate instructions of its own.
 
-`.github/workflows/sync-fundraiser-flyers.yml` runs daily and
-mechanically detects new/removed/changed flyers in the shared Drive
-folder (`config/site.json`'s `fundraiser_flyers_folder_id`) — see
-`scripts/sync_fundraiser_flyers.py`. It does one extra thing
+`scripts/sync_fundraiser_flyers.py` runs as a step in
+`.github/workflows/deploy.yml` on every push and mechanically detects
+new/removed/changed flyers in `assets/flyers/fundraising/`. It does one extra thing
 `sync_afterschool_flyers.py` doesn't: a cheap filename-vs-campaign-name
 guess, so an obviously-matching reprint (e.g. "Raise-Right.jpg" against
 the existing "RaiseRight Gift Cards" card) gets attached automatically
@@ -43,16 +42,15 @@ summary instead of asking.
 4. If there are none, report "No fundraiser flyers need review today"
    and stop — that's the normal, expected outcome most days, not an
    error.
-5. For each flagged entry, open its flyer — either
-   `https://drive.google.com/file/d/<flyer_drive_file_id>/view` or the
-   thumbnail `https://drive.google.com/thumbnail?id=<flyer_drive_file_id>&sz=w1200`
-   — and actually look at it. Two cases:
+5. For each flagged entry, open its flyer —
+   `assets/flyers/fundraising/<flyer_filename>` (or ask an agent to) —
+   and actually look at it. Two cases:
 
    - **The flyer is for a campaign that's already a different entry in
      this file** (the sync script's placeholder name is a generic
      filename guess like "Buy A Box" but the flyer is obviously, say,
      the See's Candies fundraiser that already has its own card): move
-     `flyer_drive_file_id` and `content_hash` onto the *existing* real
+     `flyer_filename` and `content_hash` onto the *existing* real
      entry, set that entry's `needs_review` to `false`, and delete the
      placeholder entry the sync script added — don't leave a duplicate
      card around. If the flyer also updates that campaign's real
@@ -83,8 +81,8 @@ summary instead of asking.
    merge reprinted flyer into existing fundraiser campaign"), and
    `git push origin main`. This is routine content fill, not a design
    change — push directly to `main`, no staging-first step needed
-   (matches how the automated Drive-diff sync itself already commits
-   directly to main).
+   (matches how the automated sync itself already commits directly to
+   main).
 8. Verify, don't just trust a green checkmark: `gh run list
    --workflow=deploy.yml --limit 1`, then `gh run watch <id>
    --exit-status` to confirm the push's deploy actually succeeded, then
@@ -96,9 +94,10 @@ summary instead of asking.
 
 ## Do not
 
-- Do not touch the `thespta-prestage` (staging) repo — it has its own
-  independent daily Drive sync and may flag the same flyer separately;
-  that's expected drift for routine content, not something to fix here.
+- Do not touch the `thespta-prestage` (staging) repo — it runs its own
+  independent copy of the same sync on its own pushes and may flag the
+  same flyer separately; that's expected drift for routine content, not
+  something to fix here.
 - Do not hand-write `content_hash` — it's bookkeeping the mechanical
   sync owns; only `needs_review` and the actual content fields are
   yours to edit here.

@@ -6,7 +6,7 @@ description: Add, edit, remove, or review a flagged entry on the Ways to Give (f
 # Add / edit / remove a fundraising campaign
 
 Use this when the user asks to add a fundraiser, update one's details,
-remove one, or review something a daily sync flagged. Every campaign on
+remove one, or review something the sync flagged. Every campaign on
 `/fundraising` funds Thunder Hill Elementary PTA programs, grants, and
 events — unlike the afterschool-programs page, these are the PTA's own
 campaigns, not third-party providers running something at the school.
@@ -28,7 +28,7 @@ campaigns, not third-party providers running something at the school.
   "enrollment_code": "J77AQSBNQDUP",
   "dates": [],
   "contact": null,
-  "flyer_drive_file_id": "1kUjegU4PK3LJLb01QdS1a8CD53to4V4m",
+  "flyer_filename": "raiseright.jpg",
   "content_hash": "b8d91f8be1d6d1c1c1d73122d2314bfe",
   "needs_review": false
 }
@@ -61,11 +61,13 @@ campaigns, not third-party providers running something at the school.
   other value is treated as a literal external URL.
 - `enrollment_code` is only for a campaign with an actual sign-up code
   (RaiseRight) — `null` otherwise.
-- `flyer_drive_file_id` is the Google Drive file ID for that campaign's
-  flyer image — the card shows it as a thumbnail inside its "Details"
-  disclosure, hotlinked from Drive, never downloaded into this repo.
-  Get the ID from the file's share link
-  (`drive.google.com/file/d/<this-part>/view`).
+- `flyer_filename` is the bare filename of that campaign's flyer image
+  inside `assets/flyers/fundraising/` (e.g. `"raiseright.jpg"`, not a
+  path or URL) — the card shows it as a thumbnail inside its "Details"
+  disclosure, served from this repo. (This used to be a Google Drive
+  file ID; moved into the repo after the Drive account hosting these
+  got flagged and every file in it started 403ing, even ones on a plain
+  public link — see `docs/SOP.md` Task 5d.)
 - `content_hash` and `needs_review` are bookkeeping for the automated
   sync (see below) — **don't hand-edit `content_hash`** unless you're
   intentionally telling the sync "this is the current version," and
@@ -74,22 +76,30 @@ campaigns, not third-party providers running something at the school.
 
 ## This page is normally kept in sync automatically
 
-`.github/workflows/sync-fundraiser-flyers.yml` runs daily against the
-fixed Drive folder in `config/site.json`'s `fundraiser_flyers_folder_id`
-(same `GOOGLE_DRIVE_API_KEY` secret `sync-afterschool-flyers.yml`
-already uses — see `docs/SOP.md` Task 5c). Unlike the afterschool sync,
-a fundraiser's flyer isn't what defines its existence — a campaign like
-Box Tops stays on the page even if its current flyer image is removed
-from the folder (the flyer just gets detached). And because a *new*
-flyer file is often a reprint of an existing campaign rather than a
-genuinely new one, the sync script makes a conservative filename-vs-name
-guess before creating a new placeholder — see
-`scripts/sync_fundraiser_flyers.py` and
+`scripts/sync_fundraiser_flyers.py` runs as a step in
+`.github/workflows/deploy.yml` — on *every* push, not on a schedule,
+since the flyers now live in this repo (`assets/flyers/fundraising/`)
+and a push is the only way they can change; there's no external state
+left to poll for. Unlike the afterschool sync, a fundraiser's flyer
+isn't what defines its existence — a campaign like Box Tops stays on
+the page even if its current flyer image is removed from the folder
+(the flyer just gets detached). And because a *new* flyer file is often
+a reprint of an existing campaign rather than a genuinely new one, the
+sync script makes a conservative filename-vs-name guess before creating
+a new placeholder — see `scripts/sync_fundraiser_flyers.py` and
 `.claude/skills/review-fundraiser-flyers/SKILL.md` for exactly how that
 works and gets resolved. **Neither script can write real campaign
 details or tell a reprint from a genuinely new flyer with full
 confidence** — that requires actually looking at the flyer, which is
 `review-fundraiser-flyers`'s job, not this skill's.
+
+### Adding a flyer without touching git directly
+
+Anyone with repo access can drop a flyer in without using the command
+line: on GitHub's website, go to
+`https://github.com/techmaster-thespta/thespta/upload/main/assets/flyers/fundraising`,
+drag the image in, and commit. The next push-triggered deploy picks it
+up automatically.
 
 ## Steps for a manual add/edit/remove
 
@@ -98,10 +108,10 @@ confidence** — that requires actually looking at the flyer, which is
    the fields above rather than inventing any of them. Pick the
    `category` from the five above.
 3. **Editing**: change the relevant field(s) in place.
-4. **Removing**: delete the entry. (Note: if its flyer is still in the
-   Drive folder, the next daily sync will re-add it as a fresh
-   `needs_review` placeholder — remove the file from the folder too if
-   it should stay gone for good.)
+4. **Removing**: delete the entry. (Note: if its flyer file is still in
+   `assets/flyers/fundraising/`, the next push will re-add it as a
+   fresh `needs_review` placeholder — delete the file too if it should
+   stay gone for good.)
 5. Run `python3 src/build.py` then `python3 test/validate_build.py`.
 6. Report that `pages/fundraising.html` changed and remind the user to
    push (`docs/SOP.md` Task 7).
@@ -116,7 +126,4 @@ confidence** — that requires actually looking at the flyer, which is
   `src/build.py`. If the request needs a different card layout, a new
   category, or a field nothing here covers, stop and tell the user
   that's a template change, not a config change.
-- Do not download a flyer image into `assets/images/` or this repo —
-  the whole point of `flyer_drive_file_id` is that Drive keeps hosting
-  it, exactly like afterschool-program and event-attachment flyers.
 - Do not add a second `direct`-category entry.

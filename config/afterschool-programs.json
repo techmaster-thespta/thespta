@@ -12,9 +12,9 @@
     "contact": "410-454-9878 \u00b7 columbia@icodeschool.com",
     "registration_href": "https://secure-portal.icodeschool.com/base/EmbeddedUrl/E13025EB35",
     "registration_note": "Or scan the QR code on the flyer.",
-    "flyer_drive_file_id": "1jYwU1sHU0ESSUFEOSCU3LUUlVIApi_sp",
-    "content_hash": "59104f9ea3d65b77bc55afbe1673c28b",
-    "needs_review": false
+    "content_hash": null,
+    "needs_review": false,
+    "flyer_filename": null
   },
   {
     "name": "KidzArt at Thunder Hill",
@@ -60,9 +60,9 @@
     "contact": null,
     "registration_href": "https://centralmd.kidzart.com/",
     "registration_note": "Register for any session securely online, then click \u201cRegister Now.\u201d",
-    "flyer_drive_file_id": "1dDeweTGT_tpNy7yRec7AH8it7SSX5IGs",
-    "content_hash": "1a9c75dc74dbf336bc297b192aa08460",
-    "needs_review": false
+    "content_hash": null,
+    "needs_review": false,
+    "flyer_filename": null
   },
   {
     "name": "Disney's The Lion King JR",
@@ -77,9 +77,9 @@
     "contact": "410.381.0700 \u00b7 admin@cctarts.org",
     "registration_href": "https://www.cctarts.shop",
     "registration_note": null,
-    "flyer_drive_file_id": "1FPUOuNyQVgnsdW2fgiSsup-GGwZMdDCM",
-    "content_hash": "8cc8576c86dad06b66050d0b1a2f0f93",
-    "needs_review": false
+    "content_hash": null,
+    "needs_review": false,
+    "flyer_filename": null
   },
   {
     "name": "Chess Wizards",
@@ -94,9 +94,9 @@
     "contact": "+1 866-949-4386",
     "registration_href": "https://www.chesswizards.com/",
     "registration_note": "Or scan the QR code on the flyer to register.",
-    "flyer_drive_file_id": "1OEyopNcExQA6mJV6afZ5vmVlGI2YgNap",
-    "content_hash": "1bc38a89c5b51b23578e174f065e4686",
-    "needs_review": false
+    "content_hash": null,
+    "needs_review": false,
+    "flyer_filename": null
   },
   {
     "name": "Chess Club Before School",
@@ -111,9 +111,9 @@
     "contact": "Patrick Hughes \u00b7 410-313-4622 \u00b7 phughes@HowardCountyMD.gov",
     "registration_href": "https://www.howardcountymd.gov/rap",
     "registration_note": "This information is neither sponsored nor endorsed by HCPSS or the school.",
-    "flyer_drive_file_id": "1vpN-Ob7Ctbl8fDCvf5puMY_toZTduhlM",
-    "content_hash": "981fde51242ac9c1ea32d82e338ae702",
-    "needs_review": false
+    "content_hash": null,
+    "needs_review": false,
+    "flyer_filename": null
   },
   {
     "name": "Spanish After School",
@@ -128,9 +128,9 @@
     "contact": "Carson Nickell \u00b7 410-313-4721 \u00b7 cjnickell@HowardCountyMD.gov",
     "registration_href": "https://www.howardcountymd.gov/rap",
     "registration_note": "This information is neither sponsored nor endorsed by HCPSS or the school.",
-    "flyer_drive_file_id": "1vpN-Ob7Ctbl8fDCvf5puMY_toZTduhlM",
-    "content_hash": "981fde51242ac9c1ea32d82e338ae702",
-    "needs_review": false
+    "content_hash": null,
+    "needs_review": false,
+    "flyer_filename": null
   },
   {
     "name": "Music & Theater Arts: Beginner Ensemble",
@@ -145,9 +145,9 @@
     "contact": "Carson Nickell \u00b7 410-313-4721 \u00b7 cjnickell@HowardCountyMD.gov",
     "registration_href": "https://www.howardcountymd.gov/rap",
     "registration_note": "This information is neither sponsored nor endorsed by HCPSS or the school.",
-    "flyer_drive_file_id": "1vpN-Ob7Ctbl8fDCvf5puMY_toZTduhlM",
-    "content_hash": "981fde51242ac9c1ea32d82e338ae702",
-    "needs_review": false
+    "content_hash": null,
+    "needs_review": false,
+    "flyer_filename": null
   },
   {
     "name": "Aurora STEAM Innovation Lab After School",
@@ -162,9 +162,9 @@
     "contact": "Patrick Hughes \u00b7 410-313-4622 \u00b7 phughes@HowardCountyMD.gov",
     "registration_href": "https://www.howardcountymd.gov/rap",
     "registration_note": "This information is neither sponsored nor endorsed by HCPSS or the school.",
-    "flyer_drive_file_id": "1V151GGnX7Kq0_zuWR9ugu_x17yme6Rkq",
-    "content_hash": "60853eec0d2459749557164a3fdf28b1",
-    "needs_review": false
+    "content_hash": null,
+    "needs_review": false,
+    "flyer_filename": null
   },
   {
     "name": "After-School Basketball with Amazing Athletes",
@@ -204,9 +204,9 @@
     "contact": "Curtis L. Gore \u00b7 410-313-4705 \u00b7 cgore@HowardCountyMD.gov",
     "registration_href": "https://www.howardcountymd.gov/rap",
     "registration_note": "This information is neither sponsored nor endorsed by HCPSS or the school.",
-    "flyer_drive_file_id": "1V151GGnX7Kq0_zuWR9ugu_x17yme6Rkq",
-    "content_hash": "60853eec0d2459749557164a3fdf28b1",
-    "needs_review": false
+    "content_hash": null,
+    "needs_review": false,
+    "flyer_filename": null
   },
   {
     "name": "After School Running with Little & Junior TrackStars",
@@ -234,9 +234,9 @@
     "contact": "Krista Billingsley \u00b7 410-313-4703 \u00b7 kbillingsley@HowardCountyMD.gov",
     "registration_href": "https://www.howardcountymd.gov/rap",
     "registration_note": "This information is neither sponsored nor endorsed by HCPSS or the school.",
-    "flyer_drive_file_id": "1V151GGnX7Kq0_zuWR9ugu_x17yme6Rkq",
-    "content_hash": "60853eec0d2459749557164a3fdf28b1",
-    "needs_review": false
+    "content_hash": null,
+    "needs_review": false,
+    "flyer_filename": null
   },
   {
     "name": "Cub Scouts Pack 838",
@@ -251,9 +251,9 @@
     "contact": "Torey \u2014 scoutmaster.pack838@gmail.com",
     "registration_href": null,
     "registration_note": "Scan the QR code on the flyer to join, or email Torey to learn more.",
-    "flyer_drive_file_id": "1dxWn8YSiqq-9VDmZoAt2UDdtU5viHChR",
-    "content_hash": "7cd101f8c38526f11b8c248f0c5e803d",
-    "needs_review": false
+    "content_hash": null,
+    "needs_review": false,
+    "flyer_filename": null
   },
   {
     "name": "Girl Scouts Troop 4709",
@@ -268,8 +268,8 @@
     "contact": "Troop Leader Emi Henley \u2014 emikhenley@mail.com (not Gmail)",
     "registration_href": "https://www.gscm.org",
     "registration_note": null,
-    "flyer_drive_file_id": "13t2nDz5_ezJCZVWDFwpSRDyTT9NeSlZu",
-    "content_hash": "07f94c41762500f596f796980fcda284",
-    "needs_review": false
+    "content_hash": null,
+    "needs_review": false,
+    "flyer_filename": null
   }
 ]
