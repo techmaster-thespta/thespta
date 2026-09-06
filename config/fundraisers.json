@@ -36,9 +36,9 @@
       }
     ],
     "contact": null,
-    "content_hash": null,
+    "content_hash": "ac14db8b97cc8cf0d1585415b3957332d494fa49c1098250c5b0b9c12402ce76",
     "needs_review": false,
-    "flyer_filename": null
+    "flyer_filename": "restaurant-nights.jpg"
   },
   {
     "name": "THES Spirit Wear",
@@ -84,9 +84,9 @@
     "enrollment_code": null,
     "dates": [],
     "contact": null,
-    "content_hash": null,
+    "content_hash": "8cfb87b0f5047935923826668c2f7d8ef1619ec7c70a35f81f1d9fcd4dc54244",
     "needs_review": false,
-    "flyer_filename": null
+    "flyer_filename": "box-tops.jpg"
   },
   {
     "name": "See's Candies Fundraiser",
@@ -100,9 +100,9 @@
     "enrollment_code": null,
     "dates": [],
     "contact": null,
-    "content_hash": null,
+    "content_hash": "c3f590309d1cb2cacdd287d3b6cb69d927f41e98cc8b3e801b7d4f8cbb1e24a0",
     "needs_review": false,
-    "flyer_filename": null
+    "flyer_filename": "sees-candies.jpg"
   },
   {
     "name": "Mabel's Labels",
@@ -116,9 +116,9 @@
     "enrollment_code": null,
     "dates": [],
     "contact": null,
-    "content_hash": null,
+    "content_hash": "92e40e98d1a6ff4a98f32b8d1cffdcca043cf8c2355315c261bf33c36e86fdac",
     "needs_review": false,
-    "flyer_filename": null
+    "flyer_filename": "mabels-labels.jpg"
   },
   {
     "name": "Givebacks Rewards (Shop to Give)",
@@ -148,9 +148,9 @@
     "enrollment_code": "J77AQSBNQDUP",
     "dates": [],
     "contact": null,
-    "content_hash": null,
+    "content_hash": "56fa5cb760117fdabf4598c6181847a77efdbcc275cdb355d073d31aeba6fb05",
     "needs_review": false,
-    "flyer_filename": null
+    "flyer_filename": "raiseright.jpg"
   },
   {
     "name": "Give Directly",
