@@ -441,8 +441,10 @@ def render_afterschool_program_card(program):
     summary = [f'<h3>{program["name"]}</h3>']
     if program.get("provider"):
         summary.append(f'<p class="thes__program-provider">{program["provider"]}</p>')
+    if program.get("grades"):
+        summary.append(f'<span class="thes__badge thes__badge--age">{program["grades"]}</span>')
 
-    meta_bits = [b for b in (program.get("day_time"), program.get("grades"), program.get("price")) if b]
+    meta_bits = [b for b in (program.get("day_time"), program.get("price")) if b]
     if meta_bits:
         summary.append(f'<p class="thes__program-meta">{" &middot; ".join(meta_bits)}</p>')
 
