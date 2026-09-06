@@ -1,11 +1,12 @@
-# Afterschool-flyer review: local automation service
+# Flyer review: local automation service
 
 A `systemd --user` timer that runs daily and asks headless Claude Code
-to check `config/afterschool-programs.json` for anything flagged
-`"needs_review": true`, read the actual flyer, and fill in the real
-program details — see
-`.claude/skills/review-afterschool-flyers/SKILL.md` for exactly what it
-does; this doc is just the one-time host setup.
+to check both `config/afterschool-programs.json` and
+`config/fundraisers.json` for anything flagged `"needs_review": true`,
+read the actual flyer, and fill in the real details — see
+`.claude/skills/review-afterschool-flyers/SKILL.md` and
+`.claude/skills/review-fundraiser-flyers/SKILL.md` for exactly what each
+one does; this doc is just the one-time host setup.
 
 This replaced an earlier version built with Claude Code's session-only
 `CronCreate` scheduler: that approach only exists for the lifetime of
@@ -14,25 +15,40 @@ auto-expires after 7 days regardless. This systemd version survives
 both, since it's a real OS-level service tied to your user account, not
 a running conversation.
 
+It also replaced an even earlier version of itself: one systemd
+timer/service per content type (`scripts/afterschool-review/`, before
+`config/fundraisers.json` and its own review skill existed). The two
+skills' actual review logic is genuinely different — different config
+schemas, and the fundraiser side has to tell a reprinted flyer of an
+existing campaign apart from a genuinely new one, which the afterschool
+side never has to do — so each kept its own skill file. But the systemd
+plumbing around them (timer, service, install/uninstall) was identical
+boilerplate either way, so that layer is merged into one
+`scripts/flyer-review/` service that runs both skills back-to-back.
+Adding a third flyer-backed content type later means one more line in
+`run.sh`, not a whole new service/timer/install.sh trio.
+
 ## What actually runs
 
-`scripts/afterschool-review/run.sh` calls:
+`scripts/flyer-review/run.sh` calls, one after another in the same run:
 
 ```bash
 claude -p "/review-afterschool-flyers" --permission-mode bypassPermissions --output-format text
+claude -p "/review-fundraiser-flyers" --permission-mode bypassPermissions --output-format text
 ```
 
 **`bypassPermissions` is required, not just convenient.** This runs
 with no TTY and no human present — any normal permission prompt would
 hang forever waiting for input that can never come. The safety boundary
 for this job is the narrow, version-controlled, human-reviewed skill
-content it runs (`.claude/skills/review-afterschool-flyers/SKILL.md`),
-not runtime permission gating. Know what that skill does before
-enabling this service; treat editing it with the same care as editing
-any other script that runs unattended with your credentials.
+content it runs (`.claude/skills/review-afterschool-flyers/SKILL.md` and
+`.claude/skills/review-fundraiser-flyers/SKILL.md`), not runtime
+permission gating. Know what those skills do before enabling this
+service; treat editing either with the same care as editing any other
+script that runs unattended with your credentials.
 
-The skill itself pushes directly to `main` on success (this is treated
-as routine content fill, not a design change — see the skill file for
+Each skill pushes directly to `main` on success (this is treated as
+routine content fill, not a design change — see the skill files for
 why) and verifies the live site afterward before finishing.
 
 ## Prerequisites
@@ -40,7 +56,7 @@ why) and verifies the live site afterward before finishing.
 - `claude` CLI installed and already logged in as yourself (this service
   runs as your own user account and reuses your existing Claude Code
   credentials — nothing extra to configure for auth).
-- `gh` CLI authenticated (used by the skill to watch the deploy).
+- `gh` CLI authenticated (used by the skills to watch the deploy).
 - The repo cloned at `~/devel/pta` (the unit files below assume this
   path via `%h/devel/pta`; edit both `.service` and `.timer`'s
   `WorkingDirectory`/`ExecStart` lines if your clone lives elsewhere).
@@ -50,8 +66,21 @@ why) and verifies the live site afterward before finishing.
 
 ## One-time install
 
+If you previously installed the old, afterschool-only
+`afterschool-review` service (from before the fundraising page
+existed), remove it first — its directory no longer exists in this
+repo, so its uninstall script is gone too:
+
 ```bash
-bash scripts/afterschool-review/install.sh
+systemctl --user disable --now afterschool-review.timer
+rm -f ~/.config/systemd/user/afterschool-review.service ~/.config/systemd/user/afterschool-review.timer
+systemctl --user daemon-reload
+```
+
+Then install the current merged service:
+
+```bash
+bash scripts/flyer-review/install.sh
 ```
 
 This symlinks (not copies) the unit files into
@@ -63,25 +92,26 @@ is enough to pick up changes — no need to re-install.
 To uninstall:
 
 ```bash
-bash scripts/afterschool-review/uninstall.sh
+bash scripts/flyer-review/uninstall.sh
 ```
 
-This only removes the schedule — the skill, the script, and the unit
+This only removes the schedule — the skills, the scripts, and the unit
 file templates all stay in the repo either way; re-running `install.sh`
 brings it back.
 
 ## Checking on it
 
 ```bash
-systemctl --user status afterschool-review.timer     # is it scheduled?
-systemctl --user list-timers afterschool-review.timer # when's the next run?
-systemctl --user start afterschool-review.service     # run it right now, on demand
-journalctl --user -u afterschool-review.service -f    # systemd-level log (start/stop/exit code)
+systemctl --user status flyer-review.timer     # is it scheduled?
+systemctl --user list-timers flyer-review.timer # when's the next run?
+systemctl --user start flyer-review.service     # run it right now, on demand
+journalctl --user -u flyer-review.service -f    # systemd-level log (start/stop/exit code)
 ```
 
 The actual Claude Code transcript for each run is a separate log file,
-since that's much longer than what belongs in the systemd journal:
+since that's much longer than what belongs in the systemd journal —
+both skills' output land in the same file, one after another:
 
 ```bash
-ls ~/.local/state/thespta-afterschool-review/
+ls ~/.local/state/thespta-flyer-review/
 ```

@@ -639,6 +639,25 @@ def build_fundraising_section(campaigns, context):
 
     sections = []
     tint = True
+
+    # "Give Directly" leads the page — the most immediate, no-research-
+    # needed way to help, ahead of the other campaigns that each take a
+    # minute to read and act on.
+    if direct:
+        d = direct[0]
+        sections.append(
+            f'<section class="thes__section {"thes__section--tint" if tint else ""}">\n'
+            '  <div class="thes__wrap">\n'
+            '    <div class="thes__join">\n'
+            f'      <h2>{d["name"]}</h2>\n'
+            f'      <p>{d["description"]}</p>\n'
+            f'      <a class="thes__btn thes__btn--navy" href="{d["cta_href"]}" target="_blank" rel="noopener">{d["cta_label"]} &rarr;</a>\n'
+            "    </div>\n"
+            "  </div>\n"
+            "</section>"
+        )
+        tint = not tint
+
     for categories, eyebrow, heading, blurb in FUNDRAISER_GROUPS:
         group_campaigns = [c for cat in categories for c in by_category.get(cat, [])]
         if not group_campaigns:
@@ -660,20 +679,6 @@ def build_fundraising_section(campaigns, context):
             "</section>"
         )
         tint = not tint
-
-    if direct:
-        d = direct[0]
-        sections.append(
-            f'<section class="thes__section {"thes__section--tint" if tint else ""}">\n'
-            '  <div class="thes__wrap">\n'
-            '    <div class="thes__join">\n'
-            f'      <h2>{d["name"]}</h2>\n'
-            f'      <p>{d["description"]}</p>\n'
-            f'      <a class="thes__btn thes__btn--navy" href="{d["cta_href"]}" target="_blank" rel="noopener">{d["cta_label"]} &rarr;</a>\n'
-            "    </div>\n"
-            "  </div>\n"
-            "</section>"
-        )
 
     return "\n\n".join(sections)
 

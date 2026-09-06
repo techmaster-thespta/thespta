@@ -377,6 +377,60 @@ segment of the folder's URL
 
 ---
 
+## Task 5d — Add, remove, or edit a fundraising campaign
+
+**File:** `config/fundraisers.json` · **Skill:** `.claude/skills/add-fundraiser/`
+
+Every campaign on `/fundraising` ("Ways to Give") is the PTA's own —
+unlike afterschool programs, these aren't third-party providers running
+something at the school. Each entry belongs to one of five `category`
+values (`recurring`, `seasonal`, `annual`, `everyday`, `direct`) that
+control both its badge and which section of the page it lands in — see
+the skill file for what each means.
+
+### This page is normally kept up to date automatically
+
+`.github/workflows/sync-fundraiser-flyers.yml` runs daily and
+reconciles `config/fundraisers.json` against whatever's actually in the
+shared Drive folder (`config/site.json`'s `fundraiser_flyers_folder_id`)
+— same mechanism as the afterschool sync (Task 5c), with one real
+difference: a fundraiser campaign isn't flyer-dependent the way an
+afterschool program is. Box Tops, RaiseRight, and the rest stay on the
+page even if their current flyer image is removed from the folder (the
+flyer is just detached, not the campaign deleted) — only an unreviewed
+placeholder that never got real content is removed when its flyer
+disappears. And because a *new* flyer file is often a reprint of a
+campaign that's already on the page rather than a genuinely new one
+(this actually happened — a flyer named "buy-a-box.jpg" turned out to
+be the See's Candies flyer), the sync script makes a conservative
+filename-vs-campaign-name guess before creating a placeholder, so an
+obvious reprint gets attached to its existing card automatically
+instead of creating a duplicate.
+
+**Neither the mechanical sync nor a filename guess can write real
+campaign details, or tell a reprint from a genuinely new flyer with full
+confidence** — that requires actually looking at the flyer. Whenever an
+entry is flagged `needs_review`, open its `flyer_drive_file_id` in Drive
+(or ask an agent to), look at it, and either fill in a new campaign's
+real details or merge a reprint into the existing campaign it actually
+belongs to — then clear the flag. See
+`.claude/skills/review-fundraiser-flyers/SKILL.md` for the full process.
+
+### One-time setup: the Drive API key
+
+Uses the same `GOOGLE_DRIVE_API_KEY` repo secret the afterschool sync
+does (Task 5c) — it's a Drive-API-scoped key, not tied to one folder, so
+no second key is needed. If that secret is already set up, this sync
+just works; if not, follow Task 5c's setup steps once and both syncs
+start working.
+
+If the shared folder itself ever needs to change, update
+`fundraiser_flyers_folder_id` in `config/site.json` — it's the last
+segment of the folder's URL
+(`drive.google.com/drive/folders/<this-part>`).
+
+---
+
 ## Task 6 — Change the banner photo, page header photo, or add a logo
 
 Images live in `assets/images/` in this repo and are served directly by
