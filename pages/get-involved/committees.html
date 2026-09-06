@@ -337,6 +337,24 @@
   .thes__badge { display: inline-block; width: fit-content; padding: 4px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
   .thes__badge--chair-needed { background: var(--coral-tint); color: var(--coral); }
   .thes__badge--members-welcome { background: var(--teal-tint); color: var(--teal); }
+
+  /* ---- Fundraising ---- */
+  .thes__fund-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .thes__fund-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+  .thes__fund-card h3 { font-size: 1.05rem; margin-top: 2px; }
+  .thes__fund-card > p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+  .thes__badge--fund-recurring { background: var(--coral-tint); color: var(--coral); }
+  .thes__badge--fund-seasonal { background: var(--yellow); color: var(--yellow-text); }
+  .thes__badge--fund-annual { background: var(--teal-tint); color: var(--teal); }
+  .thes__badge--fund-everyday { background: var(--bg-tint); color: var(--navy); }
+  .thes__fund-howto { margin: 0; color: var(--text-muted) !important; font-size: 0.84rem !important; }
+  .thes__fund-code { margin: 0; font-size: 0.84rem !important; color: var(--text) !important; }
+  .thes__fund-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+  .thes__fund-card .thes__btn { margin-top: 0; }
+  .thes__fund-dates { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .thes__fund-dates li { font-size: 0.88rem; color: var(--text); padding-top: 10px; border-top: 1px solid var(--border); }
+  .thes__fund-dates li:first-child { padding-top: 0; border-top: none; }
+  .thes__fund-date-note { margin: 4px 0 0; color: var(--text-muted); font-size: 0.82rem; }
   .thes__committee-more { margin-top: 4px; }
   .thes__committee-more summary { cursor: pointer; font-weight: 700; font-size: 0.86rem; color: var(--teal); list-style: none; }
   .thes__committee-more summary::-webkit-details-marker { display: none; }
@@ -383,6 +401,7 @@
 <li class="thes__nav-item"><a href="../before-after-school-programs.html">Before & After School</a></li>
 <li class="thes__nav-item"><a href="../newsletter.html">THES Happenings</a></li>
 <li class="thes__nav-item"><a href="../shop.html">Shop</a></li>
+<li class="thes__nav-item"><a href="../fundraising.html">Ways to Give</a></li>
       </ul>
     </nav>
   </div>

@@ -511,6 +511,173 @@ def build_afterschool_programs_section(programs):
     return render(section_tmpl, {"AFTERSCHOOL_PROGRAM_CARDS": cards})
 
 
+FUNDRAISER_CATEGORY_LABELS = {
+    "recurring": "Recurring Fundraiser",
+    "seasonal": "Seasonal Sale",
+    "annual": "Annual Drive",
+    "everyday": "Everyday Giving",
+}
+
+# (group key, categories folded into it, heading, blurb) — five raw
+# categories collapse into two visible sections plus a "direct" closing
+# band (handled separately below) so the page reads as three balanced
+# groups instead of five sparse ones; each card still carries its own
+# specific category badge (see FUNDRAISER_CATEGORY_LABELS) so nothing
+# about that grouping is lost.
+FUNDRAISER_GROUPS = [
+    (
+        ["recurring", "seasonal", "annual"],
+        "Every Year",
+        "Traditional Campaigns",
+        "Dated and seasonal fundraisers the PTA runs every year — some are happening now, some are still to come.",
+    ),
+    (
+        ["everyday"],
+        "All Year Long",
+        "Everyday Giving",
+        "Set these up once and they keep giving all year long, at no extra cost to you.",
+    ),
+]
+
+
+def render_fundraiser_card(campaign, context):
+    """One fundraising campaign's card. Two shapes depending on the data:
+    a dated campaign (Restaurant Nights) shows its date list directly in
+    the always-visible summary — the dates *are* how a family joins, so
+    unlike the afterschool-program card's <details> pattern, nothing
+    essential is hidden behind a click here. An undated campaign (a
+    storefront, an everyday-giving program) shows its "how to join" line
+    and CTA button(s) instead. A flyer or contact, when present, still
+    goes in a <details> "Details" disclosure — same reasoning as
+    render_afterschool_program_card, for whichever field doesn't need to
+    be seen immediately."""
+    category = campaign["category"]
+    parts = [
+        f'<span class="thes__badge thes__badge--fund-{category}">{FUNDRAISER_CATEGORY_LABELS[category]}</span>',
+        f'<h3>{campaign["name"]}</h3>',
+        f'<p>{campaign["description"]}</p>',
+    ]
+
+    dates = campaign.get("dates") or []
+    if dates:
+        rows = []
+        for d in dates:
+            note = f'<p class="thes__fund-date-note">{d["note"]}</p>' if d.get("note") else ""
+            rows.append(
+                f'<li><strong>{d["date"]}</strong> — {d["venue"]}, {d["time"]}{note}</li>'
+            )
+        parts.append(f'<ul class="thes__fund-dates">{"".join(rows)}</ul>')
+
+    if campaign.get("how_to_join"):
+        parts.append(f'<p class="thes__fund-howto">{campaign["how_to_join"]}</p>')
+
+    if campaign.get("enrollment_code"):
+        parts.append(f'<p class="thes__fund-code">Enrollment code: <strong>{campaign["enrollment_code"]}</strong></p>')
+
+    buttons = []
+    if campaign.get("cta_href"):
+        buttons.append(
+            f'<a class="thes__btn thes__btn--teal" href="{campaign["cta_href"]}" target="_blank" rel="noopener">'
+            f'{campaign["cta_label"]} &rarr;</a>'
+        )
+    secondary_href = campaign.get("secondary_href")
+    if secondary_href:
+        # A JSON value of "page_urls.xxx" is a sentinel meaning "resolve
+        # this as an internal link" — context already holds it fully
+        # resolved (relative filename, right "../" depth) under that
+        # same dotted key, same as any {{page_urls.xxx}} used directly in
+        # a template. Every other value is a literal external URL.
+        if secondary_href.startswith("page_urls."):
+            secondary_href = context[secondary_href]
+            buttons.append(f'<a class="thes__btn thes__btn--navy" href="{secondary_href}">{campaign["secondary_label"]} &rarr;</a>')
+        else:
+            buttons.append(
+                f'<a class="thes__btn thes__btn--navy" href="{secondary_href}" target="_blank" rel="noopener">'
+                f'{campaign["secondary_label"]} &rarr;</a>'
+            )
+    if buttons:
+        parts.append('<div class="thes__fund-actions">' + "".join(buttons) + "</div>")
+
+    details = []
+    file_id = campaign.get("flyer_drive_file_id")
+    if file_id:
+        flyer_href = f"https://drive.google.com/file/d/{file_id}/view"
+        thumb_url = drive_thumbnail_url(flyer_href)
+        details.append(
+            f'<a class="thes__flyer" href="{flyer_href}" target="_blank" rel="noopener">'
+            f'<img src="{thumb_url}" alt="" width="160" loading="lazy">'
+            f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
+        )
+    if campaign.get("contact"):
+        details.append(f'<p>{campaign["contact"]}</p>')
+
+    details_html = ""
+    if details:
+        details_html = (
+            '<details class="thes__program-more"><summary>Details</summary>'
+            f'<div class="thes__program-more-body">{"".join(details)}</div></details>'
+        )
+
+    return f'<div class="thes__fund-card">{"".join(parts)}{details_html}</div>'
+
+
+def build_fundraising_section(campaigns, context):
+    """Whole Fundraising page body: campaigns grouped into a couple of
+    visually-balanced sections (see FUNDRAISER_GROUPS) plus a closing
+    full-width "Give Directly" band — a single-card grid for a one-entry
+    category would read as sparse, so it gets the same treatment as
+    committees.html's "Not Sure Where to Help?" closer instead. Same
+    empty-means-a-placeholder-message pattern as the other always-in-nav
+    pages (afterschool programs, events)."""
+    if not campaigns:
+        return (TEMPLATES / "fundraising-empty.html.tmpl").read_text()
+
+    by_category = {}
+    for c in campaigns:
+        by_category.setdefault(c["category"], []).append(c)
+    direct = by_category.pop("direct", [])
+
+    sections = []
+    tint = True
+    for categories, eyebrow, heading, blurb in FUNDRAISER_GROUPS:
+        group_campaigns = [c for cat in categories for c in by_category.get(cat, [])]
+        if not group_campaigns:
+            continue
+        cards = "\n".join(indent(render_fundraiser_card(c, context), 6) for c in group_campaigns)
+        section_class = "thes__section thes__section--tint" if tint else "thes__section"
+        sections.append(
+            f'<section class="{section_class}">\n'
+            '  <div class="thes__wrap">\n'
+            '    <div class="thes__section-head">\n'
+            f'      <span class="thes__eyebrow">{eyebrow}</span>\n'
+            f'      <h2>{heading}</h2>\n'
+            f"      <p>{blurb}</p>\n"
+            "    </div>\n"
+            '    <div class="thes__fund-grid">\n'
+            f"{cards}\n"
+            "    </div>\n"
+            "  </div>\n"
+            "</section>"
+        )
+        tint = not tint
+
+    if direct:
+        d = direct[0]
+        sections.append(
+            f'<section class="thes__section {"thes__section--tint" if tint else ""}">\n'
+            '  <div class="thes__wrap">\n'
+            '    <div class="thes__join">\n'
+            f'      <h2>{d["name"]}</h2>\n'
+            f'      <p>{d["description"]}</p>\n'
+            f'      <a class="thes__btn thes__btn--navy" href="{d["cta_href"]}" target="_blank" rel="noopener">{d["cta_label"]} &rarr;</a>\n'
+            "    </div>\n"
+            "  </div>\n"
+            "</section>"
+        )
+
+    return "\n\n".join(sections)
+
+
 def build_analytics_snippet(ga_id):
     """Google Analytics 4's standard gtag.js snippet for config/site.json's
     `google_analytics_id`, placed immediately after <head> opens on every
@@ -553,6 +720,7 @@ PAGE_TITLES = {
     "get-involved/committees.html": "Committees",
     "before-after-school-programs.html": "Before & After School Programs",
     "shop.html": "Shop",
+    "fundraising.html": "Ways to Give",
 }
 
 
@@ -601,6 +769,9 @@ def main():
         flyers_section = build_optional_section(
             "flyers.json", "card-flyer.html.tmpl", "flyers-section.html.tmpl", "FLYER_CARDS", context
         )
+        fundraising_section = build_fundraising_section(
+            load_json("fundraisers.json", default=[]), context
+        )
 
         shared_markers = {
             "{{TOKENS}}": tokens,
@@ -612,6 +783,7 @@ def main():
             "{{FLYERS_SECTION}}": flyers_section,
             "{{COMMITTEES_SECTION}}": committees_section,
             "{{AFTERSCHOOL_PROGRAMS_SECTION}}": afterschool_programs_section,
+            "{{FUNDRAISING_SECTIONS}}": fundraising_section,
         }
 
         page_context = context
