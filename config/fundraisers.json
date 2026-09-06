@@ -84,8 +84,8 @@
     "enrollment_code": null,
     "dates": [],
     "contact": null,
-    "flyer_drive_file_id": null,
-    "content_hash": null,
+    "flyer_drive_file_id": "1JtPbYcAKyF86wTicwpIWfa07Y_ftEB4n",
+    "content_hash": "6ed2d1e6022a2f7a01e3c4133e756287",
     "needs_review": false
   },
   {
@@ -100,24 +100,24 @@
     "enrollment_code": null,
     "dates": [],
     "contact": null,
-    "flyer_drive_file_id": null,
-    "content_hash": null,
+    "flyer_drive_file_id": "1cDKZfhfyRy8pKarq2e-KXTwXwLczPo6t",
+    "content_hash": "ea198855b6f204f3d2c1f55325d4155d",
     "needs_review": false
   },
   {
     "name": "Mabel's Labels",
     "category": "everyday",
     "description": "Durable, dishwasher- and laundry-safe labels for backpacks, water bottles, and school gear \u2014 20% of your purchase supports the PTA.",
-    "how_to_join": "Shop at mabelslabels.com, click \u201cSupport a Fundraiser,\u201d and search Thunder Hill Elementary School PTA at checkout.",
+    "how_to_join": "Visit campaigns.mabelslabels.com and search for Thunder Hill Elementary School PTA, then purchase \u2014 labels ship right to your door.",
     "cta_label": "Shop Mabel's Labels",
-    "cta_href": "https://mabelslabels.com/",
+    "cta_href": "https://campaigns.mabelslabels.com/",
     "secondary_label": null,
     "secondary_href": null,
     "enrollment_code": null,
     "dates": [],
     "contact": null,
-    "flyer_drive_file_id": null,
-    "content_hash": null,
+    "flyer_drive_file_id": "1QBvRHO7k5dozMovEiELCdixlNwEMUkhq",
+    "content_hash": "9fa0e8609dfce2b034f6c48b19e17434",
     "needs_review": false
   },
   {
@@ -148,8 +148,8 @@
     "enrollment_code": "J77AQSBNQDUP",
     "dates": [],
     "contact": null,
-    "flyer_drive_file_id": null,
-    "content_hash": null,
+    "flyer_drive_file_id": "1kUjegU4PK3LJLb01QdS1a8CD53to4V4m",
+    "content_hash": "b8d91f8be1d6d1c1c1d73122d2314bfe",
     "needs_review": false
   },
   {
