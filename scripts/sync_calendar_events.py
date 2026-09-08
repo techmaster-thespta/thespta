@@ -282,6 +282,24 @@ def extract_signup_href(description):
     return href, remaining
 
 
+DESCRIPTION_LIMIT = 200
+
+
+def truncate_description(text, limit=DESCRIPTION_LIMIT):
+    """Cuts text to at most `limit` characters, breaking at the last
+    whole word instead of mid-word, and appending an ellipsis when it
+    actually had to cut something. A blind text[:limit] slice (the
+    previous approach) could end mid-word with nothing to signal
+    anything was cut off — e.g. "...Join Virtually: Google Meet Or",
+    stopping one word short of "Or dial..." with no ellipsis, reading
+    like a broken/incomplete sentence rather than an intentionally
+    shortened one."""
+    if len(text) <= limit:
+        return text
+    cut = text[:limit].rsplit(" ", 1)[0]
+    return cut.rstrip(".,;:") + "…"
+
+
 MEET_RE = re.compile(r"(?:[ \t]*[-–—:]+[ \t]*)?(https://meet\.google\.com/\S+)")
 
 
@@ -357,12 +375,14 @@ def build_events_json(vevents, window_start, window_end):
             # The featured card always shows a description slot, so it
             # always gets one, even a generic one if the calendar didn't
             # set a real Description.
-            entry["description"] = (occ["description"] or f"Join us for {occ['title']} — see the full calendar for details.")[:200]
+            entry["description"] = truncate_description(
+                occ["description"] or f"Join us for {occ['title']} — see the full calendar for details."
+            )
         elif occ["description"]:
             # Every other event on the quick-scan list shows its own
             # calendar Description too, if it set one — otherwise the
             # row just stays compact (day/time/title), no filler text.
-            entry["description"] = occ["description"][:200]
+            entry["description"] = truncate_description(occ["description"])
         out.append(entry)
     return out
 
