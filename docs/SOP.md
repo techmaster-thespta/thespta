@@ -174,6 +174,23 @@ the Calendar UI's own "Add attachment" picker). Drive can generate a
 preview thumbnail for a PDF as well as an actual image file, so either
 kind of flyer shows a picture, not just a link.
 
+**To add a "Sign Up" button to an event** (a SignUpGenius link, a Google
+Form, anything): open the event in Google Calendar and add a line to its
+Description reading exactly:
+
+```
+Sign Up: https://your-signup-link-here
+```
+
+("Sign-up:" and "Signup:" also work, case-insensitively.) That line is
+stripped out of the description shown on the site and turned into a real
+"Sign Up →" button instead — a full button on the Events page and on the
+Home page's big featured card, or a smaller "Sign Up →" text link on the
+Home page's compact "more events" row if the event isn't the featured
+one. There's no dedicated Calendar API field for this the way there is
+for attachments, so this specific line-in-the-description convention is
+what `scripts/sync_calendar_events.py`'s `extract_signup_href` looks for.
+
 **Heads up:** a recurring event (e.g. a monthly meeting) produces one
 highlight-list entry per occurrence, so it can crowd out one-off events
 further out if there are more than 6 items competing for the list. If

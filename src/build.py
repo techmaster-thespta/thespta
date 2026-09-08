@@ -287,11 +287,34 @@ def render_event_description(description):
     return f'<p class="thes__event-description">{description}</p>'
 
 
+def render_event_signup(href):
+    """A "Sign Up" button for an event whose calendar Description had a
+    "Sign Up: <url>" line (see extract_signup_href in
+    scripts/sync_calendar_events.py) — "" if it didn't set one, same
+    optional-field pattern as attachments/description."""
+    if not href:
+        return ""
+    return f'<a class="thes__btn thes__btn--teal" href="{href}" target="_blank" rel="noopener">Sign Up &rarr;</a>'
+
+
+def render_more_event_signup(href):
+    """A small "Sign Up" link for an event in the Home page's compact
+    "more events" teaser row — that row is deliberately just a title and
+    a date (see more-event-row.html.tmpl), so this is a lighter-weight
+    treatment than render_event_signup's full button, not a duplicate
+    of it. "" when there's no signup_href, same as every other optional
+    per-event field."""
+    if not href:
+        return ""
+    return f'<a class="thes__more-events-signup" href="{href}" target="_blank" rel="noopener">Sign Up &rarr;</a>'
+
+
 def with_event_extras(event):
     return {
         **event,
         "ATTACHMENTS": render_event_attachments(event.get("attachments", [])),
         "DESCRIPTION_BLOCK": render_event_description(event.get("description")),
+        "SIGNUP_BUTTON": render_event_signup(event.get("signup_href")),
     }
 
 
@@ -312,7 +335,10 @@ def build_home_events_section(events, context):
     others = [e for e in events if e is not featured][:2]
 
     featured_html = indent(render(featured_tmpl, {**context, **with_event_extras(featured)}), 8)
-    more_rows = "\n".join(indent(render(more_tmpl, {**context, **e}), 10) for e in others)
+    more_rows = "\n".join(
+        indent(render(more_tmpl, {**context, **e, "SIGNUP_LINK": render_more_event_signup(e.get("signup_href"))}), 10)
+        for e in others
+    )
     return render(section_tmpl, {**context, "FEATURED_EVENT": featured_html, "MORE_EVENTS": more_rows})
 
 

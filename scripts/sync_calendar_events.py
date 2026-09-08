@@ -13,6 +13,13 @@ file itself still needs "Anyone with the link" sharing for that link to
 actually work for a visitor — attaching it to the event doesn't change its
 Drive permissions.
 
+A line reading "Sign Up: <url>" anywhere in an event's Description
+becomes a "Sign Up" button on that event too (see extract_signup_href
+below) — a voluntary convention, not a real Calendar API field the way
+ATTACH is, since Calendar has no dedicated "signup link" field to pull
+from. That line is stripped out of the description text shown on the
+site so it isn't duplicated.
+
 A calendar shared as "public" (see docs/SOP.md Task 5) exposes a free,
 no-auth .ics feed at a fixed URL — the same feed config/site.json's
 CAL_ICS_URL already points visitors to for "Download .ics". This script
@@ -240,6 +247,30 @@ def format_when(start, end, all_day, location):
     return " · ".join(parts)
 
 
+SIGNUP_LINE_RE = re.compile(r"(?im)^\s*sign[\s-]?up\s*:\s*(\S+)\s*$")
+
+
+def extract_signup_href(description):
+    """Pulls a "Sign Up: <url>" line out of a calendar event's
+    Description (case-insensitive; "sign-up"/"signup"/"sign up" all
+    match) and returns (signup_href_or_None, remaining_description).
+    This is a voluntary convention, not something the Calendar API
+    exposes as its own field the way ATTACH does — whoever edits an
+    event just adds a line starting with "Sign Up:" followed by the
+    URL (a SignUpGenius link, a Google Form, etc.), and it becomes a
+    real "Sign Up" button on the site instead of dangling as plain
+    text inside the description. The line itself is stripped from the
+    text so it isn't shown twice."""
+    if not description:
+        return None, description
+    match = SIGNUP_LINE_RE.search(description)
+    if not match:
+        return None, description
+    href = match.group(1)
+    remaining = SIGNUP_LINE_RE.sub("", description).strip()
+    return href, remaining
+
+
 def build_events_json(vevents, window_start, window_end):
     occurrences = []
     for event in vevents:
@@ -248,13 +279,15 @@ def build_events_json(vevents, window_start, window_end):
         end_time = event.get("DTEND")
         all_day = event.get("DTSTART_ALLDAY", False)
         duration = (end_time - start_time) if end_time else None
+        signup_href, description = extract_signup_href(event.get("DESCRIPTION"))
         for occ_start in expand_occurrences(event, window_start, window_end):
             occ_end = occ_start + duration if duration else None
             occurrences.append({
                 "start": occ_start,
                 "title": title,
                 "when": format_when(occ_start, occ_end, all_day, event.get("LOCATION")),
-                "description": event.get("DESCRIPTION"),
+                "description": description,
+                "signup_href": signup_href,
                 "attachments": event.get("ATTACH", []),
             })
 
@@ -272,6 +305,8 @@ def build_events_json(vevents, window_start, window_end):
         }
         if occ["attachments"]:
             entry["attachments"] = occ["attachments"]
+        if occ["signup_href"]:
+            entry["signup_href"] = occ["signup_href"]
         if i == 0:
             # The featured card always shows a description slot, so it
             # always gets one, even a generic one if the calendar didn't

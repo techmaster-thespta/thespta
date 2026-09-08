@@ -208,7 +208,11 @@ never requires touching `header.html.tmpl` or `build.py`.
   the public Google Calendar `.ics` feed (stdlib-only RRULE expansion, no
   API key), including any file attached to an event (rendered as a
   clickable photo preview — confirmed empirically that Google's public
-  feed includes `ATTACH` properties). Run by
+  feed includes `ATTACH` properties) and a "Sign Up" button for any event
+  whose Description contains a line reading `Sign Up: <url>` (a voluntary
+  convention — Calendar has no dedicated field for this the way it does
+  for attachments, so `extract_signup_href` just looks for that line and
+  strips it from the description shown on the site). Run by
   `.github/workflows/sync-events.yml` (hourly) and by `deploy.yml` (every
   push/manual run). See `docs/SOP.md` Task 4.
 - `scripts/sync_afterschool_flyers.py` / `scripts/sync_fundraiser_flyers.py`
