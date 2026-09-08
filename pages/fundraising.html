@@ -129,15 +129,39 @@
   .thes__nav-submenu a { display: block; padding: 8px 16px; }
   .thes__nav-submenu a:hover { background: var(--bg-tint); }
   .thes__menu-btn { display: none; background: none; border: none; padding: 0; font: inherit; }
-  .thes__nav-caret { display: none; background: none; border: none; padding: 0; font: inherit; }
+  /* Visible at every width now (previously desktop hid it entirely and
+     relied on :hover alone to reveal the submenu) — shows every
+     dropdown item has more underneath it, not just on mobile where a
+     tap is needed instead of a hover. */
+  .thes__nav-caret {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 14px; height: 14px; margin-left: 2px; cursor: pointer;
+    background: none; border: none; padding: 0; font: inherit;
+  }
   .thes__nav-caret::before {
-    content: ""; display: block; width: 8px; height: 8px;
+    content: ""; display: block; width: 6px; height: 6px;
     border-right: 2px solid var(--navy); border-bottom: 2px solid var(--navy);
     transform: rotate(45deg); transition: transform 0.15s ease;
   }
   .thes__nav-caret[aria-expanded="true"]::before { transform: rotate(-135deg); }
   @media (min-width: 700px) {
     .thes__nav-item--parent:hover .thes__nav-submenu, .thes__nav-item--parent:focus-within .thes__nav-submenu { display: block; }
+    /* display: flex + align-items: center here (not just cosmetic) is
+       what keeps every top-level item's baseline identical regardless
+       of whether it has a dropdown: a plain item's <a> is a normal
+       inline child, vertically centered within the <li> by ordinary
+       line-height mechanics, but a parent item's <a> lives inside
+       .thes__nav-item-row (itself display: flex, so a block-level box)
+       — a block box doesn't get that same inline centering and instead
+       sits flush at the top of the <li>, which is what made "Get
+       Involved" sit a few pixels higher than "Home"/"About". Making the
+       <li> itself the flex container centers either kind of child
+       identically, regardless of its own inline/block nature. Scoped to
+       this breakpoint only: at mobile width, .thes__nav-item's two
+       children (the trigger row and the submenu <ul>) need to stack
+       vertically, not sit side by side the way an un-scoped `display:
+       flex` here would force them to. */
+    .thes__nav-item { display: flex; align-items: center; }
   }
   @media (max-width: 699px) {
     .thes__header-wrap { position: relative; padding-left: 60px; }
