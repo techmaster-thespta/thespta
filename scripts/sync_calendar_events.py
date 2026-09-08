@@ -247,27 +247,34 @@ def format_when(start, end, all_day, location):
     return " · ".join(parts)
 
 
-SIGNUP_LINE_RE = re.compile(r"(?im)^\s*sign[\s-]?up\s*:\s*(\S+)\s*$")
+SIGNUP_RE = re.compile(r"(?is)sign[\s-]?up\b.{0,60}?(https?://\S+)")
 
 
 def extract_signup_href(description):
-    """Pulls a "Sign Up: <url>" line out of a calendar event's
-    Description (case-insensitive; "sign-up"/"signup"/"sign up" all
-    match) and returns (signup_href_or_None, remaining_description).
-    This is a voluntary convention, not something the Calendar API
-    exposes as its own field the way ATTACH does — whoever edits an
-    event just adds a line starting with "Sign Up:" followed by the
-    URL (a SignUpGenius link, a Google Form, etc.), and it becomes a
-    real "Sign Up" button on the site instead of dangling as plain
-    text inside the description. The line itself is stripped from the
-    text so it isn't shown twice."""
+    """Finds a URL that follows the word "sign up" (however it's
+    phrased — "Sign Up:", "sign up here!", "please sign-up at") within
+    ~60 characters of it, anywhere in a calendar event's Description,
+    and returns (signup_href_or_None, remaining_description). Only the
+    URL itself is removed from the text (the surrounding "...sign up
+    here!" sentence is left in place — it reads fine right above the
+    button this produces, and isn't a duplicate of anything).
+
+    Deliberately tolerant of natural phrasing rather than requiring an
+    exact "Sign Up: <url>" line: the first real event this was used on
+    had a description that read "...And sign up here!
+    https://..." — free-form prose, not a dedicated line — so requiring
+    a strict format would have silently failed on the very first real
+    use. This is a voluntary convention, not something the Calendar API
+    exposes as its own field the way ATTACH does — there's no dedicated
+    "signup link" field to pull from."""
     if not description:
         return None, description
-    match = SIGNUP_LINE_RE.search(description)
+    match = SIGNUP_RE.search(description)
     if not match:
         return None, description
-    href = match.group(1)
-    remaining = SIGNUP_LINE_RE.sub("", description).strip()
+    href = match.group(1).rstrip(".,!?)]}>'\"")
+    remaining = (description[: match.start(1)] + description[match.start(1) + len(href) :]).strip()
+    remaining = re.sub(r"[ \t]+", " ", remaining).strip()
     return href, remaining
 
 
