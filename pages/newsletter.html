@@ -293,6 +293,15 @@
      below it) stayed naturally sized, reading as an oversized, out-of-
      place slab rather than a normal button. */
   .thes__featured-event .thes__btn { justify-self: start; margin-top: 4px; }
+  /* Sign Up / Join Google Meet: a fixed width matching the flyer
+     thumbnail (160px, see .thes__flyer img below) instead of each
+     button sizing to its own text, so "Sign Up" and "Join Google Meet"
+     render as the same size regardless of label length — smaller
+     font/padding/gap than the site's standard .thes__btn so the longer
+     label still fits on one line at that width instead of wrapping. */
+  .thes__featured-event .thes__btn, .thes__event-row-body .thes__btn {
+    width: 160px; text-align: center; font-size: 0.74rem; padding-left: 6px; padding-right: 6px; gap: 4px;
+  }
   .thes__more-events { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: grid; gap: 4px; align-content: start; min-width: 0; }
   .thes__more-events-row { display: flex; justify-content: space-between; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--border); }
   .thes__more-events-row:last-child { border-bottom: none; }
