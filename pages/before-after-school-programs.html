@@ -287,6 +287,15 @@
   .thes__featured-event p { margin: 0; color: rgba(255,255,255,0.85); font-size: 0.92rem; }
   .thes__event-when { font-weight: 700; color: var(--yellow); font-size: 0.9rem; }
   .thes__featured-event a { margin-top: 6px; font-weight: 700; color: var(--yellow); text-decoration: none; }
+  /* CSS Grid's default justify-self: stretch fills the full column
+     width for any direct grid item that doesn't override it — invisible
+     for a plain text link (no background to see it with), but very
+     visible on .thes__btn: without this, the Sign Up / Join Google Meet
+     button stretched edge-to-edge on this card while every other
+     element (including the identical-looking "Learn More" link right
+     below it) stayed naturally sized, reading as an oversized, out-of-
+     place slab rather than a normal button. */
+  .thes__featured-event .thes__btn { justify-self: start; margin-top: 4px; }
   .thes__more-events { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: grid; gap: 4px; align-content: start; min-width: 0; }
   .thes__more-events-row { display: flex; justify-content: space-between; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--border); }
   .thes__more-events-row:last-child { border-bottom: none; }
@@ -308,6 +317,11 @@
 
   /* ---- Flyer preview on an event (from a Calendar file attachment) ---- */
   .thes__event-attachments { margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  /* Sign Up / Join Google Meet buttons on the Events page's row layout
+     (not the featured card, which has its own rule above) — these sit
+     as plain siblings right after the flyer with zero built-in spacing
+     otherwise, crowding directly against it. */
+  .thes__event-row-body .thes__btn { margin-top: 10px; margin-right: 8px; }
   .thes__event-attachments .thes__flyer { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-size: 0.82rem; font-weight: 700; color: var(--teal); }
   .thes__flyer img { width: 160px; height: auto; border-radius: 8px; border: 1px solid var(--border); background: #fff; flex-shrink: 0; }
   .thes__event-attachments .thes__flyer:hover span { text-decoration: underline; }
