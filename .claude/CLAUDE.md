@@ -214,7 +214,10 @@ never requires touching `header.html.tmpl` or `build.py`.
   was free-form prose, not a dedicated line). Calendar has no dedicated
   field for this the way it does for attachments, so `extract_signup_href`
   just finds the URL and removes it from the description shown on the
-  site, leaving the surrounding sentence in place. Run by
+  site, leaving the surrounding sentence in place. A `meet.google.com`
+  link anywhere in the Description becomes a yellow "Join Google Meet"
+  button the same way (`extract_meet_href`) — no keyword needed there,
+  the domain alone is the signal. Run by
   `.github/workflows/sync-events.yml` (hourly) and by `deploy.yml` (every
   push/manual run). See `docs/SOP.md` Task 4.
 - `scripts/sync_afterschool_flyers.py` / `scripts/sync_fundraiser_flyers.py`

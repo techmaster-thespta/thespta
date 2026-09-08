@@ -196,6 +196,17 @@ no dedicated Calendar API field for this the way there is for
 attachments, so this loose, tolerant text convention is
 what `scripts/sync_calendar_events.py`'s `extract_signup_href` looks for.
 
+**A Google Meet link works the same way, automatically — no keyword
+needed.** If an event's Description contains a `https://meet.google.com/...`
+link anywhere (Google Calendar puts one there by default for a
+Meet-enabled event), it becomes a "Join Google Meet →" button — yellow,
+not teal, so it reads as a distinct action from Sign Up if an event
+happens to have both. Same deal: only the URL is removed from the
+description text, and a dangling separator right before it (Google
+Calendar's own default phrasing is "Join Virtually: Google Meet —
+<link>") is cleaned up too. See `extract_meet_href` in
+`scripts/sync_calendar_events.py`.
+
 **Heads up:** a recurring event (e.g. a monthly meeting) produces one
 highlight-list entry per occurrence, so it can crowd out one-off events
 further out if there are more than 6 items competing for the list. If

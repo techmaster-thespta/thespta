@@ -13,12 +13,16 @@ file itself still needs "Anyone with the link" sharing for that link to
 actually work for a visitor — attaching it to the event doesn't change its
 Drive permissions.
 
-A line reading "Sign Up: <url>" anywhere in an event's Description
+Mentioning "sign up" near a URL anywhere in an event's Description
 becomes a "Sign Up" button on that event too (see extract_signup_href
 below) — a voluntary convention, not a real Calendar API field the way
 ATTACH is, since Calendar has no dedicated "signup link" field to pull
-from. That line is stripped out of the description text shown on the
-site so it isn't duplicated.
+from; tolerant of natural phrasing, not a strict required format. A
+Google Meet link (https://meet.google.com/...) anywhere in the
+Description becomes a "Join Google Meet" button the same way (see
+extract_meet_href) — that one needs no nearby keyword since the domain
+itself is unambiguous. Either URL is stripped out of the description
+text shown on the site so it isn't duplicated.
 
 A calendar shared as "public" (see docs/SOP.md Task 5) exposes a free,
 no-auth .ics feed at a fixed URL — the same feed config/site.json's
@@ -278,6 +282,37 @@ def extract_signup_href(description):
     return href, remaining
 
 
+MEET_RE = re.compile(r"(?:[ \t]*[-–—:]+[ \t]*)?(https://meet\.google\.com/\S+)")
+
+
+def extract_meet_href(description):
+    """Finds a Google Meet link (https://meet.google.com/...) anywhere
+    in a calendar event's Description — regardless of surrounding
+    wording, since the meet.google.com domain alone is the signal, no
+    nearby keyword needed — and returns (meet_href_or_None,
+    remaining_description).
+
+    The regex's optional leading group swallows a single separator
+    (dash, em dash, or colon, plus surrounding spaces/tabs) immediately
+    before the URL, e.g. Google Calendar's own default hybrid-meeting
+    phrasing "Join Virtually: Google Meet — <link>", so removing the URL
+    doesn't leave a dangling "— " behind. This has to be captured as
+    part of the same match (not cleaned up afterward by checking what
+    follows the removed URL) because by this point unescape_text has
+    already turned every literal newline in the source into a plain
+    space — so "ends right before a newline" is never actually true
+    here, only "ends right before the URL" is reliable."""
+    if not description:
+        return None, description
+    match = MEET_RE.search(description)
+    if not match:
+        return None, description
+    href = match.group(1).rstrip(".,!?)]}>'\"")
+    remaining = description[: match.start(0)] + description[match.start(1) + len(href) :]
+    remaining = re.sub(r"[ \t]{2,}", " ", remaining).strip()
+    return href, remaining
+
+
 def build_events_json(vevents, window_start, window_end):
     occurrences = []
     for event in vevents:
@@ -287,6 +322,7 @@ def build_events_json(vevents, window_start, window_end):
         all_day = event.get("DTSTART_ALLDAY", False)
         duration = (end_time - start_time) if end_time else None
         signup_href, description = extract_signup_href(event.get("DESCRIPTION"))
+        meet_href, description = extract_meet_href(description)
         for occ_start in expand_occurrences(event, window_start, window_end):
             occ_end = occ_start + duration if duration else None
             occurrences.append({
@@ -295,6 +331,7 @@ def build_events_json(vevents, window_start, window_end):
                 "when": format_when(occ_start, occ_end, all_day, event.get("LOCATION")),
                 "description": description,
                 "signup_href": signup_href,
+                "meet_href": meet_href,
                 "attachments": event.get("ATTACH", []),
             })
 
@@ -314,6 +351,8 @@ def build_events_json(vevents, window_start, window_end):
             entry["attachments"] = occ["attachments"]
         if occ["signup_href"]:
             entry["signup_href"] = occ["signup_href"]
+        if occ["meet_href"]:
+            entry["meet_href"] = occ["meet_href"]
         if i == 0:
             # The featured card always shows a description slot, so it
             # always gets one, even a generic one if the calendar didn't
