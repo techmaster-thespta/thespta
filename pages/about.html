@@ -350,11 +350,26 @@
   /* ---- Committees (Get Involved > Committees) ---- */
   .thes__committees-note { max-width: 62ch; margin: 0 auto 32px; text-align: center; color: var(--text-muted); background: var(--bg-tint); border-radius: 12px; padding: 14px 20px; }
   .thes__committee-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
-  .thes__committee-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+  /* flex column, not grid: the card stretches to match its row's
+     tallest sibling (from .thes__committee-grid), and the Volunteer
+     button's margin-top: auto below needs to actually consume whatever
+     leftover space that stretch creates so the button lands at the same
+     spot in every card regardless of description/chair-line length.
+     Grid's align-content: start (the previous approach here) packs rows
+     tightly and leaves any leftover as inert space after the last row —
+     an item's own auto margin can't reach back and claim it. Flexbox's
+     margin: auto does exactly this, reliably. */
+  .thes__committee-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
   .thes__committee-card h3 { font-size: 1.02rem; margin-top: 6px; }
   .thes__committee-card > p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
   .thes__committee-chair { margin: 0; font-size: 0.82rem; font-weight: 700; color: var(--text); }
-  .thes__committee-card .thes__btn { margin-top: 8px; }
+  /* margin-top: auto (not a fixed value) so the button lands at the
+     same vertical position across every card in a row, regardless of
+     how many lines its own description/chair line take up — grid items
+     stretch to the row's tallest card by default, so a card with less
+     text above the button would otherwise leave it sitting higher than
+     its neighbors'. */
+  .thes__committee-card .thes__btn { margin-top: auto; }
   .thes__badge { display: inline-block; width: fit-content; padding: 4px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
   .thes__badge--chair-needed { background: var(--coral-tint); color: var(--coral); }
   .thes__badge--members-welcome { background: var(--teal-tint); color: var(--teal); }
@@ -458,7 +473,7 @@
     <div class="thes__pagehead-text">
       <span class="thes__eyebrow">About Us</span>
       <h1><span class="thes__title-a">Who</span> <span class="thes__title-b">We</span> <span class="thes__title-a">Are</span></h1>
-      <p>Thunder Hill Elementary PTA is the parent-teacher association for Thunder Hill Elementary School — a volunteer-run group open to every family, teacher, and staff member who wants to help our school thrive.</p>
+      <p>Thunder Hill Elementary PTA is the parent-teacher association for Thunder Hill Elementary School (THES) — a volunteer-run group open to every family, teacher, and staff member who wants to help our school thrive.</p>
     </div>
     <div class="thes__pagehead-media">
       <img src="images/page-header-no-text.jpg" alt="Thunder Hill Elementary School">
