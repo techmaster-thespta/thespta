@@ -8,9 +8,16 @@ description: Add, edit, remove, or review a flagged entry on the Afterschool Pro
 Use this when the user asks to add a program, update one's details,
 remove one, or review something the sync flagged. Every program on
 `/before-after-school-programs` is run by an **outside provider** (iCode,
-KidzArt, a theatre company, etc.) — never the PTA or the school — the
-page says so explicitly and every card should carry its own
-registration link/contact info.
+KidzArt, a theatre company, etc.) — never PTA or school staff directly —
+and every card should carry its own registration link/contact info. Some
+of these providers are ones the **PTA actively sponsors and reserves
+space for** (confirmed with the PTA president, since this isn't
+something a flyer states — as of this writing: iCode/Fall STEM
+Innovators, KidzArt, Disney's The Lion King JR/CCTA, Chess Wizards,
+Girls on the Run); others (Scouts, Howard County Recreation & Parks) are
+independent organizations using the building on their own, not PTA- or
+school-sponsored. Don't assume either way for a new program — ask
+before setting `pta_sponsored`.
 
 ## File
 
@@ -20,6 +27,7 @@ registration link/contact info.
 {
   "name": "Fall STEM Innovators: Robotics & 3D Design/Printing",
   "provider": "iCode Columbia",
+  "pta_sponsored": true,
   "description": "One or two sentences about what the program actually does.",
   "day_time": "3:55 – 5:00 PM",
   "date_range": "Sept 28 – Nov 2, 2026 (6 classes: 9/28, 10/5, 10/12, 10/19, 10/26, 11/2)",
@@ -36,6 +44,15 @@ registration link/contact info.
 }
 ```
 
+- `pta_sponsored` (`true`/`false`) drives the "PTA Sponsored" badge next
+  to the grades badge. Set it explicitly on every entry — don't omit it
+  (a missing/falsy value just renders as "not sponsored," which is a
+  real claim, not a safe default to skip).
+- If `registration_href` is `null` but `registration_note` is set (e.g.
+  a "coming soon" program with no link yet), the note itself becomes the
+  card's always-visible line in place of the Register button — don't
+  also expect it to still be tucked in Details in that case, it isn't
+  duplicated.
 - `sessions` is only for a program that runs in multiple distinct blocks
   with their own dates/pricing (see KidzArt's entry for the pattern) —
   leave it `[]` for a program that's just one continuous run.

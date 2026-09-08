@@ -490,19 +490,31 @@ def render_afterschool_program_card(program, context):
     (render_committee_card above); added because showing every field for
     all 10 programs at once on one page read as far too much text.
 
-    Run by an outside provider (iCode, KidzArt, a theatre company,
-    etc.), not the PTA — the flyer image is the source of truth, a
-    plain file in assets/flyers/before-after-school/ (previously
-    hotlinked from Google Drive; moved into the repo after the Drive
-    account got flagged and every file in it started 403ing, even ones
-    on a plain public link). `content_hash` on each config entry is
-    bookkeeping only (lets a future refresh tell which flyers actually
-    changed vs. which are untouched) and is never rendered."""
+    Every program is run by an outside provider (iCode, KidzArt, a
+    theatre company, etc.), never the school or PTA staff directly —
+    but `pta_sponsored` (confirmed per-program with the PTA president,
+    since this isn't something a flyer states) distinguishes a program
+    the PTA actively reserves space for and sponsors (KidzArt, Chess
+    Wizards, the theatre program, iCode, Girls on the Run) from one
+    that's simply an outside org (Scouts, Howard County Rec & Parks)
+    independently using the building. The flyer image is the source of
+    truth for everything else, a plain file in
+    assets/flyers/before-after-school/ (previously hotlinked from
+    Google Drive; moved into the repo after the Drive account got
+    flagged and every file in it started 403ing, even ones on a plain
+    public link). `content_hash` on each config entry is bookkeeping
+    only (lets a future refresh tell which flyers actually changed vs.
+    which are untouched) and is never rendered."""
     summary = [f'<h3>{program["name"]}</h3>']
     if program.get("provider"):
         summary.append(f'<p class="thes__program-provider">{program["provider"]}</p>')
+    badges = []
+    if program.get("pta_sponsored"):
+        badges.append('<span class="thes__badge thes__badge--pta-sponsored">PTA Sponsored</span>')
     if program.get("grades"):
-        summary.append(f'<span class="thes__badge thes__badge--age">Grades {program["grades"]}</span>')
+        badges.append(f'<span class="thes__badge thes__badge--age">Grades {program["grades"]}</span>')
+    if badges:
+        summary.append(f'<div class="thes__program-badges">{"".join(badges)}</div>')
 
     meta_bits = [b for b in (program.get("day_time"), program.get("price")) if b]
     if meta_bits:
@@ -513,6 +525,13 @@ def render_afterschool_program_card(program, context):
             f'<a class="thes__btn thes__btn--teal" href="{program["registration_href"]}" '
             f'target="_blank" rel="noopener">Register &rarr;</a>'
         )
+    elif program.get("registration_note"):
+        # No link to register with yet (e.g. a "coming soon" program) —
+        # the note is the only actionable info this card has, so it
+        # belongs in the always-visible summary, not buried behind
+        # "Details" where a card with no meta_bits and no button would
+        # otherwise show literally nothing below its badges.
+        summary.append(f'<p class="thes__program-meta">{program["registration_note"]}</p>')
 
     details = []
     if program.get("description"):
@@ -542,7 +561,9 @@ def render_afterschool_program_card(program, context):
             f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
         )
 
-    if program.get("registration_note"):
+    if program.get("registration_note") and program.get("registration_href"):
+        # Already shown in the summary above when there's no
+        # registration_href — see there for why.
         details.append(f'<p>{program["registration_note"]}</p>')
 
     details_html = ""

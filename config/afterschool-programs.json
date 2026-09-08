@@ -14,7 +14,8 @@
     "registration_note": "Or scan the QR code on the flyer.",
     "content_hash": "6ef36cbb1cd12129ddbfc1013eb5af682cfbab7793b2537e406f75a5edae3d33",
     "needs_review": false,
-    "flyer_filename": "fall-stem-innovators.jpg"
+    "flyer_filename": "fall-stem-innovators.jpg",
+    "pta_sponsored": true
   },
   {
     "name": "KidzArt at Thunder Hill",
@@ -62,7 +63,8 @@
     "registration_note": "Register for any session securely online, then click \u201cRegister Now.\u201d",
     "content_hash": "f965185b62e8b0c352604ee6754951377d6a490c49460de2b5cabead2f60de7a",
     "needs_review": false,
-    "flyer_filename": "kidzart.jpg"
+    "flyer_filename": "kidzart.jpg",
+    "pta_sponsored": true
   },
   {
     "name": "Disney's The Lion King JR",
@@ -79,7 +81,8 @@
     "registration_note": null,
     "content_hash": "f61de963898dc3490c8bf4728c2880c6f1e8dd0d2d9c4dc4e940988754b9d05f",
     "needs_review": false,
-    "flyer_filename": "lion-king-jr.jpeg"
+    "flyer_filename": "lion-king-jr.jpeg",
+    "pta_sponsored": true
   },
   {
     "name": "Chess Wizards",
@@ -96,7 +99,26 @@
     "registration_note": "Or scan the QR code on the flyer to register.",
     "content_hash": "e4da00dd7759aab34a21f17e7b542f2e22eaab3c1758c6c69f966f4714ba4fa1",
     "needs_review": false,
-    "flyer_filename": "chess-wizards.jpg"
+    "flyer_filename": "chess-wizards.jpg",
+    "pta_sponsored": true
+  },
+  {
+    "name": "Girls on the Run",
+    "provider": "Girls on the Run Central Maryland",
+    "pta_sponsored": true,
+    "description": "A physical-activity-based program that builds girls' confidence, kindness, and decision-making skills through a running-focused curriculum, culminating in a celebratory 5K. Coming soon to Thunder Hill \u2014 the PTA is reserving space for this program.",
+    "day_time": null,
+    "date_range": null,
+    "grades": "3\u20135",
+    "price": null,
+    "sessions": [],
+    "show_date": null,
+    "contact": null,
+    "registration_href": null,
+    "registration_note": "Details (schedule, price, registration) coming soon \u2014 check back or contact the PTA for updates.",
+    "flyer_filename": null,
+    "content_hash": null,
+    "needs_review": false
   },
   {
     "name": "Chess Club Before School",
@@ -113,7 +135,8 @@
     "registration_note": "This information is neither sponsored nor endorsed by HCPSS or the school.",
     "content_hash": "4d143716491b2b771caa00802f2a02ff014b6c2b804e0cd772da8c17e22fcbd8",
     "needs_review": false,
-    "flyer_filename": "hcpss-chess-spanish-music.jpg"
+    "flyer_filename": "hcpss-chess-spanish-music.jpg",
+    "pta_sponsored": false
   },
   {
     "name": "Spanish After School",
@@ -130,7 +153,8 @@
     "registration_note": "This information is neither sponsored nor endorsed by HCPSS or the school.",
     "content_hash": "4d143716491b2b771caa00802f2a02ff014b6c2b804e0cd772da8c17e22fcbd8",
     "needs_review": false,
-    "flyer_filename": "hcpss-chess-spanish-music.jpg"
+    "flyer_filename": "hcpss-chess-spanish-music.jpg",
+    "pta_sponsored": false
   },
   {
     "name": "Music & Theater Arts: Beginner Ensemble",
@@ -147,7 +171,8 @@
     "registration_note": "This information is neither sponsored nor endorsed by HCPSS or the school.",
     "content_hash": "4d143716491b2b771caa00802f2a02ff014b6c2b804e0cd772da8c17e22fcbd8",
     "needs_review": false,
-    "flyer_filename": "hcpss-chess-spanish-music.jpg"
+    "flyer_filename": "hcpss-chess-spanish-music.jpg",
+    "pta_sponsored": false
   },
   {
     "name": "Aurora STEAM Innovation Lab After School",
@@ -164,7 +189,8 @@
     "registration_note": "This information is neither sponsored nor endorsed by HCPSS or the school.",
     "content_hash": "f665b05ca15f91bfcb3639b99be31179c66123a4fa2f81a75f5b344bd8ae5b48",
     "needs_review": false,
-    "flyer_filename": "hcpss-aurora-basketball-trackstars.jpg"
+    "flyer_filename": "hcpss-aurora-basketball-trackstars.jpg",
+    "pta_sponsored": false
   },
   {
     "name": "After-School Basketball with Amazing Athletes",
@@ -206,7 +232,8 @@
     "registration_note": "This information is neither sponsored nor endorsed by HCPSS or the school.",
     "content_hash": "f665b05ca15f91bfcb3639b99be31179c66123a4fa2f81a75f5b344bd8ae5b48",
     "needs_review": false,
-    "flyer_filename": "hcpss-aurora-basketball-trackstars.jpg"
+    "flyer_filename": "hcpss-aurora-basketball-trackstars.jpg",
+    "pta_sponsored": false
   },
   {
     "name": "After School Running with Little & Junior TrackStars",
@@ -236,7 +263,8 @@
     "registration_note": "This information is neither sponsored nor endorsed by HCPSS or the school.",
     "content_hash": "f665b05ca15f91bfcb3639b99be31179c66123a4fa2f81a75f5b344bd8ae5b48",
     "needs_review": false,
-    "flyer_filename": "hcpss-aurora-basketball-trackstars.jpg"
+    "flyer_filename": "hcpss-aurora-basketball-trackstars.jpg",
+    "pta_sponsored": false
   },
   {
     "name": "Cub Scouts Pack 838",
@@ -253,7 +281,8 @@
     "registration_note": "Scan the QR code on the flyer to join, or email Torey to learn more.",
     "content_hash": "679dbd6045eb60aa8f21e23ce3d4c32ffdf3761e64f5f1cc8585cddb2fc6d4b9",
     "needs_review": false,
-    "flyer_filename": "cub-scouts-pack-838.jpg"
+    "flyer_filename": "cub-scouts-pack-838.jpg",
+    "pta_sponsored": false
   },
   {
     "name": "Girl Scouts Troop 4709",
@@ -270,6 +299,7 @@
     "registration_note": null,
     "content_hash": "0b57cbce8932fd6dd675002ece190dc3733876b59a07cbfce3b09b007963b061",
     "needs_review": false,
-    "flyer_filename": "girl-scouts-troop-4709.png"
+    "flyer_filename": "girl-scouts-troop-4709.png",
+    "pta_sponsored": false
   }
 ]
