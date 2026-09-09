@@ -1,12 +1,13 @@
 # Flyer review: local automation service
 
 A `systemd --user` timer that runs daily and asks headless Claude Code
-to check both `config/afterschool-programs.json` and
-`config/fundraisers.json` for anything flagged `"needs_review": true`,
-read the actual flyer, and fill in the real details — see
-`.claude/skills/review-afterschool-flyers/SKILL.md` and
-`.claude/skills/review-fundraiser-flyers/SKILL.md` for exactly what each
-one does; this doc is just the one-time host setup.
+to check `config/afterschool-programs.json`, `config/fundraisers.json`,
+and `config/pta-meetings.json` for anything flagged
+`"needs_review": true`, read the actual flyer, and fill in the real
+details — see `.claude/skills/review-afterschool-flyers/SKILL.md`,
+`.claude/skills/review-fundraiser-flyers/SKILL.md`, and
+`.claude/skills/review-pta-meeting-flyers/SKILL.md` for exactly what
+each one does; this doc is just the one-time host setup.
 
 This replaced an earlier version built with Claude Code's session-only
 `CronCreate` scheduler: that approach only exists for the lifetime of
@@ -17,16 +18,17 @@ a running conversation.
 
 It also replaced an even earlier version of itself: one systemd
 timer/service per content type (`scripts/afterschool-review/`, before
-`config/fundraisers.json` and its own review skill existed). The two
-skills' actual review logic is genuinely different — different config
-schemas, and the fundraiser side has to tell a reprinted flyer of an
-existing campaign apart from a genuinely new one, which the afterschool
-side never has to do — so each kept its own skill file. But the systemd
-plumbing around them (timer, service, install/uninstall) was identical
-boilerplate either way, so that layer is merged into one
-`scripts/flyer-review/` service that runs both skills back-to-back.
-Adding a third flyer-backed content type later means one more line in
-`run.sh`, not a whole new service/timer/install.sh trio.
+`config/fundraisers.json` and its own review skill existed). Each flyer
+type's actual review logic is genuinely different — different config
+schemas; the fundraiser side has to tell a reprinted flyer of an
+existing campaign apart from a genuinely new one; the PTA meeting side
+has to never guess a date — so each kept its own skill file. But the
+systemd plumbing around them (timer, service, install/uninstall) was
+identical boilerplate either way, so that layer is merged into one
+`scripts/flyer-review/` service that runs all three skills
+back-to-back. A fourth flyer-backed content type means one more line in
+`run.sh` — already proven twice — not a whole new
+service/timer/install.sh trio.
 
 ## What actually runs
 
@@ -35,17 +37,19 @@ Adding a third flyer-backed content type later means one more line in
 ```bash
 claude -p "/review-afterschool-flyers" --permission-mode bypassPermissions --output-format text
 claude -p "/review-fundraiser-flyers" --permission-mode bypassPermissions --output-format text
+claude -p "/review-pta-meeting-flyers" --permission-mode bypassPermissions --output-format text
 ```
 
 **`bypassPermissions` is required, not just convenient.** This runs
 with no TTY and no human present — any normal permission prompt would
 hang forever waiting for input that can never come. The safety boundary
 for this job is the narrow, version-controlled, human-reviewed skill
-content it runs (`.claude/skills/review-afterschool-flyers/SKILL.md` and
-`.claude/skills/review-fundraiser-flyers/SKILL.md`), not runtime
+content it runs (`.claude/skills/review-afterschool-flyers/SKILL.md`,
+`.claude/skills/review-fundraiser-flyers/SKILL.md`, and
+`.claude/skills/review-pta-meeting-flyers/SKILL.md`), not runtime
 permission gating. Know what those skills do before enabling this
-service; treat editing either with the same care as editing any other
-script that runs unattended with your credentials.
+service; treat editing any of them with the same care as editing any
+other script that runs unattended with your credentials.
 
 Each skill pushes directly to `main` on success (this is treated as
 routine content fill, not a design change — see the skill files for
@@ -87,7 +91,12 @@ This symlinks (not copies) the unit files into
 `~/.config/systemd/user/`, enables lingering if it isn't already on,
 and runs `daemon-reload` + `enable --now`. Symlinking means editing the
 unit files in the repo and re-running `systemctl --user daemon-reload`
-is enough to pick up changes — no need to re-install.
+is enough to pick up changes — no need to re-install. `run.sh` itself
+needs even less than that: the `.service` file's `ExecStart` runs it
+straight from its path in the repo, so an edit to `run.sh` (like adding
+a fourth `run_skill` line) takes effect on the very next scheduled or
+manual run, no reload or reinstall at all — this is exactly how the PTA
+meetings skill got added to an already-installed service.
 
 To uninstall:
 
