@@ -774,39 +774,39 @@ def compute_school_year(date_str):
     return f"{start_year}–{start_year + 1}"
 
 
-def is_pta_meeting_event(event):
-    """A calendar event is the PTA's own recurring meeting, not some
-    other event on the shared calendar, based on its title mentioning
-    both words — the calendar has no dedicated field marking this, same
-    natural-phrasing-over-strict-format signal already used by
-    extract_signup_href/extract_meet_href in scripts/sync_calendar_events.py."""
-    title = event.get("title", "").lower()
-    return "pta" in title and "meeting" in title
-
-
 UPCOMING_PTA_MEETINGS_MAX = 3
 
 
-def build_upcoming_pta_meetings_section(events, context):
+def build_upcoming_pta_meetings_section(upcoming_meetings, context):
     """The top-of-page 'what's coming up' section on the PTA Meetings
-    page — sourced live from the same synced config/events.json the
-    Events page uses (generated from Google Calendar, never
-    hand-edited), filtered down to just the PTA's own meeting
-    occurrences. Deliberately separate from the rest of the page (the
-    permanent post-meeting archive in config/pta-meetings.json, filled
-    in from a recap flyer after a meeting happens): this section shows
-    what's ahead, the rest of the page shows what already happened.
-    Reuses event-row.html.tmpl as-is (day/month/title/when/description/
-    Sign Up or Join Google Meet buttons/attachments) — the exact same
-    row already used on the Events page, so a meeting that has, say, a
+    page — sourced live from config/pta-meeting-occurrences.json
+    (generated from Google Calendar by
+    scripts/sync_calendar_events.py, never hand-edited). Deliberately a
+    *separate* generated file from config/events.json, not a filter over
+    it: events.json is capped at MAX_EVENTS (6) across every event type
+    on the calendar for the Home/Events page highlights, so a PTA
+    meeting further out than the 6th nearest calendar-wide event would
+    never have reached this section at all if it were just filtering
+    events.json — caught for real when a real Feb 2027 meeting was
+    invisible here despite being well within the general lookahead
+    window, crowded out by nearer restaurant nights and a fall festival.
+
+    Deliberately separate from the rest of the page (the permanent
+    post-meeting archive in config/pta-meetings.json, filled in from a
+    recap flyer after a meeting happens): this section shows what's
+    ahead, the rest of the page shows what already happened. Reuses
+    event-row.html.tmpl as-is (day/month/title/when/description/Sign Up
+    or Join Google Meet buttons/attachments) — the exact same row
+    already used on the Events page, so a meeting that has, say, a
     Google Meet link on the calendar gets that button here too. ""
     when there's no upcoming PTA meeting on the calendar right now, same
     empty-means-no-section pattern as everywhere else on the site.
-    Capped at UPCOMING_PTA_MEETINGS_MAX (3) — config/events.json is
-    already date-ascending (see scripts/sync_calendar_events.py), so
-    this is simply the next 3 chronologically, same capped-preview
-    pattern build_home_events_section uses."""
-    upcoming = [e for e in events if is_pta_meeting_event(e)][:UPCOMING_PTA_MEETINGS_MAX]
+    Capped at UPCOMING_PTA_MEETINGS_MAX (3) — config/pta-meeting-
+    occurrences.json is already date-ascending (see
+    scripts/sync_calendar_events.py), so this is simply the next 3
+    chronologically, same capped-preview pattern
+    build_home_events_section uses."""
+    upcoming = upcoming_meetings[:UPCOMING_PTA_MEETINGS_MAX]
     if not upcoming:
         return ""
     row_tmpl = (TEMPLATES / "event-row.html.tmpl").read_text()
@@ -883,7 +883,7 @@ def render_featured_pta_meeting(meeting, context):
     })
 
 
-def build_pta_meetings_section(meetings, events, context):
+def build_pta_meetings_section(meetings, upcoming_meetings, context):
     """Whole PTA Meetings page body: an "Upcoming PTA Meetings" section
     sourced live from the calendar (see build_upcoming_pta_meetings_section)
     first, then the single most recent *reviewed* past meeting spotlighted,
@@ -910,7 +910,7 @@ def build_pta_meetings_section(meetings, events, context):
     that placeholder if the calendar has a meeting coming up."""
     sections = []
 
-    upcoming_section = build_upcoming_pta_meetings_section(events, context)
+    upcoming_section = build_upcoming_pta_meetings_section(upcoming_meetings, context)
     if upcoming_section:
         sections.append(upcoming_section)
 
@@ -1075,7 +1075,11 @@ def main():
         afterschool_programs_section = build_afterschool_programs_section(
             load_json("afterschool-programs.json", default=[]), context
         )
-        pta_meetings_section = build_pta_meetings_section(load_json("pta-meetings.json", default=[]), events, context)
+        pta_meetings_section = build_pta_meetings_section(
+            load_json("pta-meetings.json", default=[]),
+            load_json("pta-meeting-occurrences.json", default=[]),
+            context,
+        )
 
         shared_markers = {
             "{{TOKENS}}": tokens,

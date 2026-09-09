@@ -24,6 +24,16 @@ extract_meet_href) — that one needs no nearby keyword since the domain
 itself is unambiguous. Either URL is stripped out of the description
 text shown on the site so it isn't duplicated.
 
+Also writes config/pta-meeting-occurrences.json: every upcoming
+occurrence whose title mentions "PTA" and "meeting" (see
+is_pta_meeting_title), for the "Upcoming PTA Meetings" section on the
+PTA Meetings page. This is a second, separate pass over the same
+parsed calendar — not just a filter over config/events.json — because
+events.json is deliberately capped to MAX_EVENTS (6) across ALL event
+types for the Home/Events page highlights, so a PTA meeting further out
+than the 6th nearest calendar-wide event would otherwise never surface
+here at all even though it's genuinely coming up.
+
 A calendar shared as "public" (see docs/SOP.md Task 5) exposes a free,
 no-auth .ics feed at a fixed URL — the same feed config/site.json's
 CAL_ICS_URL already points visitors to for "Download .ics". This script
@@ -64,6 +74,13 @@ CONFIG = ROOT / "config"
 
 LOOKAHEAD_DAYS = 180  # how far into the future to expand recurring events
 MAX_EVENTS = 6        # how many upcoming events to keep as highlights
+
+# PTA meetings are roughly monthly but skip summer, so "the next 3" can sit
+# further out than LOOKAHEAD_DAYS — a meeting scheduled for next May can be
+# ~8 months away in September. Long enough to reliably catch a few, without
+# also dragging in a stale meeting from a school year that hasn't started
+# its calendar yet.
+PTA_MEETING_LOOKAHEAD_DAYS = 400
 
 MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 WEEKDAYS = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
@@ -331,10 +348,24 @@ def extract_meet_href(description):
     return href, remaining
 
 
-def build_events_json(vevents, window_start, window_end):
+def is_pta_meeting_title(title):
+    """A calendar event is the PTA's own recurring meeting, not some
+    other event on the shared calendar, based on its title mentioning
+    both words — the calendar has no dedicated field marking this.
+    Mirrored (not imported — this script and src/build.py are
+    independent) in src/build.py's own is_pta_meeting check, which
+    applies the identical rule to config/pta-meetings.json's recap
+    entries."""
+    t = title.lower()
+    return "pta" in t and "meeting" in t
+
+
+def build_events_json(vevents, window_start, window_end, title_filter=None, max_events=MAX_EVENTS):
     occurrences = []
     for event in vevents:
         title = event.get("SUMMARY", "Untitled Event")
+        if title_filter and not title_filter(title):
+            continue
         start_time = event["DTSTART"]
         end_time = event.get("DTEND")
         all_day = event.get("DTSTART_ALLDAY", False)
@@ -354,7 +385,8 @@ def build_events_json(vevents, window_start, window_end):
             })
 
     occurrences.sort(key=lambda o: o["start"])
-    occurrences = occurrences[:MAX_EVENTS]
+    if max_events is not None:
+        occurrences = occurrences[:max_events]
 
     out = []
     for i, occ in enumerate(occurrences):
@@ -403,8 +435,26 @@ def main():
     window_end = window_start + dt.timedelta(days=LOOKAHEAD_DAYS)
     events = build_events_json(vevents, window_start, window_end)
 
+    # A separate, uncapped-by-MAX_EVENTS feed of just the PTA's own
+    # meeting occurrences. Without this, a PTA meeting more than
+    # MAX_EVENTS (6) calendar-wide events away — easily true once a few
+    # restaurant nights and a fall festival are also on the calendar —
+    # would silently never reach config/events.json at all, even though
+    # it's well within LOOKAHEAD_DAYS. Caught for real: the calendar's
+    # Feb 2027 PTA meeting was invisible on the PTA Meetings page's
+    # "Upcoming" section for exactly this reason.
+    pta_window_end = window_start + dt.timedelta(days=PTA_MEETING_LOOKAHEAD_DAYS)
+    pta_meeting_occurrences = build_events_json(
+        vevents, window_start, pta_window_end, title_filter=is_pta_meeting_title, max_events=None
+    )
+
     (CONFIG / "events.json").write_text(json.dumps(events, indent=2) + "\n")
+    (CONFIG / "pta-meeting-occurrences.json").write_text(json.dumps(pta_meeting_occurrences, indent=2) + "\n")
     print(f"  synced {len(events)} upcoming event(s) from the calendar into config/events.json")
+    print(
+        f"  synced {len(pta_meeting_occurrences)} upcoming PTA meeting(s) into "
+        "config/pta-meeting-occurrences.json"
+    )
 
 
 if __name__ == "__main__":
