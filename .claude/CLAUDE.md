@@ -217,7 +217,20 @@ never requires touching `header.html.tmpl` or `build.py`.
   site, leaving the surrounding sentence in place. A `meet.google.com`
   link anywhere in the Description becomes a yellow "Join Google Meet"
   button the same way (`extract_meet_href`) — no keyword needed there,
-  the domain alone is the signal. Run by
+  the domain alone is the signal. Also generates
+  `config/pta-meeting-occurrences.json` — a *separate* pass over the same
+  parsed calendar (not a filter over `config/events.json`), every
+  upcoming occurrence whose title mentions "PTA" and "meeting", for the
+  PTA Meetings page's "Upcoming" section. It has to be separate: `events.json`
+  is capped at `MAX_EVENTS` (6) across every event type for the
+  Home/Events highlights, so a PTA meeting further out than the 6th
+  nearest calendar-wide event would never reach a plain filter over
+  `events.json` — this happened for real (a real Feb 2027 meeting was
+  invisible on the page despite being well within the general lookahead
+  window). It also gets its own longer lookahead
+  (`PTA_MEETING_LOOKAHEAD_DAYS`, 400 days vs. the general 180) since
+  meetings are roughly monthly but skip summer, so "the next 3" can sit
+  further out than the general highlights window. Run by
   `.github/workflows/sync-events.yml` (hourly) and by `deploy.yml` (every
   push/manual run). See `docs/SOP.md` Task 4.
 - `scripts/sync_afterschool_flyers.py` / `scripts/sync_fundraiser_flyers.py`
