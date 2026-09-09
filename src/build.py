@@ -774,6 +774,51 @@ def compute_school_year(date_str):
     return f"{start_year}–{start_year + 1}"
 
 
+def is_pta_meeting_event(event):
+    """A calendar event is the PTA's own recurring meeting, not some
+    other event on the shared calendar, based on its title mentioning
+    both words — the calendar has no dedicated field marking this, same
+    natural-phrasing-over-strict-format signal already used by
+    extract_signup_href/extract_meet_href in scripts/sync_calendar_events.py."""
+    title = event.get("title", "").lower()
+    return "pta" in title and "meeting" in title
+
+
+def build_upcoming_pta_meetings_section(events, context):
+    """The top-of-page 'what's coming up' section on the PTA Meetings
+    page — sourced live from the same synced config/events.json the
+    Events page uses (generated from Google Calendar, never
+    hand-edited), filtered down to just the PTA's own meeting
+    occurrences. Deliberately separate from the rest of the page (the
+    permanent post-meeting archive in config/pta-meetings.json, filled
+    in from a recap flyer after a meeting happens): this section shows
+    what's ahead, the rest of the page shows what already happened.
+    Reuses event-row.html.tmpl as-is (day/month/title/when/description/
+    Sign Up or Join Google Meet buttons/attachments) — the exact same
+    row already used on the Events page, so a meeting that has, say, a
+    Google Meet link on the calendar gets that button here too. ""
+    when there's no upcoming PTA meeting on the calendar right now, same
+    empty-means-no-section pattern as everywhere else on the site."""
+    upcoming = [e for e in events if is_pta_meeting_event(e)]
+    if not upcoming:
+        return ""
+    row_tmpl = (TEMPLATES / "event-row.html.tmpl").read_text()
+    rows = "\n".join(indent(render(row_tmpl, {**context, **with_event_extras(e)}), 6) for e in upcoming)
+    return (
+        '<section class="thes__section">\n'
+        '  <div class="thes__wrap">\n'
+        '    <div class="thes__section-head">\n'
+        "      <h2>Upcoming PTA Meetings</h2>\n"
+        "      <p>From the PTA calendar — join us live, or check back here afterward for the recap.</p>\n"
+        "    </div>\n"
+        '    <div class="thes__event-list">\n'
+        f"{rows}\n"
+        "    </div>\n"
+        "  </div>\n"
+        "</section>"
+    )
+
+
 def render_meeting_flyer(meeting, context):
     """A meeting's recap-graphic flyer, if it has one — same
     small-thumbnail-plus-link treatment every other flyer type on the
@@ -831,12 +876,14 @@ def render_featured_pta_meeting(meeting, context):
     })
 
 
-def build_pta_meetings_section(meetings, context):
-    """Whole PTA Meetings page body: the single most recent *reviewed*
-    meeting spotlighted at the top, then every other reviewed meeting
-    grouped into a <details> accordion per school year (most recent year
-    already open, older years collapsed — same zero-JS expand/collapse
-    pattern committees/afterschool-program cards already use).
+def build_pta_meetings_section(meetings, events, context):
+    """Whole PTA Meetings page body: an "Upcoming PTA Meetings" section
+    sourced live from the calendar (see build_upcoming_pta_meetings_section)
+    first, then the single most recent *reviewed* past meeting spotlighted,
+    then every other reviewed meeting grouped into a <details> accordion
+    per school year (most recent year already open, older years collapsed
+    — same zero-JS expand/collapse pattern committees/afterschool-program
+    cards already use).
 
     "Reviewed" matters here in a way it doesn't for the other flyer
     types: a brand-new flyer's placeholder (see
@@ -852,14 +899,20 @@ def build_pta_meetings_section(meetings, context):
 
     Same empty-means-a-placeholder-message pattern as the other
     always-in-nav pages for the true empty case (nothing recorded at
-    all, reviewed or not)."""
+    all, reviewed or not) — the upcoming section still renders on top of
+    that placeholder if the calendar has a meeting coming up."""
+    sections = []
+
+    upcoming_section = build_upcoming_pta_meetings_section(events, context)
+    if upcoming_section:
+        sections.append(upcoming_section)
+
     if not meetings:
-        return (TEMPLATES / "pta-meetings-empty.html.tmpl").read_text()
+        sections.append((TEMPLATES / "pta-meetings-empty.html.tmpl").read_text())
+        return "\n\n".join(sections)
 
     reviewed = [m for m in meetings if m.get("date")]
     pending = [m for m in meetings if not m.get("date")]
-
-    sections = []
 
     if pending:
         names = ", ".join(m.get("flyer_filename", "a flyer") for m in pending)
@@ -1015,7 +1068,7 @@ def main():
         afterschool_programs_section = build_afterschool_programs_section(
             load_json("afterschool-programs.json", default=[]), context
         )
-        pta_meetings_section = build_pta_meetings_section(load_json("pta-meetings.json", default=[]), context)
+        pta_meetings_section = build_pta_meetings_section(load_json("pta-meetings.json", default=[]), events, context)
 
         shared_markers = {
             "{{TOKENS}}": tokens,
