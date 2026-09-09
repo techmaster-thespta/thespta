@@ -447,6 +447,53 @@ automatically.
 
 ---
 
+## Task 5e — Add, remove, or edit a PTA meeting record
+
+**File:** `config/pta-meetings.json` · **Skill:** `.claude/skills/add-pta-meeting/`
+
+`/pta-meetings` is a permanent archive, different in kind from
+`/events`: the calendar shows a meeting is *coming up*, with an
+invitation-style description; this page records what actually
+*happened*, after the fact, once a recap flyer or real highlights
+exist to report. The single most recent meeting is spotlighted at the
+top of the page; every other one is grouped into a `<details>`
+accordion by school year (July–June).
+
+### This page is normally kept up to date automatically
+
+Same mechanism as Tasks 5c/5d: `scripts/sync_pta_meeting_flyers.py`
+runs as a step in `.github/workflows/deploy.yml` on every push and
+reconciles `config/pta-meetings.json` against whatever's actually in
+`assets/flyers/pta-meetings/` — a flyer removed means the record is
+removed, a new flyer means a placeholder appears flagged
+`needs_review`. One real difference from the other two: a brand-new
+placeholder gets **no guessed date** (the other flyer types guess a
+*name*) — a wrong date would silently misfile the meeting into the
+wrong school year, so a dateless placeholder stays visibly incomplete
+(shown as a small "N new meeting flyers need review" notice) instead of
+ever becoming the page's spotlight or joining a year's archive.
+
+**Reading the flyer to fill in the real date, title, and highlights is
+not something this automation can do on its own.** PTA meeting recap
+flyers typically state the highlights directly (new board members,
+committees formed, membership numbers), so this is usually transcribing
+what the flyer already says. Whenever an entry is flagged
+`needs_review`, open `assets/flyers/pta-meetings/<flyer_filename>` (or
+ask an agent to), read it, fill in the real fields, and clear the flag.
+See `.claude/skills/review-pta-meeting-flyers/SKILL.md` for the full
+process; the daily `scripts/flyer-review/` service also runs this
+automatically.
+
+### One-time setup
+
+None — this reuses the same repo-hosted-flyer mechanism as Tasks 5c/5d,
+no credentials of any kind needed. Drop a flyer at
+`https://github.com/techmaster-thespta/thespta/upload/main/assets/flyers/pta-meetings`
+via GitHub's web UI (or push one directly) and the next deploy picks it
+up.
+
+---
+
 ## Task 6 — Change the banner photo, page header photo, or add a logo
 
 Images live in `assets/images/` in this repo and are served directly by

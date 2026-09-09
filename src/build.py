@@ -21,6 +21,7 @@ for the full day-to-day editing guide, and docs/skills for how content
 additions (events, board members, sponsors, flyers) are meant to be made
 — config only, never this file — by an agent working from .claude/skills/.
 """
+import datetime as dt
 import json
 import re
 import urllib.parse
@@ -762,6 +763,163 @@ def build_fundraising_section(campaigns, context):
     return "\n\n".join(sections)
 
 
+def compute_school_year(date_str):
+    """'2026-09-08' -> '2026–2027'. A school year is treated as running
+    July through the following June, so a meeting in, say, April groups
+    with the September that started that same school year rather than
+    the following one — this is why the boundary is July (month >= 7),
+    not January."""
+    d = dt.date.fromisoformat(date_str)
+    start_year = d.year if d.month >= 7 else d.year - 1
+    return f"{start_year}–{start_year + 1}"
+
+
+def render_meeting_flyer(meeting, context):
+    """A meeting's recap-graphic flyer, if it has one — same
+    small-thumbnail-plus-link treatment every other flyer type on the
+    site uses. "" when there's no flyer, same optional-field pattern as
+    everywhere else."""
+    flyer_filename = meeting.get("flyer_filename")
+    if not flyer_filename:
+        return ""
+    flyer_url = f'{context["FLYER_BASE_URL"]}/pta-meetings/{flyer_filename}'
+    return (
+        f'<a class="thes__flyer" href="{flyer_url}" target="_blank" rel="noopener">'
+        f'<img src="{flyer_url}" alt="" width="160" loading="lazy">'
+        f"<span>{ATTACHMENT_LINK_TEXT}</span></a>"
+    )
+
+
+def render_pta_meeting_card(meeting, context):
+    """One PTA meeting's compact archive card (card-pta-meeting.html.tmpl)
+    — date, title, highlights, flyer (if any), and a "View Agenda"
+    button. Used for every meeting except whichever one is currently
+    spotlighted at the top of the page (see build_pta_meetings_section)."""
+    d = dt.date.fromisoformat(meeting["date"])
+    date_display = d.strftime("%B %-d, %Y")
+    agenda_button = ""
+    if meeting.get("agenda_href"):
+        agenda_button = (
+            f'<a class="thes__btn thes__btn--teal" href="{meeting["agenda_href"]}" '
+            f'target="_blank" rel="noopener">View Agenda &rarr;</a>'
+        )
+    tmpl = (TEMPLATES / "card-pta-meeting.html.tmpl").read_text()
+    return render(tmpl, {
+        **meeting, "date_display": date_display, "AGENDA_BUTTON": agenda_button,
+        "FLYER": render_meeting_flyer(meeting, context),
+    })
+
+
+def render_featured_pta_meeting(meeting, context):
+    """The single most recent meeting, spotlighted above the year
+    archive — reuses .thes__featured-event, the same navy-card treatment
+    (and the same fixed-width, centered-text button rule) the Home
+    page's featured event already uses, for a consistent "here's the one
+    that matters most right now" visual language across the site."""
+    d = dt.date.fromisoformat(meeting["date"])
+    date_display = d.strftime("%B %-d, %Y")
+    agenda_button = ""
+    if meeting.get("agenda_href"):
+        agenda_button = (
+            f'<a class="thes__btn thes__btn--teal" href="{meeting["agenda_href"]}" '
+            f'target="_blank" rel="noopener">View Agenda &rarr;</a>'
+        )
+    tmpl = (TEMPLATES / "pta-meeting-featured.html.tmpl").read_text()
+    return render(tmpl, {
+        **meeting, "date_display": date_display, "AGENDA_BUTTON": agenda_button,
+        "FLYER": render_meeting_flyer(meeting, context),
+    })
+
+
+def build_pta_meetings_section(meetings, context):
+    """Whole PTA Meetings page body: the single most recent *reviewed*
+    meeting spotlighted at the top, then every other reviewed meeting
+    grouped into a <details> accordion per school year (most recent year
+    already open, older years collapsed — same zero-JS expand/collapse
+    pattern committees/afterschool-program cards already use).
+
+    "Reviewed" matters here in a way it doesn't for the other flyer
+    types: a brand-new flyer's placeholder (see
+    scripts/sync_pta_meeting_flyers.py) has `date: None` on purpose —
+    guessing a date the way the other syncs guess a *name* would risk
+    silently misfiling the meeting into the wrong school year until
+    someone caught it, which is worse than just not showing it in the
+    dated archive at all. Meetings without a date can't be sorted or
+    grouped, so they're split out into their own "flagged for review"
+    notice instead — and specifically never allowed to become the
+    spotlight card, since an unreviewed placeholder has no real content
+    to spotlight.
+
+    Same empty-means-a-placeholder-message pattern as the other
+    always-in-nav pages for the true empty case (nothing recorded at
+    all, reviewed or not)."""
+    if not meetings:
+        return (TEMPLATES / "pta-meetings-empty.html.tmpl").read_text()
+
+    reviewed = [m for m in meetings if m.get("date")]
+    pending = [m for m in meetings if not m.get("date")]
+
+    sections = []
+
+    if pending:
+        names = ", ".join(m.get("flyer_filename", "a flyer") for m in pending)
+        sections.append(
+            '<section class="thes__section thes__section--tint">\n'
+            '  <div class="thes__wrap">\n'
+            f'    <p class="thes__committees-note">{len(pending)} new meeting flyer'
+            f'{"s" if len(pending) != 1 else ""} ({names}) '
+            "need review before showing up here with real details.</p>\n"
+            "  </div>\n"
+            "</section>"
+        )
+
+    if not reviewed:
+        return "\n\n".join(sections) if sections else (TEMPLATES / "pta-meetings-empty.html.tmpl").read_text()
+
+    ordered = sorted(reviewed, key=lambda m: m["date"], reverse=True)
+    latest, rest = ordered[0], ordered[1:]
+
+    sections.append(
+        '<section class="thes__section">\n'
+        '  <div class="thes__wrap thes__meetings-featured-wrap">\n'
+        f"{indent(render_featured_pta_meeting(latest, context), 4)}\n"
+        "  </div>\n"
+        "</section>"
+    )
+
+    if rest:
+        by_year = {}
+        for m in rest:
+            by_year.setdefault(compute_school_year(m["date"]), []).append(m)
+
+        year_blocks = []
+        for i, year in enumerate(sorted(by_year.keys(), reverse=True)):
+            cards = "\n".join(indent(render_pta_meeting_card(m, context), 8) for m in by_year[year])
+            open_attr = " open" if i == 0 else ""
+            year_blocks.append(
+                f'<details class="thes__year-group"{open_attr}>\n'
+                f"  <summary>{year}</summary>\n"
+                '  <div class="thes__meeting-grid">\n'
+                f"{cards}\n"
+                "  </div>\n"
+                "</details>"
+            )
+
+        sections.append(
+            '<section class="thes__section thes__section--tint">\n'
+            '  <div class="thes__wrap">\n'
+            '    <div class="thes__section-head">\n'
+            "      <h2>Past Meetings</h2>\n"
+            "      <p>Browse previous meetings by school year.</p>\n"
+            "    </div>\n"
+            f"{indent(chr(10).join(year_blocks), 4)}\n"
+            "  </div>\n"
+            "</section>"
+        )
+
+    return "\n\n".join(sections)
+
+
 def build_analytics_snippet(ga_id):
     """Google Analytics 4's standard gtag.js snippet for config/site.json's
     `google_analytics_id`, placed immediately after <head> opens on every
@@ -805,6 +963,7 @@ PAGE_TITLES = {
     "before-after-school-programs.html": "Before & After School Programs",
     "shop.html": "Shop",
     "fundraising.html": "Ways to Give",
+    "pta-meetings.html": "PTA Meetings",
 }
 
 
@@ -856,6 +1015,7 @@ def main():
         afterschool_programs_section = build_afterschool_programs_section(
             load_json("afterschool-programs.json", default=[]), context
         )
+        pta_meetings_section = build_pta_meetings_section(load_json("pta-meetings.json", default=[]), context)
 
         shared_markers = {
             "{{TOKENS}}": tokens,
@@ -868,6 +1028,7 @@ def main():
             "{{COMMITTEES_SECTION}}": committees_section,
             "{{AFTERSCHOOL_PROGRAMS_SECTION}}": afterschool_programs_section,
             "{{FUNDRAISING_SECTIONS}}": fundraising_section,
+            "{{PTA_MEETINGS_SECTION}}": pta_meetings_section,
         }
 
         page_context = context

@@ -5,15 +5,16 @@
 # one-time systemd install steps.
 #
 # This replaced a previous setup with one systemd timer per content
-# type (scripts/afterschool-review/, now removed): the two skills'
+# type (scripts/afterschool-review/, now removed): each flyer type's
 # actual review logic is genuinely different (different config schemas,
-# and fundraisers need reprint-vs-new-campaign judgment afterschool
-# programs don't), so each kept its own skill file — but the systemd
-# plumbing around them (timer, service, install/uninstall) was
+# fundraisers need reprint-vs-new-campaign judgment, PTA meetings need
+# to never guess a date) so each kept its own skill file — but the
+# systemd plumbing around them (timer, service, install/uninstall) was
 # identical boilerplate, so that layer is merged into this one script
-# instead of copy-pasted per content type. Adding a third flyer-backed
-# content type later means adding one more `run_skill` line below, not
-# a whole new service/timer/install.sh trio.
+# instead of copy-pasted per content type. A fourth flyer-backed content
+# type means one more `run_skill` line below, not a whole new
+# service/timer/install.sh trio — already proven twice (fundraisers,
+# then PTA meetings).
 #
 # All the actual task logic for each skill lives in its own
 # .claude/skills/<name>/SKILL.md, not here or in a separate prompt
@@ -53,5 +54,6 @@ run_skill() {
 
 run_skill "review-afterschool-flyers"
 run_skill "review-fundraiser-flyers"
+run_skill "review-pta-meeting-flyers"
 
 echo "flyer-review: log written to $LOG_FILE"

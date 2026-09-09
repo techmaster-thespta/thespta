@@ -417,6 +417,26 @@
   .thes__fund-dates li { font-size: 0.88rem; color: var(--text); padding-top: 10px; border-top: 1px solid var(--border); }
   .thes__fund-dates li:first-child { padding-top: 0; border-top: none; }
   .thes__fund-date-note { margin: 4px 0 0; color: var(--text-muted); font-size: 0.82rem; }
+
+  /* ---- PTA Meetings ---- */
+  /* Constrains the reused .thes__featured-event card's width on this
+     page — on the Home page it naturally gets one column's worth of
+     width from the events grid it sits in; here it would otherwise
+     stretch to the full .thes__wrap width with nothing to share the
+     row with. */
+  .thes__meetings-featured-wrap { max-width: 480px; }
+  .thes__meeting-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .thes__meeting-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .thes__meeting-card h4 { font-size: 1rem; margin: 0; }
+  .thes__meeting-card > p { margin: 0; color: var(--text-muted); font-size: 0.88rem; }
+  .thes__meeting-date { font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--teal); }
+  .thes__meeting-card .thes__btn { margin-top: auto; width: fit-content; }
+  .thes__year-group { margin-bottom: 18px; }
+  .thes__year-group:last-child { margin-bottom: 0; }
+  .thes__year-group summary { cursor: pointer; font-weight: 700; font-size: 1.05rem; color: var(--navy); list-style: none; padding: 4px 0; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
+  .thes__year-group summary::-webkit-details-marker { display: none; }
+  .thes__year-group summary::after { content: "\002B"; margin-left: 8px; color: var(--teal); }
+  .thes__year-group[open] summary::after { content: "\2212"; }
   .thes__committee-more { margin-top: 4px; }
   .thes__committee-more summary { cursor: pointer; font-weight: 700; font-size: 0.86rem; color: var(--teal); list-style: none; }
   .thes__committee-more summary::-webkit-details-marker { display: none; }
@@ -460,6 +480,7 @@
 <li class="thes__nav-item"><a href="about.html">About</a></li>
 <li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="get-involved.html">Get Involved</a><button type="button" class="thes__nav-caret" aria-label="Show Get Involved submenu" aria-expanded="false" aria-controls="thes-submenu-2"></button></span><ul class="thes__nav-submenu" id="thes-submenu-2"><li><a href="get-involved/committees.html">Committees</a></li></ul></li>
 <li class="thes__nav-item"><a href="events.html">Events</a></li>
+<li class="thes__nav-item"><a href="pta-meetings.html">PTA Meetings</a></li>
 <li class="thes__nav-item"><a href="before-after-school-programs.html">Before & After School</a></li>
 <li class="thes__nav-item"><a href="newsletter.html">THES Happenings</a></li>
 <li class="thes__nav-item"><a href="shop.html">Shop</a></li>
@@ -556,9 +577,9 @@
   
       </div>
       <div class="thes__board-member">
-        <div class="thes__board-photo-placeholder" aria-hidden="true"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 4-7 8-7s8 2.5 8 7"/></svg></div>
+        <img class="thes__board-photo" src="images/board-ivan-torres-negron.jpg" alt="Ivan Torres-Negron">
         <div class="thes__board-role">2nd Vice President & Fundraising Committee Chair</div>
-        <div class="thes__board-name">Vacant</div>
+        <div class="thes__board-name">Ivan Torres-Negron</div>
   
       </div>
       <div class="thes__board-member">
@@ -586,9 +607,9 @@
   
       </div>
       <div class="thes__board-member">
-        <div class="thes__board-photo-placeholder" aria-hidden="true"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 4-7 8-7s8 2.5 8 7"/></svg></div>
+        <img class="thes__board-photo" src="images/board-marianna-boyd.jpg" alt="Marianna Boyd">
         <div class="thes__board-role">PTACHC Representative</div>
-        <div class="thes__board-name">Vacant</div>
+        <div class="thes__board-name">Marianna Boyd</div>
   
       </div>
       </div>

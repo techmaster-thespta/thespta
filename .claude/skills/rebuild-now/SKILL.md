@@ -25,16 +25,17 @@ only happens when this skill or the daily service runs it.
 
 ## Steps
 
-1. **Run the `review-afterschool-flyers` and `review-fundraiser-flyers`
-   skills first, before pushing anything else — don't wait for the
-   daily service.** Each checks its own config file for anything
-   flagged `needs_review` (from a flyer uploaded since the last review
-   ran), reads the actual flyer, and fills in the real details — merging
-   a reprinted fundraiser flyer into its existing campaign rather than
-   duplicating it; see each skill for its full process. If a skill finds
-   nothing to do, that's a normal, silent no-op — move on to step 2.
-   Anything either skill changes becomes part of the "local changes"
-   step 2 picks up and pushes.
+1. **Run the `review-afterschool-flyers`, `review-fundraiser-flyers`,
+   and `review-pta-meeting-flyers` skills first, before pushing anything
+   else — don't wait for the daily service.** Each checks its own config
+   file for anything flagged `needs_review` (from a flyer uploaded since
+   the last review ran), reads the actual flyer, and fills in the real
+   details — merging a reprinted fundraiser flyer into its existing
+   campaign rather than duplicating it, or filling in a PTA meeting's
+   real date/title/highlights without ever guessing a date; see each
+   skill for its full process. If a skill finds nothing to do, that's a
+   normal, silent no-op — move on to step 2. Anything any skill changes
+   becomes part of the "local changes" step 2 picks up and pushes.
 
 2. **Check for local changes:**
    ```bash
