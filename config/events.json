@@ -1,25 +1,10 @@
 [
   {
-    "day": "08",
-    "month": "Sep",
-    "title": "PTA MEETING",
-    "when": "5:00 \u2013 6:00 PM \u00b7 Online or Thunder Hill Elementary School Media Center",
-    "featured": true,
-    "attachments": [
-      {
-        "title": "202609-ptameeting.JPG",
-        "href": "https://drive.google.com/file/d/1Hm2nXZqfm64h28mC7ptzs0Owj-1rjUl6"
-      }
-    ],
-    "meet_href": "https://meet.google.com/ymb-cnec-qwr",
-    "description": "Meet other families, hear what\u2019s planned for the year, and discover ways to get involved! Hybrid option available. In Person: Thunder Hill Elementary School Media Center Join Virtually: Google Meet\u2026"
-  },
-  {
     "day": "28",
     "month": "Sep",
     "title": "PTA Restaurant Night Out Chick-fil-a",
     "when": "5:30 \u2013 7:30 PM",
-    "featured": false,
+    "featured": true,
     "attachments": [
       {
         "title": "202609-chickfila.JPG",
@@ -72,5 +57,12 @@
     "when": "5:00 \u2013 9:00 PM \u00b7 Chipotle Mexican Grill, 6181 Old Dobbin Ln, Columbia, MD 21045, USA",
     "featured": false,
     "description": "Support THES while you dine at Chipotle! Details on ordering to come."
+  },
+  {
+    "day": "17",
+    "month": "Dec",
+    "title": "Restaurant Night Out \u2014 BurgerFi",
+    "when": "11:00 AM \u2013 10:00 PM \u00b7 BurgerFi, 6181 Old Dobbin Ln, Columbia, MD 21045, USA",
+    "featured": false
   }
 ]
