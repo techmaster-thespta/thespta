@@ -784,6 +784,9 @@ def is_pta_meeting_event(event):
     return "pta" in title and "meeting" in title
 
 
+UPCOMING_PTA_MEETINGS_MAX = 3
+
+
 def build_upcoming_pta_meetings_section(events, context):
     """The top-of-page 'what's coming up' section on the PTA Meetings
     page — sourced live from the same synced config/events.json the
@@ -798,8 +801,12 @@ def build_upcoming_pta_meetings_section(events, context):
     row already used on the Events page, so a meeting that has, say, a
     Google Meet link on the calendar gets that button here too. ""
     when there's no upcoming PTA meeting on the calendar right now, same
-    empty-means-no-section pattern as everywhere else on the site."""
-    upcoming = [e for e in events if is_pta_meeting_event(e)]
+    empty-means-no-section pattern as everywhere else on the site.
+    Capped at UPCOMING_PTA_MEETINGS_MAX (3) — config/events.json is
+    already date-ascending (see scripts/sync_calendar_events.py), so
+    this is simply the next 3 chronologically, same capped-preview
+    pattern build_home_events_section uses."""
+    upcoming = [e for e in events if is_pta_meeting_event(e)][:UPCOMING_PTA_MEETINGS_MAX]
     if not upcoming:
         return ""
     row_tmpl = (TEMPLATES / "event-row.html.tmpl").read_text()
