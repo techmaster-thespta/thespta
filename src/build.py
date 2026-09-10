@@ -339,6 +339,37 @@ def with_event_extras(event):
     }
 
 
+def build_welcome_video_section(site):
+    """Optional 'welcome video' section on the Home page, right under
+    the hero banner — a responsive YouTube embed using the same
+    aspect-ratio-box position:absolute technique already vetted for the
+    Events page's calendar embed (.thes__cal-frame), just at true 16:9
+    instead of that one's taller ratio. youtube-nocookie.com (YouTube's
+    own privacy-enhanced embed domain) instead of youtube.com — no
+    functional difference, just fewer cookies set for a visitor who
+    never presses play. "" (no section) when config/site.json doesn't
+    set welcome_video_youtube_id, same empty-means-no-section pattern as
+    sponsors/flyers/every other optional content type on this site."""
+    video_id = site.get("welcome_video_youtube_id")
+    if not video_id:
+        return ""
+    return (
+        '<section class="thes__section">\n'
+        '  <div class="thes__wrap">\n'
+        '    <div class="thes__section-head">\n'
+        f'      <h2>Welcome to {site["school_short_name"]}!</h2>\n'
+        "    </div>\n"
+        '    <div class="thes__video-frame">\n'
+        f'      <iframe src="https://www.youtube-nocookie.com/embed/{video_id}" '
+        'title="Welcome video" loading="lazy" allowfullscreen '
+        'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; '
+        'picture-in-picture; web-share"></iframe>\n'
+        "    </div>\n"
+        "  </div>\n"
+        "</section>"
+    )
+
+
 def build_home_events_section(events, context):
     """Whole 'Upcoming Events' section on the Home page: one big featured
     event (first entry with "featured": true, or the first event) + the
@@ -1034,9 +1065,11 @@ def main():
     # supported nested pages at all.
     board_cards = build_board_cards()
     events = load_json("events.json", default=[])
+    site = load_json("site.json")
     committees_section = build_committees_section(
-        load_json("committees.json", default=[]), load_json("site.json")["volunteerForm"]
+        load_json("committees.json", default=[]), site["volunteerForm"]
     )
+    welcome_video_section = build_welcome_video_section(site)
 
     page_templates = sorted((TEMPLATES / "pages").rglob("*.html.tmpl"))
     if not page_templates:
@@ -1090,6 +1123,7 @@ def main():
             "{{SPONSORS_SECTION}}": sponsors_section,
             "{{FLYERS_SECTION}}": flyers_section,
             "{{COMMITTEES_SECTION}}": committees_section,
+            "{{WELCOME_VIDEO_SECTION}}": welcome_video_section,
             "{{AFTERSCHOOL_PROGRAMS_SECTION}}": afterschool_programs_section,
             "{{FUNDRAISING_SECTIONS}}": fundraising_section,
             "{{PTA_MEETINGS_SECTION}}": pta_meetings_section,

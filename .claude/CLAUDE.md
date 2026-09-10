@@ -84,9 +84,11 @@ config-only approach can't do it, rather than silently editing `src/`.
   template, following this same pattern.
 - **Mobile-safety**: every grid uses `auto-fit`/`minmax(...)`, never a
   fixed multi-breakpoint layout. Avoid `position: absolute` outside the
-  three already-vetted uses (the header dropdown submenu, the page-header
-  fade overlay, the calendar iframe's aspect-ratio box). Avoid fixed pixel
-  widths on containers. A from-scratch redesign broke on mobile once
+  four already-vetted uses (the header dropdown submenu, the page-header
+  fade overlay, the calendar iframe's aspect-ratio box, the Home page
+  welcome video's aspect-ratio box — same technique as the calendar
+  embed, just at true 16:9). Avoid fixed pixel widths on containers.
+  A from-scratch redesign broke on mobile once
   already from ignoring this.
 - **Images live in `assets/images/` and are served directly by GitHub
   Pages** (`config/site.json` → `hero_image_filename` /
