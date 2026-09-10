@@ -66,6 +66,26 @@ jobs:
           find assets/images -maxdepth 1 -type f ! -name "*.md" -exec cp {} site/images/ \;
           cp -r assets/flyers/. site/flyers/
 
+      # This workflow file is pushed identically to techmaster-thespta/thespta
+      # (production) and techmaster-thespta/thespta-prestage (staging preview)
+      # — see docs/SOP.md and CLAUDE.md's "Staging" note. src/build.py has no
+      # way to know which one it's building for, so it always generates the
+      # real, production sitemap.xml/robots.txt/canonical URLs (correct for
+      # prod, and harmless — even helpful — left as-is on staging, since a
+      # canonical link pointing at the real domain tells a search engine
+      # which copy is authoritative if it ever finds both). What must differ
+      # is whether the copy actually being deployed is *allowed* to be
+      # indexed at all — so this step, gated on github.repository (set by
+      # GitHub Actions itself, not something either repo's own files
+      # control), overwrites robots.txt with a blanket disallow and stamps
+      # a noindex meta tag onto every page, but only when this exact same
+      # workflow file happens to be running inside the staging repo.
+      - name: Block search/AI indexing on the staging mirror
+        if: github.repository == 'techmaster-thespta/thespta-prestage'
+        run: |
+          printf 'User-agent: *\nDisallow: /\n' > site/robots.txt
+          find site -name '*.html' -exec sed -i 's#</head>#<meta name="robots" content="noindex, nofollow">\n</head>#' {} \;
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:

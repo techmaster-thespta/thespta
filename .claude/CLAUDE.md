@@ -260,6 +260,33 @@ never requires touching `header.html.tmpl` or `build.py`.
   (any MCP-compatible agent). Use whichever this session actually has —
   the skills describe `gh` commands as the reference implementation; an
   MCP-only agent should translate the same intent into MCP tool calls.
+- **SEO / AI-assistant discoverability** — `src/build.py`'s `main()`
+  generates, per page: a `<meta name="description">` from the
+  `PAGE_DESCRIPTIONS` dict (add an entry there for any new page — falls
+  back to the Home page's description if missing, rather than shipping
+  no description, but a real one is better), a `<link rel="canonical">`
+  and `sitemap.xml` entry built from `config/site.json`'s
+  `custom_domain`, and one shared `Organization` JSON-LD block
+  (`build_organization_jsonld`) built from `site.json`'s
+  name/address/email/social fields — this is what lets Google's
+  Knowledge Graph (and an AI assistant grounding an answer in search
+  results) resolve "Thunder Hill Elementary PTA" as a real, addressable
+  entity rather than just prose on a page. `robots.txt` explicitly
+  allows the wildcard plus several AI crawlers by name (GPTBot,
+  ClaudeBot, anthropic-ai, Google-Extended, PerplexityBot, CCBot) —
+  redundant with the wildcard `Allow: /`, but makes the intent to be
+  crawled by them legible at a glance. **This output is always the real,
+  production version, even when built inside the `thespta-prestage`
+  staging repo** — `src/build.py` has no notion of which repo it's
+  running in. What actually keeps staging out of search results is a
+  step in `deploy.yml`/`sync-events.yml` gated on GitHub Actions' own
+  `github.repository` context (`== 'techmaster-thespta/thespta-prestage'`),
+  which overwrites `robots.txt` with a blanket disallow and stamps a
+  `noindex` meta tag onto every page right before deploying — see the
+  "Staging" note at the top of this file and the comment on that step.
+  Don't try to make `src/build.py` itself repo-aware instead; the
+  workflow-level gate is what actually runs differently per repo despite
+  every other file being pushed identically to both.
 
 ## Adding a new modular content type
 

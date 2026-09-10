@@ -1042,6 +1042,46 @@ def build_analytics_snippet(ga_id):
     )
 
 
+def build_organization_jsonld(site):
+    """schema.org Organization structured data, embedded as JSON-LD on
+    every page — this is the machine-readable version of "who is this
+    website" that Google's Knowledge Graph and an AI assistant grounding
+    an answer in search results both look for, distinct from (and more
+    reliable than) either one inferring the same facts by reading prose.
+    Built from config/site.json's existing fields — nothing new to
+    maintain here if the address, email, or social links ever change.
+
+    address_line2 is free text ("Columbia, MD 21045") rather than
+    separate city/state/zip fields in config/site.json, since that's the
+    only place on the actual pages this address is ever split apart —
+    parsed best-effort here into addressLocality/addressRegion/
+    postalCode for schema.org's PostalAddress shape, falling back to
+    putting the whole line in addressLocality if it doesn't match the
+    expected "City, ST 12345" pattern rather than raising or guessing."""
+    address = {"@type": "PostalAddress", "streetAddress": site.get("address_line1", "")}
+    line2 = site.get("address_line2", "")
+    m = re.match(r"^\s*(.+?),\s*([A-Z]{2})\s+(\d{5}(?:-\d{4})?)\s*$", line2)
+    if m:
+        address["addressLocality"] = m.group(1)
+        address["addressRegion"] = m.group(2)
+        address["postalCode"] = m.group(3)
+    elif line2:
+        address["addressLocality"] = line2
+    address["addressCountry"] = "US"
+
+    data = {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": site.get("org_name", ""),
+        "url": f'https://{site["custom_domain"]}/',
+        "logo": f'https://{site["custom_domain"]}/images/{site["hero_image_filename"]}',
+        "email": site.get("email", ""),
+        "address": address,
+        "sameAs": [href for href in site.get("social", {}).values() if href],
+    }
+    return f'<script type="application/ld+json">{json.dumps(data)}</script>\n'
+
+
 def colorize_title_words(text):
     """Alternate each word's color between the site's dark text tone and
     teal — the same two-tone treatment already used in the home hero
@@ -1064,6 +1104,53 @@ PAGE_TITLES = {
     "pta-meetings.html": "PTA Meetings",
 }
 
+# One line per page for <meta name="description"> — this is the summary
+# a search engine (and an AI assistant grounding an answer in search
+# results) actually quotes back, so it's worth writing by hand rather
+# than deriving it from PAGE_TITLES. Falls back to the home page's own
+# description for any page not listed here (see main()) rather than
+# shipping a page with no description at all.
+PAGE_DESCRIPTIONS = {
+    "index.html": (
+        "The official website of the Thunder Hill Elementary PTA (THES PTA) in "
+        "Columbia, MD — events, PTA meetings, volunteering, and fundraising, all "
+        "in one place."
+    ),
+    "about.html": (
+        "Meet the Thunder Hill Elementary PTA Executive Board and learn about our "
+        "mission to support students, staff, and families at THES."
+    ),
+    "get-involved.html": (
+        "Volunteer opportunities, committees, and membership information for the "
+        "Thunder Hill Elementary PTA — find out how to get involved at THES."
+    ),
+    "events.html": (
+        "See every upcoming Thunder Hill Elementary PTA event, synced live from "
+        "our calendar — meetings, fundraisers, and school-wide celebrations."
+    ),
+    "newsletter.html": (
+        "Read THES Happenings, the Thunder Hill Elementary PTA's newsletter, for "
+        "the latest news and updates from our school community."
+    ),
+    "get-involved/committees.html": (
+        "Browse Thunder Hill Elementary PTA committees and find the one that "
+        "matches your interests and availability."
+    ),
+    "before-after-school-programs.html": (
+        "Before and after school enrichment programs available at Thunder Hill "
+        "Elementary School, with schedules and pricing."
+    ),
+    "shop.html": "Shop Thunder Hill Elementary spirit wear and support the THES PTA.",
+    "fundraising.html": (
+        "Ways to give to the Thunder Hill Elementary PTA — membership, donations, "
+        "and fundraisers that support our students and teachers."
+    ),
+    "pta-meetings.html": (
+        "Highlights, agendas, and recaps from every Thunder Hill Elementary PTA "
+        "meeting, archived by school year."
+    ),
+}
+
 
 def main():
     # These don't depend on page depth (no internal page_urls/image
@@ -1077,6 +1164,7 @@ def main():
         load_json("committees.json", default=[]), site["volunteerForm"]
     )
     welcome_video_section = build_welcome_video_section(site)
+    organization_jsonld = build_organization_jsonld(site)
 
     page_templates = sorted((TEMPLATES / "pages").rglob("*.html.tmpl"))
     if not page_templates:
@@ -1084,6 +1172,7 @@ def main():
 
     PAGES_OUT.mkdir(exist_ok=True)
     context_by_depth = {}
+    built_page_names = []
 
     for tmpl_path in page_templates:
         rel = tmpl_path.relative_to(TEMPLATES / "pages")
@@ -1171,19 +1260,25 @@ def main():
         # "Committees", not "Get-Involved/Committees".
         page_title = "Home" if page_name == "index.html" else Path(page_name).stem.replace("-", " ").title()
         analytics_snippet = build_analytics_snippet(context.get("google_analytics_id", ""))
+        page_description = PAGE_DESCRIPTIONS.get(page_name, PAGE_DESCRIPTIONS["index.html"])
+        canonical_url = f'https://{site["custom_domain"]}/{"" if page_name == "index.html" else page_name}'
         text = (
             "<!DOCTYPE html>\n"
             '<html lang="en">\n<head>\n'
             f"{analytics_snippet}"
             '<meta charset="UTF-8">\n'
             '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+            f'<meta name="description" content="{page_description}">\n'
+            f'<link rel="canonical" href="{canonical_url}">\n'
             f"<title>{context.get('org_name', '')} — {page_title}</title>\n"
+            f"{organization_jsonld}"
             f"</head>\n<body>\n{text}\n</body>\n</html>\n"
         )
 
         out_path = PAGES_OUT / page_name
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(text)
+        built_page_names.append(page_name)
         print(f"  built {out_path.relative_to(ROOT)}")
 
     # GitHub Pages' custom-domain feature reads a plain-text CNAME file
@@ -1197,6 +1292,66 @@ def main():
     if custom_domain:
         (PAGES_OUT / "CNAME").write_text(custom_domain + "\n")
         print(f"  built {(PAGES_OUT / 'CNAME').relative_to(ROOT)} ({custom_domain})")
+
+    # sitemap.xml + robots.txt, generated from the same page list every
+    # other per-page thing above was built from — same "never hand-
+    # maintain a thing that can drift" reasoning as the CNAME file just
+    # above. This deliberately always writes the *real* domain and an
+    # allow-everything robots.txt, correct for production; the staging
+    # mirror (thespta-prestage) overwrites robots.txt with a blanket
+    # disallow in its own deploy.yml, right before the deploy step — see
+    # that workflow file for why staging must never be indexed even
+    # though it's built from this exact same code.
+    if custom_domain:
+        sitemap_urls = "\n".join(
+            f"  <url><loc>https://{custom_domain}/{'' if name == 'index.html' else name}</loc></url>"
+            for name in built_page_names
+        )
+        sitemap = (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+            f"{sitemap_urls}\n"
+            "</urlset>\n"
+        )
+        (PAGES_OUT / "sitemap.xml").write_text(sitemap)
+        print(f"  built {(PAGES_OUT / 'sitemap.xml').relative_to(ROOT)} ({len(built_page_names)} URLs)")
+
+        # Explicitly naming the AI-assistant crawlers alongside the
+        # wildcard is redundant with "User-agent: *" but deliberate: it
+        # makes it obvious at a glance (to a human reading this file, or
+        # to a platform that greps robots.txt for its own bot's name
+        # specifically) that this site was intentionally opened up to
+        # them, not just left at whatever the wildcard default happened
+        # to allow.
+        robots_txt = (
+            "User-agent: *\n"
+            "Allow: /\n"
+            "\n"
+            "User-agent: GPTBot\n"
+            "Allow: /\n"
+            "\n"
+            "User-agent: ChatGPT-User\n"
+            "Allow: /\n"
+            "\n"
+            "User-agent: ClaudeBot\n"
+            "Allow: /\n"
+            "\n"
+            "User-agent: anthropic-ai\n"
+            "Allow: /\n"
+            "\n"
+            "User-agent: Google-Extended\n"
+            "Allow: /\n"
+            "\n"
+            "User-agent: PerplexityBot\n"
+            "Allow: /\n"
+            "\n"
+            "User-agent: CCBot\n"
+            "Allow: /\n"
+            "\n"
+            f"Sitemap: https://{custom_domain}/sitemap.xml\n"
+        )
+        (PAGES_OUT / "robots.txt").write_text(robots_txt)
+        print(f"  built {(PAGES_OUT / 'robots.txt').relative_to(ROOT)}")
 
     print(f"\nDone — {len(page_templates)} pages written to /pages.")
     print("Push to main to deploy — GitHub Actions rebuilds, validates, and redeploys to GitHub Pages automatically.")

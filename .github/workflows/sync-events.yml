@@ -83,6 +83,17 @@ jobs:
           cp -r pages/. site/
           find assets/images -maxdepth 1 -type f ! -name "*.md" -exec cp {} site/images/ \;
 
+      # See the identical step in deploy.yml for why this is gated on
+      # github.repository rather than living in per-repo config: this
+      # workflow file is pushed identically to both the production and
+      # staging repos, and only the staging one should ever end up
+      # indexable.
+      - name: Block search/AI indexing on the staging mirror
+        if: steps.diff.outputs.changed == 'true' && github.repository == 'techmaster-thespta/thespta-prestage'
+        run: |
+          printf 'User-agent: *\nDisallow: /\n' > site/robots.txt
+          find site -name '*.html' -exec sed -i 's#</head>#<meta name="robots" content="noindex, nofollow">\n</head>#' {} \;
+
       - name: Upload Pages artifact
         if: steps.diff.outputs.changed == 'true'
         uses: actions/upload-pages-artifact@v5
