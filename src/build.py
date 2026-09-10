@@ -347,9 +347,16 @@ def build_welcome_video_section(site):
     instead of that one's taller ratio. youtube-nocookie.com (YouTube's
     own privacy-enhanced embed domain) instead of youtube.com — no
     functional difference, just fewer cookies set for a visitor who
-    never presses play. "" (no section) when config/site.json doesn't
-    set welcome_video_youtube_id, same empty-means-no-section pattern as
-    sponsors/flyers/every other optional content type on this site."""
+    never presses play. `?rel=0` on the embed URL stops YouTube's
+    end-of-video "related videos" panel from pulling in unrelated videos
+    from across all of YouTube — confirmed live: without it, a visitor
+    who let the PTA's welcome video finish saw an end screen full of
+    other channels' thumbnails with unrelated (and not all
+    kid-appropriate) titles, which is obviously not something the PTA
+    wants surfaced under its own welcome video. "" (no section) when
+    config/site.json doesn't set welcome_video_youtube_id, same
+    empty-means-no-section pattern as sponsors/flyers/every other
+    optional content type on this site."""
     video_id = site.get("welcome_video_youtube_id")
     if not video_id:
         return ""
@@ -360,7 +367,7 @@ def build_welcome_video_section(site):
         f'      <h2>Welcome to {site["school_short_name"]}!</h2>\n'
         "    </div>\n"
         '    <div class="thes__video-frame">\n'
-        f'      <iframe src="https://www.youtube-nocookie.com/embed/{video_id}" '
+        f'      <iframe src="https://www.youtube-nocookie.com/embed/{video_id}?rel=0" '
         'title="Welcome video" loading="lazy" allowfullscreen '
         'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; '
         'picture-in-picture; web-share"></iframe>\n'
