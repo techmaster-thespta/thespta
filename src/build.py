@@ -1042,6 +1042,18 @@ def build_analytics_snippet(ga_id):
     )
 
 
+def build_umami_snippet(website_id):
+    """Umami Cloud's standard tracking snippet for config/site.json's
+    `umami_website_id`, run alongside (not instead of) Google Analytics —
+    they're independent script tags with no interaction, so both can
+    track the same visitor with no conflict. Returns "" (no script at
+    all) when blank, same empty-means-off pattern as
+    build_analytics_snippet."""
+    if not website_id or website_id == "None":
+        return ""
+    return f'<script defer src="https://cloud.umami.is/script.js" data-website-id="{website_id}"></script>\n'
+
+
 def build_organization_jsonld(site):
     """schema.org Organization structured data, embedded as JSON-LD on
     every page — this is the machine-readable version of "who is this
@@ -1260,6 +1272,7 @@ def main():
         # "Committees", not "Get-Involved/Committees".
         page_title = "Home" if page_name == "index.html" else Path(page_name).stem.replace("-", " ").title()
         analytics_snippet = build_analytics_snippet(context.get("google_analytics_id", ""))
+        analytics_snippet += build_umami_snippet(context.get("umami_website_id", ""))
         page_description = PAGE_DESCRIPTIONS.get(page_name, PAGE_DESCRIPTIONS["index.html"])
         canonical_url = f'https://{site["custom_domain"]}/{"" if page_name == "index.html" else page_name}'
         text = (
