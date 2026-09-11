@@ -42,6 +42,7 @@
   "nav": [
     { "label": "Home", "page_url": "home" },
     { "label": "About", "page_url": "about" },
+    { "label": "Ways to Give", "page_url": "fundraising" },
     { "label": "Get Involved", "page_url": "get_involved", "children": [
       { "label": "Committees", "page_url": "committees" }
     ] },
@@ -52,8 +53,7 @@
       { "label": "Special Education & Family Support", "page_url": "special_education_family_support" }
     ] },
     { "label": "THES Happenings", "page_url": "newsletter" },
-    { "label": "Shop", "page_url": "shop" },
-    { "label": "Ways to Give", "page_url": "fundraising" }
+    { "label": "Shop", "page_url": "shop" }
   ],
   "volunteerForm": {
     "baseUrl": "https://docs.google.com/forms/d/e/1FAIpQLSedGcSFvc4gYfGj4rX6_u7Sn1Bkstcc-mPg8WEIv8dbKNKvpw/viewform",
