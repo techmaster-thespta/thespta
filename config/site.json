@@ -36,7 +36,8 @@
     "fundraising": "fundraising",
     "pta_meetings": "pta-meetings",
     "family_support_resources": "family-support-resources",
-    "special_education_family_support": "family-support-resources/special-education-family-support"
+    "special_education_family_support": "family-support-resources/special-education-family-support",
+    "hcpss_handbook": "family-support-resources/student-parent-handbook"
   },
   "nav": [
     { "label": "Home", "page_url": "home" },

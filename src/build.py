@@ -839,6 +839,38 @@ def compute_school_year(date_str):
 UPCOMING_PTA_MEETINGS_MAX = 3
 
 
+def build_hcpss_events_section(events, context):
+    """The "Upcoming Events" list at the top of the Special Education &
+    Family Support page, above its live calendar embed — sourced from
+    config/hcpss-family-events.json, synced from HCPSS's own Special
+    Education Parent & Guardian Calendar (scripts/sync_hcpss_calendar.py)
+    — a completely separate calendar from the PTA's own
+    config/events.json, already capped to the next 3 occurrences at
+    generation time (no redundant re-capping here — same
+    trust-the-generator approach the Events page takes with
+    config/events.json). Reuses event-row.html.tmpl as-is, same as the
+    Events page and the PTA Meetings page's own "Upcoming" section. ""
+    when HCPSS's calendar has nothing upcoming right now, same
+    empty-means-no-section pattern as everywhere else on the site."""
+    if not events:
+        return ""
+    row_tmpl = (TEMPLATES / "event-row.html.tmpl").read_text()
+    rows = "\n".join(indent(render(row_tmpl, {**context, **with_event_extras(e)}), 6) for e in events)
+    return (
+        '<section class="thes__section thes__section--tint">\n'
+        '  <div class="thes__wrap">\n'
+        '    <div class="thes__section-head">\n'
+        "      <h2>Upcoming Events</h2>\n"
+        "      <p>The next few workshops and events on HCPSS's calendar.</p>\n"
+        "    </div>\n"
+        '    <div class="thes__event-list">\n'
+        f"{rows}\n"
+        "    </div>\n"
+        "  </div>\n"
+        "</section>"
+    )
+
+
 def build_upcoming_pta_meetings_section(upcoming_meetings, context):
     """The top-of-page 'what's coming up' section on the PTA Meetings
     page — sourced live from config/pta-meeting-occurrences.json
@@ -1140,6 +1172,7 @@ PAGE_TITLES = {
     "pta-meetings.html": "PTA Meetings",
     "family-support-resources.html": "Family Support Resources",
     "family-support-resources/special-education-family-support.html": "Special Education & Family Support",
+    "family-support-resources/student-parent-handbook.html": "HCPSS Student & Parent Handbook",
 }
 
 # One line per page for <meta name="description"> — this is the summary
@@ -1196,6 +1229,10 @@ PAGE_DESCRIPTIONS = {
         "Support and Resource Center — events and workshops for families of "
         "students with an IEP/IFSP."
     ),
+    "family-support-resources/student-parent-handbook.html": (
+        "HCPSS's Student and Parent Handbook — school system practices, "
+        "policies, and support services for every Howard County family."
+    ),
 }
 
 
@@ -1206,6 +1243,7 @@ def main():
     # supported nested pages at all.
     board_cards = build_board_cards()
     events = load_json("events.json", default=[])
+    hcpss_events = load_json("hcpss-family-events.json", default=[])
     site = load_json("site.json")
     committees_section = build_committees_section(
         load_json("committees.json", default=[]), site["volunteerForm"]
@@ -1259,6 +1297,7 @@ def main():
         family_support_resources_section = build_family_support_resources_section(
             load_json("family-support-resources.json", default=[]), context
         )
+        hcpss_events_section = build_hcpss_events_section(hcpss_events, context)
 
         shared_markers = {
             "{{TOKENS}}": tokens,
@@ -1274,6 +1313,7 @@ def main():
             "{{FUNDRAISING_SECTIONS}}": fundraising_section,
             "{{PTA_MEETINGS_SECTION}}": pta_meetings_section,
             "{{FAMILY_SUPPORT_RESOURCES_SECTION}}": family_support_resources_section,
+            "{{HCPSS_EVENTS_SECTION}}": hcpss_events_section,
         }
 
         page_context = context

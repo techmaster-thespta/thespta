@@ -1,0 +1,32 @@
+[
+  {
+    "day": "12",
+    "month": "Sep",
+    "title": "FAMILY YOGA",
+    "when": "11:00 AM \u2013 12:00 PM",
+    "featured": true,
+    "description": "FAMILY YOGA Saturday September 12, 2026 11:00 a.m. See registration for a different location each month Share quality time with your loved ones in this beginner-friendly yoga class. Yvonne will lead\u2026"
+  },
+  {
+    "day": "12",
+    "month": "Sep",
+    "title": "DSAMD IMPROV",
+    "when": "12:00 \u2013 1:00 PM",
+    "featured": false,
+    "attachments": [
+      {
+        "title": "Notes - DSAMD IMPROV",
+        "href": "https://docs.google.com/document/d/1PCdifznT6I18QagQc5Rv3vNHg4mYZ-D1EbcCsKVWTfU/edit"
+      }
+    ],
+    "description": "DSAMD IMPROV Saturday, September 12, 2026 12:00 a.m. See registration for a different location each month DSAmd Improv emphasizes inclusivity and often tailors its techniques to suit individuals with\u2026"
+  },
+  {
+    "day": "14",
+    "month": "Sep",
+    "title": "PARENT SUPPORT GROUP FOR PARENTS AND CAREGIVERS OF SCHOOL-AGED KIDS WITH BEHAVIORAL HEALTH CONCERNS (NO DIAGNOSIS REQUIRED)",
+    "when": "7:30 \u2013 9:00 PM",
+    "featured": false,
+    "description": "PARENT SUPPORT GROUP FOR PARENTS AND CAREGIVERS OF SCHOOL-AGED KIDS WITH BEHAVIORAL HEALTH CONCERNS (NO DIAGNOSIS REQUIRED) Monday, March 9, 2020 7:30-9:00pm Virtual This group meets the second\u2026"
+  }
+]

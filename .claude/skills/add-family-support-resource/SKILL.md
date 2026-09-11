@@ -50,11 +50,13 @@ Order in the file is display order (grid, left-to-right/top-to-bottom).
 
 ## Adding a resource that needs its own page
 
-The HCPSS Special Education Parent & Guardian Calendar
-(`src/templates/pages/family-support-resources/special-education-family-support.html.tmpl`)
-is the reference example: a resource substantial enough to deserve a
-full page (a live calendar embed, reference links) rather than just a
-card linking out. This is a `src/` change:
+Two reference examples, both substantial enough to deserve a full page
+rather than just a card linking out:
+`family-support-resources/special-education-family-support.html.tmpl`
+(a live calendar embed synced by `scripts/sync_hcpss_calendar.py`, plus
+reference links) and `family-support-resources/student-parent-handbook.html.tmpl`
+(a real summary written from HCPSS's own handbook page, plus a link
+out to it — no calendar, just static content). This is a `src/` change:
 
 1. Add a nested page template under `src/templates/pages/family-support-resources/`.
 2. Add its slug to `config/site.json`'s `page_urls` (e.g. `"special_education_family_support": "family-support-resources/special-education-family-support"`).

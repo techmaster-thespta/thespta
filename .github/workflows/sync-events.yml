@@ -14,9 +14,11 @@ name: Sync events from Google Calendar
 #
 # To avoid redeploying every single hour when the calendar hasn't
 # actually changed, everything past the sync step is skipped unless
-# config/events.json or config/pta-meeting-occurrences.json actually
-# differs — the two can diverge (e.g. a PTA meeting rolls into or out of
-# its own longer lookahead window without any other event changing).
+# config/events.json, config/pta-meeting-occurrences.json, or
+# config/hcpss-family-events.json actually differs — the three can
+# diverge independently (e.g. a PTA meeting rolls into or out of its own
+# longer lookahead window, or HCPSS's separate calendar changes, without
+# any other event changing).
 
 on:
   schedule:
@@ -50,10 +52,13 @@ jobs:
       - name: Sync events from Google Calendar
         run: python3 scripts/sync_calendar_events.py
 
+      - name: Sync events from the HCPSS Special Education calendar
+        run: python3 scripts/sync_hcpss_calendar.py
+
       - name: Check whether the calendar actually changed anything
         id: diff
         run: |
-          if git diff --quiet -- config/events.json config/pta-meeting-occurrences.json; then
+          if git diff --quiet -- config/events.json config/pta-meeting-occurrences.json config/hcpss-family-events.json; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -72,7 +77,7 @@ jobs:
         run: |
           git config user.name "thespta-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add config/events.json config/pta-meeting-occurrences.json pages/
+          git add config/events.json config/pta-meeting-occurrences.json config/hcpss-family-events.json pages/
           git commit -m "chore: sync events from calendar, regenerate pages [skip ci]"
           git push
 

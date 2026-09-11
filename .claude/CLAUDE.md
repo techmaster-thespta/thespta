@@ -236,6 +236,23 @@ never requires touching `header.html.tmpl` or `build.py`.
   further out than the general highlights window. Run by
   `.github/workflows/sync-events.yml` (hourly) and by `deploy.yml` (every
   push/manual run). See `docs/SOP.md` Task 4.
+- `scripts/sync_hcpss_calendar.py` — a second, independent calendar
+  sync, for a completely different calendar owned by Howard County
+  Public School System (not the PTA): the Special Education Parent &
+  Guardian Calendar shown on the Special Education & Family Support
+  page. Writes `config/hcpss-family-events.json` (the next 3
+  occurrences, for that page's "Upcoming Events" list above its live
+  calendar embed) by reusing `sync_calendar_events.py`'s generic
+  ICS-parsing functions directly (`import`ed — none of that parsing is
+  actually PTA-specific) rather than duplicating them, with its own
+  calendar id and event cap. One real wrinkle handled here and nowhere
+  else: HCPSS's calendar Descriptions contain literal embedded HTML
+  (`<span>`/`<p>` tags) — confirmed empirically — unlike the PTA's own
+  plain-text ones, so this script strips tags down to plain text before
+  handing descriptions off to the shared `build_events_json`, since
+  `render_event_description` in `src/build.py` inserts a Description
+  unescaped. Run by the same two workflows as `sync_calendar_events.py`,
+  right alongside it.
 - `scripts/sync_afterschool_flyers.py` / `scripts/sync_fundraiser_flyers.py`
   — reconcile `config/afterschool-programs.json` /
   `config/fundraisers.json` against whatever's actually in
