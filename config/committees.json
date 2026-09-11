@@ -35,8 +35,8 @@
   {
     "name": "Fundraising",
     "slug": "fundraising",
-    "status": "chair-needed",
-    "chair": null,
+    "status": "members-welcome",
+    "chair": "Ivan Torres-Negron",
     "description": "Help organize fundraising initiatives such as restaurant nights, spirit wear, Fun Run, Holiday Market, and Parent's Night Out.",
     "activities": [
       "Restaurant nights",
@@ -137,7 +137,7 @@
     "name": "After-School Programs",
     "slug": "after-school-programs",
     "status": "members-welcome",
-    "chair": "Amy Sontag",
+    "chair": "Amy Fleming",
     "description": "Help coordinate enriching extracurricular and after-school opportunities for Thunder Hill students.",
     "activities": [
       "Coordinating after-school programs",
