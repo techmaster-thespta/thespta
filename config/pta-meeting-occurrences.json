@@ -1,10 +1,19 @@
 [
   {
+    "day": "23",
+    "month": "Sep",
+    "title": "PTA Meeting Events Commitie",
+    "when": "7:00 \u2013 8:00 PM",
+    "featured": true,
+    "meet_href": "https://meet.google.com/bnd-nwgt-xki",
+    "description": "Join us and help plan and coordinate memorable events for Thunder Hill students, families, and staff. Google meet link"
+  },
+  {
     "day": "05",
     "month": "Nov",
     "title": "THES PTA General Meeting",
     "when": "7:00 \u2013 8:00 PM \u00b7 Online",
-    "featured": true,
+    "featured": false,
     "description": "Join us throughout the school year! PTA meetings are a great way to stay informed, meet other families, and help make a difference in our Thunder Hill community. Everyone is welcome."
   },
   {

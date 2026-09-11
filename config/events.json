@@ -1,10 +1,19 @@
 [
   {
+    "day": "23",
+    "month": "Sep",
+    "title": "PTA Meeting Events Commitie",
+    "when": "7:00 \u2013 8:00 PM",
+    "featured": true,
+    "meet_href": "https://meet.google.com/bnd-nwgt-xki",
+    "description": "Join us and help plan and coordinate memorable events for Thunder Hill students, families, and staff. Google meet link"
+  },
+  {
     "day": "28",
     "month": "Sep",
     "title": "PTA Restaurant Night Out Chick-fil-a",
     "when": "5:30 \u2013 7:30 PM",
-    "featured": true,
+    "featured": false,
     "attachments": [
       {
         "title": "202609-chickfila.JPG",
@@ -57,12 +66,5 @@
     "when": "5:00 \u2013 9:00 PM \u00b7 Chipotle Mexican Grill, 6181 Old Dobbin Ln, Columbia, MD 21045, USA",
     "featured": false,
     "description": "Support THES while you dine at Chipotle! Details on ordering to come."
-  },
-  {
-    "day": "17",
-    "month": "Dec",
-    "title": "Restaurant Night Out \u2014 BurgerFi",
-    "when": "11:00 AM \u2013 10:00 PM \u00b7 BurgerFi, 6181 Old Dobbin Ln, Columbia, MD 21045, USA",
-    "featured": false
   }
 ]
