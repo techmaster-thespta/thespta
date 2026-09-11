@@ -34,7 +34,9 @@
     "afterschool_programs": "before-after-school-programs",
     "shop": "shop",
     "fundraising": "fundraising",
-    "pta_meetings": "pta-meetings"
+    "pta_meetings": "pta-meetings",
+    "family_support_resources": "family-support-resources",
+    "special_education_family_support": "family-support-resources/special-education-family-support"
   },
   "nav": [
     { "label": "Home", "page_url": "home" },
@@ -45,6 +47,9 @@
     { "label": "Events", "page_url": "events" },
     { "label": "PTA Meetings", "page_url": "pta_meetings" },
     { "label": "Before & After School", "page_url": "afterschool_programs" },
+    { "label": "Family Support Resources", "page_url": "family_support_resources", "children": [
+      { "label": "Special Education & Family Support", "page_url": "special_education_family_support" }
+    ] },
     { "label": "THES Happenings", "page_url": "newsletter" },
     { "label": "Shop", "page_url": "shop" },
     { "label": "Ways to Give", "page_url": "fundraising" }

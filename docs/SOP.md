@@ -494,6 +494,29 @@ up.
 
 ---
 
+## Task 5f — Add, remove, or edit a family support resource
+
+**File:** `config/family-support-resources.json` · **Skill:** `.claude/skills/add-family-support-resource/`
+
+`/family-support-resources` is a landing page of cards pointing to
+Howard County / community resources the PTA doesn't run itself —
+distinct from Events and PTA Meetings, which are both PTA-run. Most
+cards just link straight out to an external page; the first one
+(**Special Education & Family Support**) links to a page on this site
+instead, because it's substantial enough to warrant its own (a live
+HCPSS calendar embed plus reference links) — see
+`src/templates/pages/family-support-resources/special-education-family-support.html.tmpl`.
+That sub-page's calendar embed and reference links are HCPSS's own —
+nothing to sync or maintain; the calendar stays current on its own.
+
+A plain resource card (external link, or linking to a page that already
+exists) is config-only. Giving a *new* resource its own page is a
+`src/` change — see the skill file's "Adding a resource that needs its
+own page" section, and get sign-off first per `.claude/CLAUDE.md`'s
+"Adding a new modular content type" rule.
+
+---
+
 ## Task 6 — Change the banner photo, page header photo, or add a logo
 
 Images live in `assets/images/` in this repo and are served directly by

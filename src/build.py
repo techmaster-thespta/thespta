@@ -449,6 +449,30 @@ def build_optional_section(config_name, card_template_name, section_template_nam
     return render(section_tmpl, {**context, cards_key: cards})
 
 
+def build_family_support_resources_section(resources, context):
+    """The Family Support Resources landing page's card grid — same
+    empty-means-no-section shape as build_optional_section, but not
+    built with it directly: a resource card can link either to a page
+    on this site (config gives a `page_url` key, resolved through
+    `context` the same depth-aware way nav links are, so it works
+    correctly whether this page is at the site root or not — it isn't
+    right now, but build_optional_section's cards never resolve
+    anything through context at all, so reusing it as-is would silently
+    produce a broken relative link) or straight out to an external site
+    (config gives `href` instead, opened in a new tab)."""
+    if not resources:
+        return ""
+    card_tmpl = (TEMPLATES / "card-family-support-resource.html.tmpl").read_text()
+    cards = []
+    for r in resources:
+        internal = bool(r.get("page_url"))
+        href = context[f"page_urls.{r['page_url']}"] if internal else r.get("href", "")
+        link_target = "" if internal else ' target="_blank" rel="noopener"'
+        cards.append(indent(render(card_tmpl, {**r, "HREF": href, "LINK_TARGET": link_target}), 8))
+    section_tmpl = (TEMPLATES / "family-support-resources-section.html.tmpl").read_text()
+    return render(section_tmpl, {**context, "FAMILY_SUPPORT_RESOURCE_CARDS": "\n".join(cards)})
+
+
 COMMITTEE_STATUS_LABELS = {
     "chair-needed": "Chair Needed",
     "members-welcome": "Members Welcome",
@@ -1114,6 +1138,8 @@ PAGE_TITLES = {
     "shop.html": "Shop",
     "fundraising.html": "Ways to Give",
     "pta-meetings.html": "PTA Meetings",
+    "family-support-resources.html": "Family Support Resources",
+    "family-support-resources/special-education-family-support.html": "Special Education & Family Support",
 }
 
 # One line per page for <meta name="description"> — this is the summary
@@ -1160,6 +1186,15 @@ PAGE_DESCRIPTIONS = {
     "pta-meetings.html": (
         "Highlights, agendas, and recaps from every Thunder Hill Elementary PTA "
         "meeting, archived by school year."
+    ),
+    "family-support-resources.html": (
+        "Howard County and community resources for Thunder Hill Elementary "
+        "families, beyond what the PTA runs directly."
+    ),
+    "family-support-resources/special-education-family-support.html": (
+        "HCPSS's Special Education Parent & Guardian Calendar and Family "
+        "Support and Resource Center — events and workshops for families of "
+        "students with an IEP/IFSP."
     ),
 }
 
@@ -1221,6 +1256,9 @@ def main():
             load_json("pta-meeting-occurrences.json", default=[]),
             context,
         )
+        family_support_resources_section = build_family_support_resources_section(
+            load_json("family-support-resources.json", default=[]), context
+        )
 
         shared_markers = {
             "{{TOKENS}}": tokens,
@@ -1235,6 +1273,7 @@ def main():
             "{{AFTERSCHOOL_PROGRAMS_SECTION}}": afterschool_programs_section,
             "{{FUNDRAISING_SECTIONS}}": fundraising_section,
             "{{PTA_MEETINGS_SECTION}}": pta_meetings_section,
+            "{{FAMILY_SUPPORT_RESOURCES_SECTION}}": family_support_resources_section,
         }
 
         page_context = context
