@@ -37,6 +37,20 @@
     "description": "Support THES while you dine! Place your order using the Chick-fil-a app and support this fundraiser!"
   },
   {
+    "day": "03",
+    "month": "Oct",
+    "title": "Okland Mills Fall Fest",
+    "when": "11:00 AM \u2013 3:00 PM",
+    "featured": false,
+    "attachments": [
+      {
+        "title": "OklandMills-FallFest.PNG",
+        "href": "https://drive.google.com/file/d/1lGfTmX3Qln_3DlAw5pkBjRyCCM_HwyzU"
+      }
+    ],
+    "description": "\ud83c\udf42 Join THES PTA at the Oakland Mills Fall Festival on Saturday, October 3rd from 11 am - 3 pm (rain or shine)!   \ud83c\udf42 We will have a booth in the Children\u2019s Area with games and activities!!   \ud83c\udf42 It\u2019s a\u2026"
+  },
+  {
     "day": "13",
     "month": "Oct",
     "title": "Restaurant Night Out \u2014 Pupatella",
@@ -64,13 +78,5 @@
     ],
     "signup_href": "https://m.signupgenius.com/#!/showSignUp/10C084EA9A92BA2FCC70-64996490-thes?useFullSite=false",
     "description": "Fun for the whole family! See the flyer for more information! And sign up here!"
-  },
-  {
-    "day": "05",
-    "month": "Nov",
-    "title": "THES PTA General Meeting",
-    "when": "7:00 \u2013 8:00 PM \u00b7 Online",
-    "featured": false,
-    "description": "Join us throughout the school year! PTA meetings are a great way to stay informed, meet other families, and help make a difference in our Thunder Hill community. Everyone is welcome."
   }
 ]
