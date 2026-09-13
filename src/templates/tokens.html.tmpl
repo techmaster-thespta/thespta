@@ -339,7 +339,7 @@
   .thes__program-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
   .thes__program-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: grid; gap: 8px; align-content: start; min-width: 0; }
   .thes__program-card h3 { font-size: 1.02rem; }
-  .thes__program-card > p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+  .thes__program-card > p { margin: 0; color: var(--text-muted); font-size: 0.9rem; overflow-wrap: anywhere; }
   .thes__program-provider { font-weight: 700; color: var(--text) !important; }
   .thes__badge--age { background: var(--bg-tint); color: var(--navy); }
   .thes__badge--pta-sponsored { background: var(--teal-tint); color: var(--teal); }
@@ -351,8 +351,8 @@
   .thes__program-more summary::-webkit-details-marker { display: none; }
   .thes__program-more summary::after { content: "\002B"; margin-left: 6px; }
   .thes__program-more[open] summary::after { content: "\2212"; }
-  .thes__program-more-body { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: grid; gap: 8px; }
-  .thes__program-more-body p { margin: 0; color: var(--text-muted); font-size: 0.86rem; }
+  .thes__program-more-body { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: grid; gap: 8px; min-width: 0; }
+  .thes__program-more-body p { margin: 0; color: var(--text-muted); font-size: 0.86rem; overflow-wrap: anywhere; }
 
   /* ---- Committees (Get Involved > Committees) ---- */
   .thes__committees-note { max-width: 62ch; margin: 0 auto 32px; text-align: center; color: var(--text-muted); background: var(--bg-tint); border-radius: 12px; padding: 14px 20px; }
@@ -385,12 +385,12 @@
   .thes__fund-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
   .thes__fund-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: grid; gap: 8px; align-content: start; min-width: 0; }
   .thes__fund-card h3 { font-size: 1.05rem; margin-top: 2px; }
-  .thes__fund-card > p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+  .thes__fund-card > p { margin: 0; color: var(--text-muted); font-size: 0.9rem; overflow-wrap: anywhere; }
   .thes__badge--fund-recurring { background: var(--coral-tint); color: var(--coral); }
   .thes__badge--fund-seasonal { background: var(--yellow); color: var(--yellow-text); }
   .thes__badge--fund-annual { background: var(--teal-tint); color: var(--teal); }
   .thes__badge--fund-everyday { background: var(--bg-tint); color: var(--navy); }
-  .thes__fund-howto { margin: 0; color: var(--text-muted) !important; font-size: 0.84rem !important; }
+  .thes__fund-howto { margin: 0; color: var(--text-muted) !important; font-size: 0.84rem !important; overflow-wrap: anywhere; }
   .thes__fund-code { margin: 0; font-size: 0.84rem !important; color: var(--text) !important; }
   .thes__fund-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
   .thes__fund-card .thes__btn { margin-top: 0; }
@@ -423,8 +423,8 @@
   .thes__committee-more summary::-webkit-details-marker { display: none; }
   .thes__committee-more summary::after { content: "\002B"; margin-left: 6px; }
   .thes__committee-more[open] summary::after { content: "\2212"; }
-  .thes__committee-more-body { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: grid; gap: 8px; }
-  .thes__committee-more-body p { margin: 0; color: var(--text-muted); font-size: 0.86rem; }
+  .thes__committee-more-body { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: grid; gap: 8px; min-width: 0; }
+  .thes__committee-more-body p { margin: 0; color: var(--text-muted); font-size: 0.86rem; overflow-wrap: anywhere; }
   .thes__checklist-plain { list-style: disc; margin: 0; padding-left: 20px; display: grid; gap: 4px; color: var(--text-muted); font-size: 0.86rem; }
 
   /* ---- Calendar embed (Events page) ---- */
