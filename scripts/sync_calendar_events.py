@@ -29,9 +29,9 @@ occurrence whose title mentions "PTA" and "meeting" (see
 is_pta_meeting_title), for the "Upcoming PTA Meetings" section on the
 PTA Meetings page. This is a second, separate pass over the same
 parsed calendar — not just a filter over config/events.json — because
-events.json is deliberately capped to MAX_EVENTS (6) across ALL event
+events.json is deliberately capped to MAX_EVENTS (8) across ALL event
 types for the Home/Events page highlights, so a PTA meeting further out
-than the 6th nearest calendar-wide event would otherwise never surface
+than the 8th nearest calendar-wide event would otherwise never surface
 here at all even though it's genuinely coming up.
 
 A calendar shared as "public" (see docs/SOP.md Task 5) exposes a free,
@@ -73,7 +73,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CONFIG = ROOT / "config"
 
 LOOKAHEAD_DAYS = 180  # how far into the future to expand recurring events
-MAX_EVENTS = 6        # how many upcoming events to keep as highlights
+MAX_EVENTS = 8        # how many upcoming events to keep as highlights — matches src/build.py's EVENTS_PAGE_MAX, the Events page's own display cap
 
 # PTA meetings are roughly monthly but skip summer, so "the next 3" can sit
 # further out than LOOKAHEAD_DAYS — a meeting scheduled for next May can be
@@ -437,7 +437,7 @@ def main():
 
     # A separate, uncapped-by-MAX_EVENTS feed of just the PTA's own
     # meeting occurrences. Without this, a PTA meeting more than
-    # MAX_EVENTS (6) calendar-wide events away — easily true once a few
+    # MAX_EVENTS (8) calendar-wide events away — easily true once a few
     # restaurant nights and a fall festival are also on the calendar —
     # would silently never reach config/events.json at all, even though
     # it's well within LOOKAHEAD_DAYS. Caught for real: the calendar's

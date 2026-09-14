@@ -405,7 +405,7 @@ def build_home_events_section(events, context):
     return render(section_tmpl, {**context, "FEATURED_EVENT": featured_html, "MORE_EVENTS": more_rows})
 
 
-EVENTS_PAGE_MAX = 4
+EVENTS_PAGE_MAX = 8
 
 
 def build_events_page_section(events, context):
@@ -418,9 +418,9 @@ def build_events_page_section(events, context):
     here. The live calendar embed further down the page renders either
     way, regardless of this section.
 
-    Capped at EVENTS_PAGE_MAX (4) events — config/events.json is already
+    Capped at EVENTS_PAGE_MAX (8) events — config/events.json is already
     date-ascending (see scripts/sync_calendar_events.py), so this is
-    simply the next 4 chronologically. No "view more" link is needed for
+    simply the next 8 chronologically. No "view more" link is needed for
     anything beyond that: the live calendar embed further down this same
     page already shows everything."""
     section_tmpl = (TEMPLATES / "events-list-section.html.tmpl").read_text()

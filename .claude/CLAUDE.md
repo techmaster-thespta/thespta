@@ -231,8 +231,8 @@ never requires touching `header.html.tmpl` or `build.py`.
   parsed calendar (not a filter over `config/events.json`), every
   upcoming occurrence whose title mentions "PTA" and "meeting", for the
   PTA Meetings page's "Upcoming" section. It has to be separate: `events.json`
-  is capped at `MAX_EVENTS` (6) across every event type for the
-  Home/Events highlights, so a PTA meeting further out than the 6th
+  is capped at `MAX_EVENTS` (8) across every event type for the
+  Home/Events highlights, so a PTA meeting further out than the 8th
   nearest calendar-wide event would never reach a plain filter over
   `events.json` — this happened for real (a real Feb 2027 meeting was
   invisible on the page despite being well within the general lookahead
