@@ -130,15 +130,6 @@
   .thes__nav-submenu { display: none; list-style: none; margin: 0; padding: 8px 0; position: absolute; top: 100%; left: 0; min-width: 190px; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 24px rgba(7,59,104,0.12); z-index: 20; }
   .thes__nav-submenu a { display: block; padding: 8px 16px; }
   .thes__nav-submenu a:hover { background: var(--bg-tint); }
-  /* "You are here" nav state (see render_nav_items in build.py) — combined
-     with an element selector (0,2,1) rather than a bare .thes__nav-link--
-     current class alone (0,1,0), which would lose to `.thes a { color:
-     inherit; }` (0,1,1) — same reasoning as the .thes__btn--navy bug in
-     "Hard-won constraints" (CLAUDE.md). */
-  .thes__header-nav a.thes__nav-link--current,
-  .thes__header-nav .thes__nav-trigger.thes__nav-link--current { color: var(--teal); }
-  .thes__nav-submenu a.thes__nav-link--current { color: var(--teal); background: var(--bg-tint); }
-  .thes__nav-item--active > .thes__nav-item-row .thes__nav-caret::before { border-color: var(--teal); }
   .thes__menu-btn { display: none; background: none; border: none; padding: 0; font: inherit; }
   /* Visible at every width now (previously desktop hid it entirely and
      relied on :hover alone to reveal the submenu) — shows every
@@ -217,9 +208,6 @@
   .thes__pagehead { width: 100%; max-width: 1200px; margin: 0 auto; overflow: hidden; }
   .thes__pagehead-text { padding: 28px clamp(20px, 4vw, 48px); min-width: 0; }
   .thes__pagehead-text .thes__eyebrow { color: var(--teal); }
-  .thes__pagehead-text .thes__breadcrumb { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; }
-  .thes__pagehead-text .thes__breadcrumb a { font-weight: 700; text-decoration: none; }
-  .thes__pagehead-text .thes__breadcrumb a:hover { text-decoration: underline; }
   .thes__pagehead-text h1 { font-size: clamp(1.5rem, 4.4vw, 2.3rem); line-height: 1.15; margin-top: 6px; }
   /* Alternating word colors on page titles, matching the two-tone style
      already baked into the home hero image's headline. */
@@ -320,9 +308,8 @@
   .thes__more-events { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: grid; gap: 4px; align-content: start; min-width: 0; }
   .thes__more-events-row { display: flex; justify-content: space-between; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--border); }
   .thes__more-events-row:last-child { border-bottom: none; }
-  .thes__more-events-row > div { flex: 1; min-width: 0; }
-  .thes__more-events-row strong { font-size: 0.92rem; overflow-wrap: anywhere; }
-  .thes__more-events-row span { color: var(--text-muted); font-size: 0.84rem; flex-shrink: 0; width: 58px; text-align: right; }
+  .thes__more-events-row strong { font-size: 0.92rem; }
+  .thes__more-events-row span { color: var(--text-muted); font-size: 0.84rem; }
   .thes__more-events-signup { display: block; margin-top: 2px; font-weight: 700; font-size: 0.78rem; color: var(--teal); text-decoration: none; }
   .thes__more-events > a { margin-top: 8px; font-weight: 700; font-size: 0.86rem; color: var(--teal); text-decoration: none; }
 
@@ -430,19 +417,6 @@
   .thes__badge--fund-everyday { background: var(--bg-tint); color: var(--navy); }
   .thes__fund-howto { margin: 0; color: var(--text-muted) !important; font-size: 0.84rem !important; overflow-wrap: anywhere; }
   .thes__fund-code { margin: 0; font-size: 0.84rem !important; color: var(--text) !important; }
-
-  /* ---- Sponsorship tiers ---- */
-  .thes__sponsor-why { max-width: 480px; margin: 0 auto 32px; }
-  .thes__badge--tier-navy { background: var(--navy); color: #fff; }
-  .thes__badge--tier-yellow { background: var(--yellow); color: var(--yellow-text); }
-  .thes__badge--tier-silver { background: var(--bg-tint); color: var(--navy); }
-  .thes__badge--tier-coral { background: var(--coral); color: #fff; }
-  .thes__card .thes__btn { margin-top: 4px; }
-  .thes__card--placeholder { border-style: dashed; background: transparent; }
-  .thes__card--placeholder h3, .thes__card--placeholder p { color: var(--text-muted); }
-  .thes__form-embed { max-width: 640px; margin: 0 auto; }
-  .thes__form-embed iframe { width: 100%; border: none; display: block; }
-  .thes__form-embed-fallback { max-width: 48ch; margin: 16px auto 0; text-align: center; color: var(--text-muted); font-size: 0.9rem; }
   .thes__fund-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
   .thes__fund-card .thes__btn { margin-top: 0; }
   .thes__fund-dates { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
@@ -514,12 +488,12 @@
       <ul>
 <li class="thes__nav-item"><a href="index.html">Home</a></li>
 <li class="thes__nav-item"><a href="about.html">About</a></li>
-<li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="fundraising.html">Ways to Give</a><button type="button" class="thes__nav-caret" aria-label="Show Ways to Give submenu" aria-expanded="false" aria-controls="thes-submenu-2"></button></span><ul class="thes__nav-submenu" id="thes-submenu-2"><li><a href="become-a-sponsor.html">Become a Sponsor</a></li><li><a href="sponsors.html">Our Sponsors</a></li></ul></li>
+<li class="thes__nav-item"><a href="fundraising.html">Ways to Give</a></li>
 <li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="get-involved.html">Get Involved</a><button type="button" class="thes__nav-caret" aria-label="Show Get Involved submenu" aria-expanded="false" aria-controls="thes-submenu-3"></button></span><ul class="thes__nav-submenu" id="thes-submenu-3"><li><a href="get-involved/committees.html">Committees</a></li></ul></li>
-<li class="thes__nav-item thes__nav-item--active"><a href="events.html" class="thes__nav-link--current" aria-current="page">Events</a></li>
+<li class="thes__nav-item"><a href="events.html">Events</a></li>
 <li class="thes__nav-item"><a href="pta-meetings.html">PTA Meetings</a></li>
 <li class="thes__nav-item"><a href="before-after-school-programs.html">Before & After School</a></li>
-<li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="family-support-resources.html">Family Support Resources</a><button type="button" class="thes__nav-caret" aria-label="Show Family Support Resources submenu" aria-expanded="false" aria-controls="thes-submenu-7"></button></span><ul class="thes__nav-submenu" id="thes-submenu-7"><li><a href="family-support-resources/special-education-family-support.html">Special Education & Family Support</a></li><li><a href="family-support-resources/student-parent-handbook.html">HCPSS Student & Parent Handbook</a></li></ul></li>
+<li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="family-support-resources.html">Family Support Resources</a><button type="button" class="thes__nav-caret" aria-label="Show Family Support Resources submenu" aria-expanded="false" aria-controls="thes-submenu-7"></button></span><ul class="thes__nav-submenu" id="thes-submenu-7"><li><a href="family-support-resources/special-education-family-support.html">Special Education & Family Support</a></li></ul></li>
 <li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="newsletter.html">Newsletters</a><button type="button" class="thes__nav-caret" aria-label="Show Newsletters submenu" aria-expanded="false" aria-controls="thes-submenu-8"></button></span><ul class="thes__nav-submenu" id="thes-submenu-8"><li><a href="newsletter/pta-newsletter.html">PTA Newsletter</a></li><li><a href="newsletter/thes-happenings.html">THES Official Newsletter (THES Happenings)</a></li></ul></li>
 <li class="thes__nav-item"><a href="shop.html">Shop</a></li>
       </ul>
@@ -569,14 +543,25 @@
   <div class="thes__wrap">
     <div class="thes__event-list">
         <div class="thes__event-row">
+          <div class="thes__event-date"><span class="thes__day">16</span><span class="thes__month">Sep</span></div>
+          <div class="thes__event-row-body">
+            <strong>Family Connection Academy Kickoff</strong>
+            <span>5:15 – 8:30 PM</span>
+            <p class="thes__event-description">This inspiring event is designed to support, connect, and empower the HCPSS community. Discover practical strategies to enhance learning at home and explore K-12 curricular updates and academic…</p>
+    
+    
+            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/file/d/1658JsaMGQxCKLlDwnOk7facH_VrDUlwo" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1658JsaMGQxCKLlDwnOk7facH_VrDUlwo&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
+          </div>
+        </div>
+        <div class="thes__event-row">
           <div class="thes__event-date"><span class="thes__day">23</span><span class="thes__month">Sep</span></div>
           <div class="thes__event-row-body">
             <strong>THES Spirit Wear Online Sale Ends (Fall Store)</strong>
             <span>All Day</span>
-            <p class="thes__event-description">Join us for THES Spirit Wear Online Sale Ends (Fall Store) — see the full calendar for details.</p>
     
     
-            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/open?id=14IzTAznYw9bA03Bf0ZDvJsjvQGbuWDSX" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=14IzTAznYw9bA03Bf0ZDvJsjvQGbuWDSX&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
+    
+    
           </div>
         </div>
         <div class="thes__event-row">
@@ -598,18 +583,7 @@
             <p class="thes__event-description">This will ensure that the items arrive before the Holiday Season as well as mailed to homes in time. It will run for 3 weeks.</p>
     
     
-            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/open?id=1SVx35OvI6TtwA_IhRHi4SW1lC35L8liL" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1SVx35OvI6TtwA_IhRHi4SW1lC35L8liL&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
-          </div>
-        </div>
-        <div class="thes__event-row">
-          <div class="thes__event-date"><span class="thes__day">26</span><span class="thes__month">Sep</span></div>
-          <div class="thes__event-row-body">
-            <strong>Beautification Day — School Garden Cleanup</strong>
-            <span>9:00 AM – 12:00 PM · Thunder Hill Elementary School gardens (behind the school)</span>
-            <p class="thes__event-description">Help clean up and refresh the school garden for the fall season. Meet at the school gardens behind the Thunder Hill building. Please bring: • Garden gloves • Clothes and shoes that can get dirty •…</p>
     
-    
-            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/file/d/1zsvBWRktz7CBBBEGiCXiNvWYESGOTRej" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1zsvBWRktz7CBBBEGiCXiNvWYESGOTRej&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
           </div>
         </div>
         <div class="thes__event-row">
@@ -631,7 +605,7 @@
     
     
     
-            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/open?id=1OfuG_ypdZfZNFDrZTwonAkzl0buQjsfX" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1OfuG_ypdZfZNFDrZTwonAkzl0buQjsfX&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
+    
           </div>
         </div>
         <div class="thes__event-row">
@@ -642,7 +616,7 @@
     
     
     
-            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/open?id=1xmnk3azLmK1vSivBhK1X7r7H6-1AqP3g" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1xmnk3azLmK1vSivBhK1X7r7H6-1AqP3g&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
+    
           </div>
         </div>
         <div class="thes__event-row">
@@ -650,8 +624,8 @@
           <div class="thes__event-row-body">
             <strong>Okland Mills Fall Fest</strong>
             <span>11:00 AM – 3:00 PM</span>
-            <p class="thes__event-description">🍂 Join THES PTA at the Oakland Mills Fall Festival on Saturday, October 3rd from 11 am - 3 pm (rain or shine)! 🍂 We will have a booth in the Children’s Area with games and activities!! 🍂 It’s a free…</p>
-            <a class="thes__btn thes__btn--teal" href="https://www.signupgenius.com/go/10C084EA9A92BA2FCC70-65957288-thes?utm_source=gemini#/" target="_blank" rel="noopener">Sign Up &rarr;</a>
+            <p class="thes__event-description">🍂 Join THES PTA at the Oakland Mills Fall Festival on Saturday, October 3rd from 11 am - 3 pm (rain or shine)!   🍂 We will have a booth in the Children’s Area with games and activities!!   🍂 It’s a…</p>
+    
     
             <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/file/d/1lGfTmX3Qln_3DlAw5pkBjRyCCM_HwyzU" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1lGfTmX3Qln_3DlAw5pkBjRyCCM_HwyzU&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
           </div>
@@ -732,7 +706,7 @@
         <div>
           <h4>Stay in the Know</h4>
           <p>Subscribe to our newsletter for the latest updates.</p>
-          <p style="margin-top:6px;"><a href="https://app.smore.com/n/m6vu8p">Subscribe &rarr;</a></p>
+          <p style="margin-top:6px;"><a href="https://app.smore.com/n/1h80em">Subscribe &rarr;</a></p>
         </div>
       </div>
       <div class="thes__footer-bottom">&copy; 2026 Thunder Hill Elementary PTA. All rights reserved.</div>
