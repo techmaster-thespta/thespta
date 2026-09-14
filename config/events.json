@@ -1,17 +1,30 @@
 [
   {
+    "day": "16",
+    "month": "Sep",
+    "title": "Family Connection Academy Kickoff",
+    "when": "5:15 \u2013 8:30 PM",
+    "featured": true,
+    "attachments": [
+      {
+        "title": "202609-Family-Connection-HCPSS.png",
+        "href": "https://drive.google.com/file/d/1658JsaMGQxCKLlDwnOk7facH_VrDUlwo"
+      }
+    ],
+    "description": "This inspiring event is designed to support, connect, and empower the HCPSS community. Discover practical strategies to enhance learning at home and explore K-12 curricular updates and academic\u2026"
+  },
+  {
     "day": "23",
     "month": "Sep",
     "title": "THES Spirit Wear Online Sale Ends (Fall Store)",
     "when": "All Day",
-    "featured": true,
+    "featured": false,
     "attachments": [
       {
         "title": "20260923-spirit-wear-fall-store-ends.png",
         "href": "https://drive.google.com/open?id=14IzTAznYw9bA03Bf0ZDvJsjvQGbuWDSX"
       }
-    ],
-    "description": "Join us for THES Spirit Wear Online Sale Ends (Fall Store) \u2014 see the full calendar for details."
+    ]
   },
   {
     "day": "23",
@@ -58,8 +71,8 @@
     "featured": false,
     "attachments": [
       {
-        "title": "20260930-parent-designed-spirit-wear-ends.png",
-        "href": "https://drive.google.com/open?id=1xmnk3azLmK1vSivBhK1X7r7H6-1AqP3g"
+        "title": "20260930-membership-drive-lanyard-deadline.png",
+        "href": "https://drive.google.com/open?id=1OfuG_ypdZfZNFDrZTwonAkzl0buQjsfX"
       }
     ]
   },
@@ -71,8 +84,8 @@
     "featured": false,
     "attachments": [
       {
-        "title": "20260930-membership-drive-lanyard-deadline.png",
-        "href": "https://drive.google.com/open?id=1OfuG_ypdZfZNFDrZTwonAkzl0buQjsfX"
+        "title": "20260930-parent-designed-spirit-wear-ends.png",
+        "href": "https://drive.google.com/open?id=1xmnk3azLmK1vSivBhK1X7r7H6-1AqP3g"
       }
     ]
   },
@@ -89,19 +102,5 @@
       }
     ],
     "description": "\ud83c\udf42 Join THES PTA at the Oakland Mills Fall Festival on Saturday, October 3rd from 11 am - 3 pm (rain or shine)!   \ud83c\udf42 We will have a booth in the Children\u2019s Area with games and activities!!   \ud83c\udf42 It\u2019s a\u2026"
-  },
-  {
-    "day": "13",
-    "month": "Oct",
-    "title": "Restaurant Night Out \u2014 Pupatella",
-    "when": "11:30 AM \u2013 9:00 PM \u00b7 Pupatella, 9160 MD-108, Columbia, MD 21045, USA",
-    "featured": false,
-    "attachments": [
-      {
-        "title": "202609-pupatella.jpeg",
-        "href": "https://drive.google.com/file/d/1Dym6jms8HYY9V3FLxeXW42LEW2nZZsS7"
-      }
-    ],
-    "description": "Support THES while you dine at Pupatella! Details on ordering to come \u2014 check back closer to the date, or watch the PTA\u2019s Facebook/Instagram (@thunderhilles_pta)"
   }
 ]
