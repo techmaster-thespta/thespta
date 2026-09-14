@@ -18,7 +18,13 @@
     "month": "Sep",
     "title": "THES Spirit Wear Online Sale Ends (Fall Store)",
     "when": "All Day",
-    "featured": false
+    "featured": false,
+    "attachments": [
+      {
+        "title": "20260923-spirit-wear-fall-store-ends.png",
+        "href": "https://drive.google.com/open?id=14IzTAznYw9bA03Bf0ZDvJsjvQGbuWDSX"
+      }
+    ]
   },
   {
     "day": "23",
@@ -35,6 +41,12 @@
     "title": "Joe Corbi's Believe Fall Fundraiser",
     "when": "All Day",
     "featured": false,
+    "attachments": [
+      {
+        "title": "20260925-joe-corbis-believe-fundraiser.png",
+        "href": "https://drive.google.com/open?id=1SVx35OvI6TtwA_IhRHi4SW1lC35L8liL"
+      }
+    ],
     "description": "This will ensure that the items arrive before the Holiday Season as well as mailed to homes in time. It will run for 3 weeks."
   },
   {
@@ -56,14 +68,26 @@
     "month": "Sep",
     "title": "PTA Spirit Wear Sale Ends (Parent-Designed Store)",
     "when": "All Day",
-    "featured": false
+    "featured": false,
+    "attachments": [
+      {
+        "title": "20260930-parent-designed-spirit-wear-ends.png",
+        "href": "https://drive.google.com/open?id=1xmnk3azLmK1vSivBhK1X7r7H6-1AqP3g"
+      }
+    ]
   },
   {
     "day": "30",
     "month": "Sep",
     "title": "Last Day of PTA Membership Drive (Free Lanyard)",
     "when": "All Day",
-    "featured": false
+    "featured": false,
+    "attachments": [
+      {
+        "title": "20260930-membership-drive-lanyard-deadline.png",
+        "href": "https://drive.google.com/open?id=1OfuG_ypdZfZNFDrZTwonAkzl0buQjsfX"
+      }
+    ]
   },
   {
     "day": "03",
