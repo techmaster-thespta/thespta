@@ -1,5 +1,10 @@
 [
   {
+    "title": "Free Drive-Thru Flu Shots (Caplet Pharmacy)",
+    "description": "Starting in October, Caplet Pharmacy offers drive-thru flu shots — stay in your car and get vaccinated. Fridays 3–7 PM, Saturdays & Sundays 10 AM–3 PM. Receive a $10 Amazon gift card with your shot.",
+    "href": "https://capletrx.com"
+  },
+  {
     "title": "HCPSS Student & Parent Handbook",
     "description": "HCPSS's system-wide guide to school policies, practices, and support services — for every family, not just those connected to special education.",
     "page_url": "hcpss_handbook"
@@ -8,10 +13,5 @@
     "title": "Special Education & Family Support",
     "description": "Events and workshops for HCPSS families of students with an IEP/IFSP, via the Family Support and Resource Center.",
     "page_url": "special_education_family_support"
-  },
-  {
-    "title": "Free Drive-Thru Flu Shots (Caplet Pharmacy)",
-    "description": "Starting in October, Caplet Pharmacy offers drive-thru flu shots — stay in your car and get vaccinated. Fridays 3–7 PM, Saturdays & Sundays 10 AM–3 PM. Receive a $10 Amazon gift card with your shot.",
-    "href": "https://capletrx.com"
   }
 ]
