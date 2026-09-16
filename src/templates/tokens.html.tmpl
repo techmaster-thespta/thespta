@@ -283,8 +283,9 @@
   .thes__more-events { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: grid; gap: 4px; align-content: start; min-width: 0; }
   .thes__more-events-row { display: flex; justify-content: space-between; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--border); }
   .thes__more-events-row:last-child { border-bottom: none; }
-  .thes__more-events-row strong { font-size: 0.92rem; }
-  .thes__more-events-row span { color: var(--text-muted); font-size: 0.84rem; }
+  .thes__more-events-row > div { flex: 1; min-width: 0; }
+  .thes__more-events-row strong { font-size: 0.92rem; overflow-wrap: anywhere; }
+  .thes__more-events-row span { color: var(--text-muted); font-size: 0.84rem; flex-shrink: 0; width: 58px; text-align: right; }
   .thes__more-events-signup { display: block; margin-top: 2px; font-weight: 700; font-size: 0.78rem; color: var(--teal); text-decoration: none; }
   .thes__more-events > a { margin-top: 8px; font-weight: 700; font-size: 0.86rem; color: var(--teal); text-decoration: none; }
 
