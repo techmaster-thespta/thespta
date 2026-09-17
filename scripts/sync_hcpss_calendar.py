@@ -32,7 +32,6 @@ empty-list-means-no-section pattern as the PTA's own calendar sync.
 """
 import datetime as dt
 import json
-import re
 import urllib.error
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -47,21 +46,6 @@ TIMEZONE = "America/New_York"
 LOOKAHEAD_DAYS = 180  # same window as the PTA's own general highlights list
 MAX_EVENTS = 3        # "next 3 events" — this calendar posts often enough not to need a longer lookahead
 
-TAG_RE = re.compile(r"<[^>]+>")
-
-
-def strip_html(text):
-    """HCPSS's own calendar Descriptions contain literal HTML markup
-    (<span>/<p>/<br> tags) — confirmed empirically, unlike the PTA's own
-    calendar, which is plain text. render_event_description in
-    src/build.py inserts a Description unescaped into a <p>, which
-    would otherwise nest raw markup (sometimes literal <p> tags) inside
-    that <p>, producing oddly-spaced, semantically broken output. Turned
-    into plain text here, at the source, so every event description
-    this site renders is plain text regardless of which calendar it
-    came from."""
-    return re.sub(r"\s+", " ", TAG_RE.sub(" ", text)).strip()
-
 
 def main():
     try:
@@ -71,10 +55,13 @@ def main():
         return
 
     local_tz = ZoneInfo(TIMEZONE)
+    # parse_vevents (sync_calendar_events.py) already strips embedded
+    # HTML from every Description at parse time — no per-script
+    # post-processing needed here anymore (this used to duplicate that
+    # logic locally, back when only HCPSS's calendar was known to need
+    # it; the PTA's own calendar turned out to need the exact same
+    # handling too, so the fix moved to the shared parser instead).
     vevents = parse_vevents(unfold(raw), local_tz)
-    for v in vevents:
-        if v.get("DESCRIPTION"):
-            v["DESCRIPTION"] = strip_html(v["DESCRIPTION"])
     window_start = dt.datetime.combine(dt.date.today(), dt.time.min)
     window_end = window_start + dt.timedelta(days=LOOKAHEAD_DAYS)
     events = build_events_json(vevents, window_start, window_end, max_events=MAX_EVENTS)

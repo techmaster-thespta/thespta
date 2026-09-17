@@ -116,6 +116,29 @@ def unescape_text(value):
     )
 
 
+TAG_RE = re.compile(r"<[^>]+>")
+
+
+def strip_html(text):
+    """A calendar event's Description can contain literal HTML markup
+    (<span>/<p>/<br> tags) if it was ever pasted from a rich-text source
+    (Google Calendar's own description editor supports rich text) —
+    confirmed for real on two different calendars now: HCPSS's, and (the
+    bug this function was widened to also cover) the PTA's own, where a
+    garden-cleanup event's multi-paragraph description broke a live
+    deploy — DESCRIPTION_LIMIT's truncation cut the text off mid-tag,
+    leaving an unclosed <p> that failed test/validate_build.py's tag-
+    balance check. render_event_description in src/build.py inserts a
+    Description unescaped into its own <p>, so any embedded markup
+    (closed or not) ends up nested inside that wrapper. Stripped to
+    plain text here, at the source, so every description this site
+    renders is plain text regardless of which calendar or which
+    person's paste it came from."""
+    if not text:
+        return text
+    return re.sub(r"\s+", " ", TAG_RE.sub(" ", text)).strip()
+
+
 def parse_property_line(line):
     """'NAME;PARAM=X:VALUE' -> ("NAME", {"PARAM": "X"}, "VALUE")."""
     head, _, value = line.partition(":")
@@ -167,7 +190,14 @@ def parse_vevents(lines, local_tz):
                     when, _ = parse_ics_datetime(v, local_tz)
                     cur["EXDATE"].add(when)
             elif name in ("SUMMARY", "LOCATION", "DESCRIPTION"):
-                cur[name] = unescape_text(value)
+                text = unescape_text(value)
+                # Only DESCRIPTION gets HTML stripped — SUMMARY/LOCATION
+                # are short, single-line fields with no real history of
+                # rich-text paste, and stripping them defensively for a
+                # problem that hasn't actually occurred there isn't
+                # worth the (small) risk of mangling a legitimate "<"
+                # character in, say, a location name.
+                cur[name] = strip_html(text) if name == "DESCRIPTION" else text
             elif name == "RRULE":
                 cur["RRULE"] = value
             elif name == "ATTACH":
