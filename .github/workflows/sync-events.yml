@@ -84,9 +84,10 @@ jobs:
       - name: Assemble the deployed site
         if: steps.diff.outputs.changed == 'true'
         run: |
-          mkdir -p site/images
+          mkdir -p site/images site/flyers
           cp -r pages/. site/
           find assets/images -maxdepth 1 -type f ! -name "*.md" -exec cp {} site/images/ \;
+          cp -r assets/flyers/. site/flyers/
 
       # See the identical step in deploy.yml for why this is gated on
       # github.repository rather than living in per-repo config: this

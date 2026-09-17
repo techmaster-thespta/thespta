@@ -152,6 +152,22 @@ config-only approach can't do it, rather than silently editing `src/`.
   `cp -r pages/. site/` respectively) — if you ever see a nested page
   validate locally but 404 live, a flat glob/cp regression is the first
   thing to check.
+  A third, related bug from the same root cause (two copies of the same
+  step, maintained separately) actually shipped: `deploy.yml` and
+  `sync-events.yml` each have their own "Assemble the deployed site"
+  step, since they're separate workflows — when `assets/flyers/` support
+  was added, only `deploy.yml`'s copy got the `cp -r assets/flyers/.
+  site/flyers/` line. `sync-events.yml`'s copy didn't, and since it runs
+  hourly and republishes the **entire** site whenever the calendar
+  changes (not just `config/events.json`), it was silently wiping out
+  every flyer on the live site every time it fired — confirmed for real
+  when every single flyer URL sitewide 404'd after an hourly sync run,
+  despite `deploy.yml`'s own last run having deployed them correctly
+  just fine. Fixed by adding the same two lines to both. If you ever add
+  a new static asset directory that needs to reach `site/`, add the copy
+  step to **both** workflows' "Assemble the deployed site" step, not
+  just `deploy.yml`'s — they don't share this logic, so nothing else
+  will catch a one-sided edit.
 - **Any new colored link/button variant must combine classes, not rely on
   a single one for color** — `.thes a { color: inherit; }` in
   `tokens.html.tmpl` has specificity (0,1,1), which beats a single-class
