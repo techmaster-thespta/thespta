@@ -23,10 +23,11 @@
   hand-edit pages/sponsors.html)
   Sponsorship tier/benefit info lives in config/sponsorship.json. The
   list of businesses that have already joined lives separately in
-  config/sponsors.json (see .claude/skills/add-sponsor/SKILL.md) and
-  reuses the same "Our Sponsors" section the Home page shows — same
-  empty-list-means-no-section pattern, so this section quietly doesn't
-  appear until the first real sponsor is added.
+  config/sponsors.json (see .claude/skills/add-sponsor/SKILL.md), shown
+  below — unlike the Home page's own teaser of this same config file,
+  the section here always renders, placeholder card and all, so a
+  prospective sponsor reading this page can see exactly where their
+  name/logo would land.
 -->
 <!--
   TEMPLATE: tokens.html.tmpl
@@ -430,6 +431,8 @@
   .thes__badge--tier-yellow { background: var(--yellow); color: var(--yellow-text); }
   .thes__badge--tier-silver { background: var(--bg-tint); color: var(--navy); }
   .thes__badge--tier-coral { background: var(--coral); color: #fff; }
+  .thes__card--placeholder { border-style: dashed; background: transparent; }
+  .thes__card--placeholder h3, .thes__card--placeholder p { color: var(--text-muted); }
   .thes__fund-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
   .thes__fund-card .thes__btn { margin-top: 0; }
   .thes__fund-dates { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
@@ -593,6 +596,19 @@
 </section>
 
 
+<!-- ===== Sponsors page — where a joined sponsor's card actually lands ===== -->
+<section class="thes__section thes__section--tint">
+  <div class="thes__wrap">
+    <div class="thes__section-head">
+      <span class="thes__eyebrow">Featured Sponsors</span>
+      <h2>Where You'll Be Seen</h2>
+      <p>Every sponsor gets a card here, and on our Home page.</p>
+    </div>
+    <div class="thes__grid thes__grid--narrow">
+        <div class="thes__card thes__card--placeholder"><h3>Your Business Here</h3><p>Become our next sponsor and get featured in this spot.</p></div>
+    </div>
+  </div>
+</section>
 
 
 <section class="thes__section" style="padding-top:0;">

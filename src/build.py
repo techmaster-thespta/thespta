@@ -883,6 +883,30 @@ def build_sponsorship_section(info, context):
     })
 
 
+def build_sponsors_page_section(sponsors, context):
+    """The "Our Sponsors" section on the Sponsors page itself — unlike
+    build_optional_section's usual empty-means-no-section pattern (still
+    used for this exact same config file on the Home page's rotating
+    teaser), this section always renders here: a prospective sponsor is
+    reading this page specifically to decide whether to join, so they
+    need to actually see where their name/logo would land, not have the
+    section silently vanish because nobody's signed up yet. Shows a
+    single dashed placeholder card in that case instead."""
+    card_tmpl = (TEMPLATES / "card-sponsor.html.tmpl").read_text()
+    if sponsors:
+        cards = "\n".join(indent(render(card_tmpl, s), 8) for s in sponsors)
+    else:
+        cards = indent(
+            '<div class="thes__card thes__card--placeholder">'
+            "<h3>Your Business Here</h3>"
+            "<p>Become our next sponsor and get featured in this spot.</p>"
+            "</div>",
+            8,
+        )
+    section_tmpl = (TEMPLATES / "joined-sponsors-section.html.tmpl").read_text()
+    return render(section_tmpl, {**context, "SPONSOR_CARDS": cards})
+
+
 def compute_school_year(date_str):
     """'2026-09-08' -> '2026–2027'. A school year is treated as running
     July through the following June, so a meeting in, say, April groups
@@ -1354,6 +1378,7 @@ def main():
             "sponsors.json", "card-sponsor.html.tmpl", "sponsors-section.html.tmpl", "SPONSOR_CARDS", context
         )
         sponsorship_section = build_sponsorship_section(load_json("sponsorship.json", default={}), context)
+        joined_sponsors_section = build_sponsors_page_section(load_json("sponsors.json", default=[]), context)
         flyers_section = build_optional_section(
             "flyers.json", "card-flyer.html.tmpl", "flyers-section.html.tmpl", "FLYER_CARDS", context
         )
@@ -1381,6 +1406,7 @@ def main():
             "{{EVENTS_LIST_SECTION}}": events_page_section,
             "{{SPONSORS_SECTION}}": sponsors_section,
             "{{SPONSORSHIP_SECTION}}": sponsorship_section,
+            "{{JOINED_SPONSORS_SECTION}}": joined_sponsors_section,
             "{{FLYERS_SECTION}}": flyers_section,
             "{{COMMITTEES_SECTION}}": committees_section,
             "{{WELCOME_VIDEO_SECTION}}": welcome_video_section,

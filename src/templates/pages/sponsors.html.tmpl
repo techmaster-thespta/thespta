@@ -3,10 +3,11 @@
   hand-edit pages/sponsors.html)
   Sponsorship tier/benefit info lives in config/sponsorship.json. The
   list of businesses that have already joined lives separately in
-  config/sponsors.json (see .claude/skills/add-sponsor/SKILL.md) and
-  reuses the same "Our Sponsors" section the Home page shows — same
-  empty-list-means-no-section pattern, so this section quietly doesn't
-  appear until the first real sponsor is added.
+  config/sponsors.json (see .claude/skills/add-sponsor/SKILL.md), shown
+  below — unlike the Home page's own teaser of this same config file,
+  the section here always renders, placeholder card and all, so a
+  prospective sponsor reading this page can see exactly where their
+  name/logo would land.
 -->
 {{TOKENS}}
 
@@ -25,7 +26,7 @@
 
 {{SPONSORSHIP_SECTION}}
 
-{{SPONSORS_SECTION}}
+{{JOINED_SPONSORS_SECTION}}
 
 {{FOOTER}}
 
