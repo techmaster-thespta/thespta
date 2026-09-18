@@ -57,7 +57,8 @@
     { "label": "PTA Meetings", "page_url": "pta_meetings" },
     { "label": "Before & After School", "page_url": "afterschool_programs" },
     { "label": "Family Support Resources", "page_url": "family_support_resources", "children": [
-      { "label": "Special Education & Family Support", "page_url": "special_education_family_support" }
+      { "label": "Special Education & Family Support", "page_url": "special_education_family_support" },
+      { "label": "HCPSS Student & Parent Handbook", "page_url": "hcpss_handbook" }
     ] },
     { "label": "Newsletters", "page_url": "newsletter", "children": [
       { "label": "PTA Newsletter", "page_url": "pta_newsletter" },
