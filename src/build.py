@@ -140,7 +140,7 @@ def build_tokens(context):
     return render((TEMPLATES / "tokens.html.tmpl").read_text(), context)
 
 
-def render_nav_items(items, context):
+def render_nav_items(items, context, current_page_url=None):
     """Render config/site.json's `nav` list into <li> menu items.
 
     Each item is {"label": ..., "page_url": <a page_urls.* key>} and may
@@ -156,21 +156,44 @@ def render_nav_items(items, context):
     the submenu's inline style.display directly rather than toggling a
     CSS class, so opening/closing it can't be silently defeated by a
     media query or selector mistake elsewhere in the stylesheet — an
-    inline style always wins the cascade."""
+    inline style always wins the cascade.
+
+    `current_page_url` is the `page_urls.*` key of the page actually
+    being built (see main()'s PAGE_URL_KEYS_BY_NAME) — used to mark
+    "you are here" in the nav: the matching item/child gets
+    `aria-current="page"` and a `thes__nav-link--current` class, and a
+    parent whose *child* is current also gets that class on its own
+    trigger (not aria-current, since the parent itself isn't the current
+    page) so a visitor on, say, the Committees page can see at a glance
+    that it's "Get Involved" they'd click to go back up. Every rule this
+    adds combines with an element+class selector (see
+    .thes__header-nav a.thes__nav-link--current in tokens.html.tmpl) —
+    a bare single-class rule would lose to `.thes a { color: inherit; }`
+    the same way the navy-button bug did (see "Hard-won constraints" in
+    CLAUDE.md)."""
     html = []
     for i, item in enumerate(items):
         label = item["label"]
         href = context[f"page_urls.{item['page_url']}"] if item.get("page_url") else None
         children = item.get("children")
+        is_current = current_page_url is not None and item.get("page_url") == current_page_url
         if children:
+            child_is_current = [c.get("page_url") == current_page_url for c in children]
+            is_active_parent = is_current or any(child_is_current)
             submenu_id = f"thes-submenu-{i}"
             child_html = "".join(
-                f'<li><a href="{context[f"page_urls.{c["page_url"]}"]}">{c["label"]}</a></li>'
-                for c in children
+                '<li><a href="{}"{}>{}</a></li>'.format(
+                    context[f'page_urls.{c["page_url"]}'],
+                    ' class="thes__nav-link--current" aria-current="page"' if is_c else "",
+                    c["label"],
+                )
+                for c, is_c in zip(children, child_is_current)
             )
-            trigger = f'<a href="{href}">{label}</a>' if href else f'<span class="thes__nav-trigger">{label}</span>'
+            trigger_attrs = ' class="thes__nav-link--current"' if is_active_parent else ""
+            trigger = f'<a href="{href}"{trigger_attrs}>{label}</a>' if href else f'<span class="thes__nav-trigger{" thes__nav-link--current" if is_active_parent else ""}">{label}</span>'
+            parent_class = "thes__nav-item thes__nav-item--parent" + (" thes__nav-item--active" if is_active_parent else "")
             html.append(
-                f'<li class="thes__nav-item thes__nav-item--parent">'
+                f'<li class="{parent_class}">'
                 f'<span class="thes__nav-item-row">{trigger}'
                 f'<button type="button" class="thes__nav-caret" aria-label="Show {label} submenu" '
                 f'aria-expanded="false" aria-controls="{submenu_id}"></button>'
@@ -178,12 +201,14 @@ def render_nav_items(items, context):
                 f'<ul class="thes__nav-submenu" id="{submenu_id}">{child_html}</ul></li>'
             )
         else:
-            html.append(f'<li class="thes__nav-item"><a href="{href}">{label}</a></li>')
+            link_attrs = ' class="thes__nav-link--current" aria-current="page"' if is_current else ""
+            item_class = "thes__nav-item" + (" thes__nav-item--active" if is_current else "")
+            html.append(f'<li class="{item_class}"><a href="{href}"{link_attrs}>{label}</a></li>')
     return "\n".join(html)
 
 
-def build_header(context):
-    nav_items = render_nav_items(load_json("site.json").get("nav", []), context)
+def build_header(context, current_page_url=None):
+    nav_items = render_nav_items(load_json("site.json").get("nav", []), context, current_page_url)
     return render((TEMPLATES / "header.html.tmpl").read_text(), {**context, "NAV_ITEMS": nav_items})
 
 
@@ -1253,7 +1278,8 @@ PAGE_TITLES = {
     "before-after-school-programs.html": "Before & After School Programs",
     "shop.html": "Shop",
     "fundraising.html": "Ways to Give",
-    "sponsors.html": "Become a Sponsor",
+    "become-a-sponsor.html": "Become a Sponsor",
+    "sponsors.html": "Our Sponsors",
     "pta-meetings.html": "PTA Meetings",
     "family-support-resources.html": "Family Support Resources",
     "family-support-resources/special-education-family-support.html": "Special Education & Family Support",
@@ -1313,9 +1339,13 @@ PAGE_DESCRIPTIONS = {
         "Highlights, agendas, and recaps from every Thunder Hill Elementary PTA "
         "meeting, archived by school year."
     ),
-    "sponsors.html": (
+    "become-a-sponsor.html": (
         "Become a Thunder Hill Elementary PTA sponsor — sponsorship levels, "
         "benefits, and how local businesses can support our students."
+    ),
+    "sponsors.html": (
+        "The local businesses sponsoring Thunder Hill Elementary PTA — thank "
+        "you for supporting our students, teachers, and families."
     ),
     "family-support-resources.html": (
         "Howard County and community resources for Thunder Hill Elementary "
@@ -1348,6 +1378,12 @@ def main():
     welcome_video_section = build_welcome_video_section(site)
     organization_jsonld = build_organization_jsonld(site)
 
+    # Inverse of page_urls (e.g. "get-involved/committees" -> "committees")
+    # so the nav can mark "you are here" — see render_nav_items — from
+    # nothing but the page filename already being built, with no need for
+    # every page template to separately declare which nav item is its own.
+    page_url_keys_by_name = {v: k for k, v in site.get("page_urls", {}).items()}
+
     page_templates = sorted((TEMPLATES / "pages").rglob("*.html.tmpl"))
     if not page_templates:
         raise SystemExit("No page templates found in src/templates/pages/")
@@ -1370,7 +1406,8 @@ def main():
             context_by_depth[depth] = build_context(depth)
         context = context_by_depth[depth]
         tokens = build_tokens(context)
-        header = build_header(context)
+        current_page_url = page_url_keys_by_name.get(page_name.removesuffix(".html"))
+        header = build_header(context, current_page_url)
         footer = build_footer(context)
         home_events_section = build_home_events_section(events, context)
         events_page_section = build_events_page_section(events, context)
