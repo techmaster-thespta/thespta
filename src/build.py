@@ -837,6 +837,52 @@ def build_fundraising_section(campaigns, context):
     return "\n\n".join(sections)
 
 
+def render_sponsorship_tier_card(tier):
+    """One sponsorship-level card on the Sponsors page — same
+    `.thes__card` shape every other simple card grid on this site uses
+    (afterschool programs, family support resources), with a colored
+    price badge (`color` in config picks which `.thes__badge--tier-*`
+    modifier applies — see tokens.html.tmpl) so the four levels read as
+    a clear ladder at a glance, same as the flyer these tiers were
+    transcribed from."""
+    benefits = "".join(f"<li>{b}</li>" for b in tier.get("benefits", []))
+    return (
+        f'<div class="thes__card thes__card--{tier["color"]}">'
+        f'<span class="thes__badge thes__badge--tier-{tier["color"]}">{tier["price"]}</span>'
+        f'<h3>{tier["name"]}</h3>'
+        f'<ul class="thes__checklist-plain">{benefits}</ul>'
+        "</div>"
+    )
+
+
+def build_sponsorship_section(info, context):
+    """Whole Sponsors page's tier/benefit content, sourced from
+    config/sponsorship.json — deliberately a *separate* config file from
+    config/sponsors.json (the list of businesses that have actually
+    joined, shown just below this via the existing {{SPONSORS_SECTION}}
+    marker): one is "how sponsorship works," the other is "who's already
+    sponsoring," and they change independently. "" if the config is
+    missing/empty (shouldn't normally happen — unlike sponsors/flyers,
+    this isn't meant to ever go to zero — but a missing file should never
+    hard-crash the whole build)."""
+    if not info:
+        return ""
+    why_items = "".join(f"<li>{w}</li>" for w in info.get("why_sponsor", []))
+    tier_cards = "\n".join(indent(render_sponsorship_tier_card(t), 6) for t in info.get("tiers", []))
+    perks = "".join(f"<li>{p}</li>" for p in info.get("all_sponsors_perks", []))
+    tmpl = (TEMPLATES / "sponsorship-section.html.tmpl").read_text()
+    return render(tmpl, {
+        **context,
+        "SPONSORSHIP_INTRO": info.get("intro", ""),
+        "WHY_SPONSOR_ITEMS": why_items,
+        "TIER_CARDS": tier_cards,
+        "ALL_SPONSORS_PERKS": perks,
+        "CONTACT_NAME": info.get("contact_name", ""),
+        "CONTACT_ROLE": info.get("contact_role", ""),
+        "CONTACT_EMAIL": info.get("contact_email", ""),
+    })
+
+
 def compute_school_year(date_str):
     """'2026-09-08' -> '2026–2027'. A school year is treated as running
     July through the following June, so a meeting in, say, April groups
@@ -1183,6 +1229,7 @@ PAGE_TITLES = {
     "before-after-school-programs.html": "Before & After School Programs",
     "shop.html": "Shop",
     "fundraising.html": "Ways to Give",
+    "sponsors.html": "Become a Sponsor",
     "pta-meetings.html": "PTA Meetings",
     "family-support-resources.html": "Family Support Resources",
     "family-support-resources/special-education-family-support.html": "Special Education & Family Support",
@@ -1241,6 +1288,10 @@ PAGE_DESCRIPTIONS = {
     "pta-meetings.html": (
         "Highlights, agendas, and recaps from every Thunder Hill Elementary PTA "
         "meeting, archived by school year."
+    ),
+    "sponsors.html": (
+        "Become a Thunder Hill Elementary PTA sponsor — sponsorship levels, "
+        "benefits, and how local businesses can support our students."
     ),
     "family-support-resources.html": (
         "Howard County and community resources for Thunder Hill Elementary "
@@ -1302,6 +1353,7 @@ def main():
         sponsors_section = build_optional_section(
             "sponsors.json", "card-sponsor.html.tmpl", "sponsors-section.html.tmpl", "SPONSOR_CARDS", context
         )
+        sponsorship_section = build_sponsorship_section(load_json("sponsorship.json", default={}), context)
         flyers_section = build_optional_section(
             "flyers.json", "card-flyer.html.tmpl", "flyers-section.html.tmpl", "FLYER_CARDS", context
         )
@@ -1328,6 +1380,7 @@ def main():
             "{{EVENTS_SECTION}}": home_events_section,
             "{{EVENTS_LIST_SECTION}}": events_page_section,
             "{{SPONSORS_SECTION}}": sponsors_section,
+            "{{SPONSORSHIP_SECTION}}": sponsorship_section,
             "{{FLYERS_SECTION}}": flyers_section,
             "{{COMMITTEES_SECTION}}": committees_section,
             "{{WELCOME_VIDEO_SECTION}}": welcome_video_section,

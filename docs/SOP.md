@@ -241,6 +241,22 @@ one and it disappears again.
 
 ---
 
+## Task 4b-2 — Change sponsorship levels or benefits
+
+**File:** `config/sponsorship.json`
+
+This drives the "Sponsorship Levels" content on the standalone Sponsors
+page (`pages/sponsors.html`, linked from a "Become a Sponsor" band on the
+Ways to Give page) — the tier names/prices/benefits, the "why sponsor"
+list, the "all sponsors receive" perks, and the contact line. It's a
+single object, not a list — edit fields/tiers in place. This is
+*separate* from `config/sponsors.json` (Task 4b below), which is the
+list of businesses that have actually joined and shows just below this
+content on the same page, reusing the Home page's "Our Sponsors"
+section.
+
+---
+
 ## Task 4c — Add, remove, or edit a flyer / document
 
 **File:** `config/flyers.json` · **Skill:** `.claude/skills/add-flyer/`
