@@ -924,11 +924,14 @@ def render_sponsor_cta(info):
     email more than the one form owner on a new response — a shared PTA
     inbox as the owner, or a Sheet + Apps Script trigger, are the two
     ways to actually notify more than one person) and pastes the finished
-    embed link into config once it's ready. A fixed iframe height (not
-    the aspect-ratio-box technique the calendar/welcome-video embeds
-    use) since a form's natural height doesn't correspond to any fixed
-    ratio the way a calendar or video does."""
+    embed link into config once it's ready. `interest_form_embed_height`
+    is a fixed pixel height (not the aspect-ratio-box technique the
+    calendar/welcome-video embeds use, since a form's natural height
+    doesn't correspond to any fixed ratio the way a calendar or video
+    does) — Google's own "Send > embed" panel shows the right value for
+    the specific form, so it's config, not guessed."""
     embed_src = info.get("interest_form_embed_src")
+    embed_height = info.get("interest_form_embed_height", 1200)
     contact_name = info.get("contact_name", "")
     contact_role = info.get("contact_role", "")
     contact_email = info.get("contact_email", "")
@@ -939,7 +942,7 @@ def render_sponsor_cta(info):
             "<p>Tell us which level interests you and we&rsquo;ll follow up.</p>"
             "</div>"
             '<div class="thes__form-embed">'
-            f'<iframe src="{embed_src}" width="100%" height="1200" frameborder="0" marginheight="0" marginwidth="0">Loading&hellip;</iframe>'
+            f'<iframe src="{embed_src}" width="100%" height="{embed_height}" frameborder="0" marginheight="0" marginwidth="0">Loading&hellip;</iframe>'
             "</div>"
             f'<p class="thes__form-embed-fallback">Prefer email? Contact {contact_name}, {contact_role}, '
             f'at <a href="mailto:{contact_email}">{contact_email}</a>.</p>'
