@@ -45,7 +45,9 @@
   "nav": [
     { "label": "Home", "page_url": "home" },
     { "label": "About", "page_url": "about" },
-    { "label": "Ways to Give", "page_url": "fundraising" },
+    { "label": "Ways to Give", "page_url": "fundraising", "children": [
+      { "label": "Become a Sponsor", "page_url": "sponsors" }
+    ] },
     { "label": "Get Involved", "page_url": "get_involved", "children": [
       { "label": "Committees", "page_url": "committees" }
     ] },
