@@ -130,6 +130,15 @@
   .thes__nav-submenu { display: none; list-style: none; margin: 0; padding: 8px 0; position: absolute; top: 100%; left: 0; min-width: 190px; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 24px rgba(7,59,104,0.12); z-index: 20; }
   .thes__nav-submenu a { display: block; padding: 8px 16px; }
   .thes__nav-submenu a:hover { background: var(--bg-tint); }
+  /* "You are here" nav state (see render_nav_items in build.py) — combined
+     with an element selector (0,2,1) rather than a bare .thes__nav-link--
+     current class alone (0,1,0), which would lose to `.thes a { color:
+     inherit; }` (0,1,1) — same reasoning as the .thes__btn--navy bug in
+     "Hard-won constraints" (CLAUDE.md). */
+  .thes__header-nav a.thes__nav-link--current,
+  .thes__header-nav .thes__nav-trigger.thes__nav-link--current { color: var(--teal); }
+  .thes__nav-submenu a.thes__nav-link--current { color: var(--teal); background: var(--bg-tint); }
+  .thes__nav-item--active > .thes__nav-item-row .thes__nav-caret::before { border-color: var(--teal); }
   .thes__menu-btn { display: none; background: none; border: none; padding: 0; font: inherit; }
   /* Visible at every width now (previously desktop hid it entirely and
      relied on :hover alone to reveal the submenu) — shows every
@@ -498,9 +507,9 @@
       <ul>
 <li class="thes__nav-item"><a href="index.html">Home</a></li>
 <li class="thes__nav-item"><a href="about.html">About</a></li>
-<li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="fundraising.html">Ways to Give</a><button type="button" class="thes__nav-caret" aria-label="Show Ways to Give submenu" aria-expanded="false" aria-controls="thes-submenu-2"></button></span><ul class="thes__nav-submenu" id="thes-submenu-2"><li><a href="sponsors.html">Become a Sponsor</a></li></ul></li>
+<li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="fundraising.html">Ways to Give</a><button type="button" class="thes__nav-caret" aria-label="Show Ways to Give submenu" aria-expanded="false" aria-controls="thes-submenu-2"></button></span><ul class="thes__nav-submenu" id="thes-submenu-2"><li><a href="become-a-sponsor.html">Become a Sponsor</a></li><li><a href="sponsors.html">Our Sponsors</a></li></ul></li>
 <li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="get-involved.html">Get Involved</a><button type="button" class="thes__nav-caret" aria-label="Show Get Involved submenu" aria-expanded="false" aria-controls="thes-submenu-3"></button></span><ul class="thes__nav-submenu" id="thes-submenu-3"><li><a href="get-involved/committees.html">Committees</a></li></ul></li>
-<li class="thes__nav-item"><a href="events.html">Events</a></li>
+<li class="thes__nav-item thes__nav-item--active"><a href="events.html" class="thes__nav-link--current" aria-current="page">Events</a></li>
 <li class="thes__nav-item"><a href="pta-meetings.html">PTA Meetings</a></li>
 <li class="thes__nav-item"><a href="before-after-school-programs.html">Before & After School</a></li>
 <li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="family-support-resources.html">Family Support Resources</a><button type="button" class="thes__nav-caret" aria-label="Show Family Support Resources submenu" aria-expanded="false" aria-controls="thes-submenu-7"></button></span><ul class="thes__nav-submenu" id="thes-submenu-7"><li><a href="family-support-resources/special-education-family-support.html">Special Education & Family Support</a></li></ul></li>

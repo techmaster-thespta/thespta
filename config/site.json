@@ -36,6 +36,7 @@
     "afterschool_programs": "before-after-school-programs",
     "shop": "shop",
     "fundraising": "fundraising",
+    "become_sponsor": "become-a-sponsor",
     "sponsors": "sponsors",
     "pta_meetings": "pta-meetings",
     "family_support_resources": "family-support-resources",
@@ -46,7 +47,8 @@
     { "label": "Home", "page_url": "home" },
     { "label": "About", "page_url": "about" },
     { "label": "Ways to Give", "page_url": "fundraising", "children": [
-      { "label": "Become a Sponsor", "page_url": "sponsors" }
+      { "label": "Become a Sponsor", "page_url": "become_sponsor" },
+      { "label": "Our Sponsors", "page_url": "sponsors" }
     ] },
     { "label": "Get Involved", "page_url": "get_involved", "children": [
       { "label": "Committees", "page_url": "committees" }
