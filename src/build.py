@@ -880,6 +880,47 @@ def render_sponsorship_tier_card(tier):
     )
 
 
+def render_sponsor_cta(info):
+    """The closing "how to actually become a sponsor" block on the
+    Become a Sponsor page — an embedded Google Form (sponsorship level +
+    a message, so an interested business can just submit right there)
+    once `interest_form_embed_src` is set in config/sponsorship.json,
+    or a plain mailto CTA until then. Same empty-means-simpler-fallback
+    shape as everywhere else on this site rather than a broken/missing
+    embed: this repo has no Google Forms API access to create the form
+    itself, so a human sets it up (Google Forms has no native way to
+    email more than the one form owner on a new response — a shared PTA
+    inbox as the owner, or a Sheet + Apps Script trigger, are the two
+    ways to actually notify more than one person) and pastes the finished
+    embed link into config once it's ready. A fixed iframe height (not
+    the aspect-ratio-box technique the calendar/welcome-video embeds
+    use) since a form's natural height doesn't correspond to any fixed
+    ratio the way a calendar or video does."""
+    embed_src = info.get("interest_form_embed_src")
+    contact_name = info.get("contact_name", "")
+    contact_role = info.get("contact_role", "")
+    contact_email = info.get("contact_email", "")
+    if embed_src:
+        return (
+            '<div class="thes__section-head">'
+            "<h2>Ready to Sponsor?</h2>"
+            "<p>Tell us which level interests you and we&rsquo;ll follow up.</p>"
+            "</div>"
+            '<div class="thes__form-embed">'
+            f'<iframe src="{embed_src}" width="100%" height="1200" frameborder="0" marginheight="0" marginwidth="0">Loading&hellip;</iframe>'
+            "</div>"
+            f'<p class="thes__form-embed-fallback">Prefer email? Contact {contact_name}, {contact_role}, '
+            f'at <a href="mailto:{contact_email}">{contact_email}</a>.</p>'
+        )
+    return (
+        '<div class="thes__join">'
+        "<h2>How to Become a Sponsor</h2>"
+        f"<p>Ready to sponsor? Contact {contact_name}, {contact_role}, to get started.</p>"
+        f'<a class="thes__btn thes__btn--navy" href="mailto:{contact_email}">Email {contact_email} &rarr;</a>'
+        "</div>"
+    )
+
+
 def build_sponsorship_section(info, context):
     """Whole Sponsors page's tier/benefit content, sourced from
     config/sponsorship.json — deliberately a *separate* config file from
@@ -902,9 +943,7 @@ def build_sponsorship_section(info, context):
         "WHY_SPONSOR_ITEMS": why_items,
         "TIER_CARDS": tier_cards,
         "ALL_SPONSORS_PERKS": perks,
-        "CONTACT_NAME": info.get("contact_name", ""),
-        "CONTACT_ROLE": info.get("contact_role", ""),
-        "CONTACT_EMAIL": info.get("contact_email", ""),
+        "SPONSOR_CTA_BLOCK": indent(render_sponsor_cta(info), 4),
     })
 
 
