@@ -1,0 +1,67 @@
+{
+  "intro": "Your sponsorship helps fund enriching programs, engaging events, and valuable resources for all Thunder Hill students, teachers, and families.",
+  "why_sponsor": [
+    "Reach hundreds of local families",
+    "Increase your business visibility",
+    "Show your commitment to education",
+    "Help create brighter futures for our kids"
+  ],
+  "tiers": [
+    {
+      "name": "Presenting Sponsor",
+      "price": "$500",
+      "color": "navy",
+      "benefits": [
+        "Premium logo on event materials",
+        "Logo on banner",
+        "Vendor table (provided)",
+        "Social media & newsletter recognition",
+        "Recognition on the PTA website"
+      ]
+    },
+    {
+      "name": "Gold Sponsor",
+      "price": "$300",
+      "color": "yellow",
+      "benefits": [
+        "Large logo on event materials",
+        "Vendor table (provided)",
+        "Social media & newsletter recognition",
+        "Recognition on the PTA website"
+      ]
+    },
+    {
+      "name": "Silver Sponsor",
+      "price": "$200",
+      "color": "silver",
+      "benefits": [
+        "Logo on event signage",
+        "Vendor welcome to come (bring your own table)",
+        "Social media recognition",
+        "Newsletter recognition",
+        "Recognition on the PTA website"
+      ]
+    },
+    {
+      "name": "Community Sponsor",
+      "price": "$100",
+      "color": "coral",
+      "benefits": [
+        "Business name on event signage",
+        "Vendor welcome to come (bring your own table)",
+        "Social media recognition",
+        "Newsletter recognition",
+        "Recognition on the PTA website"
+      ]
+    }
+  ],
+  "all_sponsors_perks": [
+    "Recognition as a community partner",
+    "Invitation to all PTA-sponsored events",
+    "Promotion by the THES PTA throughout the school year",
+    "Recognition on the PTA website"
+  ],
+  "contact_name": "Natalie Miskimins",
+  "contact_role": "THES PTA President",
+  "contact_email": "president.thespta@gmail.com"
+}
