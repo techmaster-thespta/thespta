@@ -222,6 +222,9 @@
   .thes__pagehead { width: 100%; max-width: 1200px; margin: 0 auto; overflow: hidden; }
   .thes__pagehead-text { padding: 28px clamp(20px, 4vw, 48px); min-width: 0; }
   .thes__pagehead-text .thes__eyebrow { color: var(--teal); }
+  .thes__pagehead-text .thes__breadcrumb { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; }
+  .thes__pagehead-text .thes__breadcrumb a { font-weight: 700; text-decoration: none; }
+  .thes__pagehead-text .thes__breadcrumb a:hover { text-decoration: underline; }
   .thes__pagehead-text h1 { font-size: clamp(1.5rem, 4.4vw, 2.3rem); line-height: 1.15; margin-top: 6px; }
   /* Alternating word colors on page titles, matching the two-tone style
      already baked into the home hero image's headline. */
@@ -556,6 +559,7 @@
 
   <div class="thes__pagehead">
     <div class="thes__pagehead-text">
+      <nav class="thes__breadcrumb" aria-label="Breadcrumb"><a href="../newsletter.html">Newsletters</a><span aria-hidden="true"> / </span><span>PTA Newsletter</span></nav>
       <span class="thes__eyebrow">Newsletters</span>
       <h1><span class="thes__title-a">PTA</span> <span class="thes__title-b">Newsletter</span></h1>
       <p>PTA news and celebrations, published on Givebacks.</p>

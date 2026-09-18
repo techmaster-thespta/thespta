@@ -212,6 +212,38 @@ def build_header(context, current_page_url=None):
     return render((TEMPLATES / "header.html.tmpl").read_text(), {**context, "NAV_ITEMS": nav_items})
 
 
+def render_breadcrumb(nav_items, current_page_url, context):
+    """A small "Parent / Current Page" trail placed above a subpage's own
+    <h1> (see the {{BREADCRUMB}} marker in whichever page templates use
+    it) — the quieter, always-visible complement to render_nav_items'
+    "you are here" nav highlighting: a visitor on, say, the Become a
+    Sponsor page can click straight back to Ways to Give without opening
+    the nav menu at all, which matters most on mobile where the nav
+    starts collapsed behind the hamburger. Computed from the same
+    config/site.json `nav` list current_page_url is checked against, so
+    a page keeps or loses its breadcrumb automatically if it's ever
+    added to or removed from a dropdown — no template edit needed
+    there. "" for a top-level page (nothing to trail back to), or for a
+    dropdown child whose parent has no page_url of its own to link to."""
+    if not current_page_url:
+        return ""
+    for item in nav_items:
+        for child in item.get("children") or []:
+            if child.get("page_url") == current_page_url:
+                parent_url_key = item.get("page_url")
+                if not parent_url_key:
+                    return ""
+                parent_href = context[f"page_urls.{parent_url_key}"]
+                return (
+                    '<nav class="thes__breadcrumb" aria-label="Breadcrumb">'
+                    f'<a href="{parent_href}">{item["label"]}</a>'
+                    '<span aria-hidden="true"> / </span>'
+                    f'<span>{child["label"]}</span>'
+                    "</nav>"
+                )
+    return ""
+
+
 def build_footer(context):
     return render((TEMPLATES / "footer.html.tmpl").read_text(), context)
 
@@ -1447,6 +1479,7 @@ def main():
         tokens = build_tokens(context)
         current_page_url = page_url_keys_by_name.get(page_name.removesuffix(".html"))
         header = build_header(context, current_page_url)
+        breadcrumb = render_breadcrumb(site.get("nav", []), current_page_url, context)
         footer = build_footer(context)
         home_events_section = build_home_events_section(events, context)
         events_page_section = build_events_page_section(events, context)
@@ -1476,6 +1509,7 @@ def main():
 
         shared_markers = {
             "{{TOKENS}}": tokens,
+            "{{BREADCRUMB}}": breadcrumb,
             "{{FOOTER}}": footer,
             "{{BOARD_CARDS}}": board_cards,
             "{{EVENTS_SECTION}}": home_events_section,
