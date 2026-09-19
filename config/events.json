@@ -67,19 +67,6 @@
   {
     "day": "30",
     "month": "Sep",
-    "title": "PTA Spirit Wear Sale Ends (Parent-Designed Store)",
-    "when": "All Day",
-    "featured": false,
-    "attachments": [
-      {
-        "title": "20260930-parent-designed-spirit-wear-ends.png",
-        "href": "https://drive.google.com/open?id=1xmnk3azLmK1vSivBhK1X7r7H6-1AqP3g"
-      }
-    ]
-  },
-  {
-    "day": "30",
-    "month": "Sep",
     "title": "Last Day of PTA Membership Drive (Free Lanyard)",
     "when": "All Day",
     "featured": false,
@@ -87,6 +74,19 @@
       {
         "title": "20260930-membership-drive-lanyard-deadline.png",
         "href": "https://drive.google.com/open?id=1OfuG_ypdZfZNFDrZTwonAkzl0buQjsfX"
+      }
+    ]
+  },
+  {
+    "day": "30",
+    "month": "Sep",
+    "title": "PTA Spirit Wear Sale Ends (Parent-Designed Store)",
+    "when": "All Day",
+    "featured": false,
+    "attachments": [
+      {
+        "title": "20260930-parent-designed-spirit-wear-ends.png",
+        "href": "https://drive.google.com/open?id=1xmnk3azLmK1vSivBhK1X7r7H6-1AqP3g"
       }
     ]
   },
@@ -102,6 +102,7 @@
         "href": "https://drive.google.com/file/d/1lGfTmX3Qln_3DlAw5pkBjRyCCM_HwyzU"
       }
     ],
+    "signup_href": "https://www.signupgenius.com/go/10C084EA9A92BA2FCC70-65957288-thes?utm_source=gemini#/",
     "description": "\ud83c\udf42 Join THES PTA at the Oakland Mills Fall Festival on Saturday, October 3rd from 11 am - 3 pm (rain or shine)! \ud83c\udf42 We will have a booth in the Children\u2019s Area with games and activities!! \ud83c\udf42 It\u2019s a free\u2026"
   }
 ]
