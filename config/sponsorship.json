@@ -11,6 +11,7 @@
       "name": "Presenting Sponsor",
       "price": "$500",
       "color": "navy",
+      "checkout_href": "https://1thes.givebacks.com/shop/items/9c4564c3aa",
       "benefits": [
         "Premium logo on event materials",
         "Logo on banner",
@@ -23,6 +24,7 @@
       "name": "Gold Sponsor",
       "price": "$300",
       "color": "yellow",
+      "checkout_href": "https://1thes.givebacks.com/shop/items/d6e175d0ef46",
       "benefits": [
         "Large logo on event materials",
         "Vendor table (provided)",
@@ -34,6 +36,7 @@
       "name": "Silver Sponsor",
       "price": "$200",
       "color": "silver",
+      "checkout_href": "https://1thes.givebacks.com/shop/items/db0ec8a76618",
       "benefits": [
         "Logo on event signage",
         "Vendor welcome to come (bring your own table)",
@@ -46,6 +49,7 @@
       "name": "Community Sponsor",
       "price": "$100",
       "color": "coral",
+      "checkout_href": "https://1thes.givebacks.com/shop/items/aa3d2f87be",
       "benefits": [
         "Business name on event signage",
         "Vendor welcome to come (bring your own table)",
