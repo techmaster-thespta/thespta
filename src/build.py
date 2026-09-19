@@ -911,8 +911,7 @@ def render_sponsorship_tier_card(tier):
     if checkout_href:
         checkout_button = (
             f'<a class="thes__btn thes__btn--teal" href="{checkout_href}" target="_blank" rel="noopener">'
-            "Buy Now on Our Shop &rarr;</a>"
-            '<p class="thes__tier-checkout-note">Click above to sponsor at this level right now.</p>'
+            "Click to Sponsor at This Level &rarr;</a>"
         )
     return (
         f'<div class="thes__card thes__card--{tier["color"]}">'
