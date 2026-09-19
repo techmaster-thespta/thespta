@@ -901,35 +901,53 @@ def render_sponsorship_tier_card(tier):
     price badge (`color` in config picks which `.thes__badge--tier-*`
     modifier applies — see tokens.html.tmpl) so the four levels read as
     a clear ladder at a glance, same as the flyer these tiers were
-    transcribed from."""
+    transcribed from. `checkout_href`, when set, is that tier's specific
+    Givebacks shop item — a direct "buy this exact level right now" path
+    that doesn't require going through the interest form first, for a
+    business that already knows which level it wants."""
     benefits = "".join(f"<li>{b}</li>" for b in tier.get("benefits", []))
+    checkout_href = tier.get("checkout_href")
+    checkout_button = ""
+    if checkout_href:
+        checkout_button = (
+            f'<a class="thes__btn thes__btn--teal" href="{checkout_href}" target="_blank" rel="noopener">'
+            "Buy Now on Our Shop &rarr;</a>"
+            '<p class="thes__tier-checkout-note">Click above to sponsor at this level right now.</p>'
+        )
     return (
         f'<div class="thes__card thes__card--{tier["color"]}">'
         f'<span class="thes__badge thes__badge--tier-{tier["color"]}">{tier["price"]}</span>'
         f'<h3>{tier["name"]}</h3>'
         f'<ul class="thes__checklist-plain">{benefits}</ul>'
+        f"{checkout_button}"
         "</div>"
     )
 
 
 def render_sponsor_cta(info):
-    """The closing "how to actually become a sponsor" block on the
-    Become a Sponsor page — an embedded Google Form (sponsorship level +
-    a message, so an interested business can just submit right there)
-    once `interest_form_embed_src` is set in config/sponsorship.json,
-    or a plain mailto CTA until then. Same empty-means-simpler-fallback
-    shape as everywhere else on this site rather than a broken/missing
-    embed: this repo has no Google Forms API access to create the form
-    itself, so a human sets it up (Google Forms has no native way to
-    email more than the one form owner on a new response — a shared PTA
-    inbox as the owner, or a Sheet + Apps Script trigger, are the two
-    ways to actually notify more than one person) and pastes the finished
-    embed link into config once it's ready. `interest_form_embed_height`
-    is a fixed pixel height (not the aspect-ratio-box technique the
-    calendar/welcome-video embeds use, since a form's natural height
-    doesn't correspond to any fixed ratio the way a calendar or video
-    does) — Google's own "Send > embed" panel shows the right value for
-    the specific form, so it's config, not guessed."""
+    """The closing "have questions?" block on the Become a Sponsor page —
+    an embedded Google Form (sponsorship level + a message, so a
+    business with a question or a custom request can just submit right
+    there) once `interest_form_embed_src` is set in config/sponsorship.json,
+    or a plain mailto CTA until then. Deliberately framed as the
+    questions/custom-request path, not the primary way to sponsor — each
+    tier card above now has its own "Buy Now" button straight to that
+    level's Givebacks shop item (render_sponsorship_tier_card's
+    checkout_href) for a business that already knows which level it
+    wants, so this section exists for everyone else. Same empty-means-
+    simpler-fallback shape as everywhere else on this site rather than a
+    broken/missing embed: this repo has no Google Forms API access to
+    create the form itself, so a human sets it up (Google Forms has no
+    native way to email more than the one form owner on a new response —
+    a shared PTA inbox as the owner, or a Sheet + Apps Script trigger,
+    are the two ways to actually notify more than one person) and pastes
+    the finished embed link into config once it's ready.
+    `interest_form_embed_height` is a fixed pixel height (not the
+    aspect-ratio-box technique the calendar/welcome-video embeds use,
+    since a form's natural height doesn't correspond to any fixed ratio
+    the way a calendar or video does) — Google's own "Send > embed" panel
+    shows the right value for the specific form, so it's config, not
+    guessed."""
     embed_src = info.get("interest_form_embed_src")
     embed_height = info.get("interest_form_embed_height", 1200)
     contact_name = info.get("contact_name", "")
@@ -938,8 +956,9 @@ def render_sponsor_cta(info):
     if embed_src:
         return (
             '<div class="thes__section-head">'
-            "<h2>Ready to Sponsor?</h2>"
-            "<p>Tell us which level interests you and we&rsquo;ll follow up.</p>"
+            "<h2>Have Questions?</h2>"
+            "<p>Ready to sponsor a specific level? Use its &ldquo;Buy Now&rdquo; button above. "
+            "Have a question, a custom request, or want to sponsor a different way? Fill out the form below and we&rsquo;ll follow up.</p>"
             "</div>"
             '<div class="thes__form-embed">'
             f'<iframe src="{embed_src}" width="100%" height="{embed_height}" frameborder="0" marginheight="0" marginwidth="0">Loading&hellip;</iframe>'
