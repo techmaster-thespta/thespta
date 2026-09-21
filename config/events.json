@@ -37,6 +37,20 @@
     "description": "This will ensure that the items arrive before the Holiday Season as well as mailed to homes in time. It will run for 3 weeks."
   },
   {
+    "day": "26",
+    "month": "Sep",
+    "title": "Beautification Day \u2014 School Garden Cleanup",
+    "when": "9:00 AM \u2013 12:00 PM \u00b7 Thunder Hill Elementary School gardens (behind the school)",
+    "featured": false,
+    "attachments": [
+      {
+        "title": "26-beautifucation.JPG",
+        "href": "https://drive.google.com/file/d/1zsvBWRktz7CBBBEGiCXiNvWYESGOTRej"
+      }
+    ],
+    "description": "Help clean up and refresh the school garden for the fall season. Meet at the school gardens behind the Thunder Hill building. Please bring: \u2022 Garden gloves \u2022 Clothes and shoes that can get dirty \u2022\u2026"
+  },
+  {
     "day": "28",
     "month": "Sep",
     "title": "PTA Restaurant Night Out Chick-fil-a",
@@ -53,19 +67,6 @@
   {
     "day": "30",
     "month": "Sep",
-    "title": "Last Day of PTA Membership Drive (Free Lanyard)",
-    "when": "All Day",
-    "featured": false,
-    "attachments": [
-      {
-        "title": "20260930-membership-drive-lanyard-deadline.png",
-        "href": "https://drive.google.com/open?id=1OfuG_ypdZfZNFDrZTwonAkzl0buQjsfX"
-      }
-    ]
-  },
-  {
-    "day": "30",
-    "month": "Sep",
     "title": "PTA Spirit Wear Sale Ends (Parent-Designed Store)",
     "when": "All Day",
     "featured": false,
@@ -73,6 +74,19 @@
       {
         "title": "20260930-parent-designed-spirit-wear-ends.png",
         "href": "https://drive.google.com/open?id=1xmnk3azLmK1vSivBhK1X7r7H6-1AqP3g"
+      }
+    ]
+  },
+  {
+    "day": "30",
+    "month": "Sep",
+    "title": "Last Day of PTA Membership Drive (Free Lanyard)",
+    "when": "All Day",
+    "featured": false,
+    "attachments": [
+      {
+        "title": "20260930-membership-drive-lanyard-deadline.png",
+        "href": "https://drive.google.com/open?id=1OfuG_ypdZfZNFDrZTwonAkzl0buQjsfX"
       }
     ]
   },
@@ -88,20 +102,7 @@
         "href": "https://drive.google.com/file/d/1lGfTmX3Qln_3DlAw5pkBjRyCCM_HwyzU"
       }
     ],
-    "description": "\ud83c\udf42 Join THES PTA at the Oakland Mills Fall Festival on Saturday, October 3rd from 11 am - 3 pm (rain or shine)!   \ud83c\udf42 We will have a booth in the Children\u2019s Area with games and activities!!   \ud83c\udf42 It\u2019s a\u2026"
-  },
-  {
-    "day": "13",
-    "month": "Oct",
-    "title": "Restaurant Night Out \u2014 Pupatella",
-    "when": "11:30 AM \u2013 9:00 PM \u00b7 Pupatella, 9160 MD-108, Columbia, MD 21045, USA",
-    "featured": false,
-    "attachments": [
-      {
-        "title": "202609-pupatella.jpeg",
-        "href": "https://drive.google.com/file/d/1Dym6jms8HYY9V3FLxeXW42LEW2nZZsS7"
-      }
-    ],
-    "description": "Support THES while you dine at Pupatella! Details on ordering to come \u2014 check back closer to the date, or watch the PTA\u2019s Facebook/Instagram (@thunderhilles_pta)"
+    "signup_href": "https://www.signupgenius.com/go/10C084EA9A92BA2FCC70-65957288-thes?utm_source=gemini#/",
+    "description": "\ud83c\udf42 Join THES PTA at the Oakland Mills Fall Festival on Saturday, October 3rd from 11 am - 3 pm (rain or shine)! \ud83c\udf42 We will have a booth in the Children\u2019s Area with games and activities!! \ud83c\udf42 It\u2019s a free\u2026"
   }
 ]
