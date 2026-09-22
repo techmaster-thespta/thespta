@@ -423,6 +423,13 @@ def build_events_json(vevents, window_start, window_end, title_filter=None, max_
         entry = {
             "day": f"{occ['start'].day:02d}",
             "month": MONTH_ABBR[occ["start"].month - 1],
+            # ISO date (with year — day/month above deliberately omit it,
+            # since the site only ever shows "23 Sep" for the current/next
+            # occurrence, never a year). Not read by any page template;
+            # this exists so an agent adding a calendar-linked announcement
+            # (see .claude/skills/add-announcement/) can compute a real
+            # expires date (event date + 1 day) without guessing the year.
+            "date": occ["start"].date().isoformat(),
             "title": occ["title"],
             "when": occ["when"],
             "featured": i == 0,

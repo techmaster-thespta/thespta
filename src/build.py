@@ -453,18 +453,56 @@ def build_announcement_banner(announcements, context):
     the same reason. No emoji anywhere in generated markup — deliberate,
     the PTA wants this professional, not casual.
 
-    An announcement can instead carry `flyer_filename` (a real flyer
-    image, in assets/flyers/announcements/ like every other flyer type
-    on this site) — when set, that entire slide becomes a full-width
-    clickable banner graphic (just the image, no icon/text/arrow
-    chrome) instead of the icon+text treatment, for a PTA that already
-    has a designed flyer and wants to show it as-is rather than
-    re-describe it in a sentence. The image gets a fixed height
-    matching the text slides' own min-height (see .thes__announce-banner-img
-    in tokens.html.tmpl) specifically so a banner-graphic slide and a
-    text slide crossfade at the same height — same "no visible jump"
-    requirement as everywhere else in this banner, just solved once
-    more for a second slide shape."""
+    An announcement can carry a banner graphic instead of the icon+text
+    treatment — either `flyer_filename` (a real flyer image, in
+    assets/flyers/announcements/ like every other flyer type on this
+    site, for a flyer the PTA uploaded here directly) or `flyer_href` (a
+    Drive share link — for reusing a flyer that's *already* attached to
+    a calendar event, via the same drive_thumbnail_url() mechanism
+    events/afterschool-programs/fundraisers already use for their own
+    flyer previews, so a calendar-linked announcement never needs a
+    second copy of an image that's already sitting on that event).
+    Either way, that entire slide becomes a full-width clickable banner
+    graphic (just the image, no icon/text/arrow chrome), with a fixed
+    height matching the text slides' own min-height (see
+    .thes__announce-banner-img in tokens.html.tmpl) specifically so a
+    banner-graphic slide and a text slide crossfade at the same height
+    — same "no visible jump" requirement as everywhere else in this
+    banner, just solved once more for a second slide shape.
+
+    An announcement can carry `expires` (an ISO date, "YYYY-MM-DD") —
+    once today is past that date, it's silently dropped from the
+    rendered banner on the next rebuild (hourly via sync-events.yml, so
+    within about an hour of actually expiring even with no human
+    action), same as every other date-driven filter on this site (the
+    Events page's own lookahead window works the same way). For an
+    announcement linked to a real calendar event, `expires` is computed
+    *once*, when the announcement is added — event date + 1 day, read
+    from that event's own `date` field in config/events.json (see
+    .claude/skills/add-announcement/) — rather than re-resolved live on
+    every build: config/events.json is a *rolling* window of only the
+    next several upcoming events, so by the time an event's expiry date
+    actually arrives the event itself may have already scrolled out of
+    that file, and a live lookup would fail at exactly the moment it's
+    needed. Baking the literal date in at add-time sidesteps that
+    entirely — same reasoning as why `flyer_href` copies the event's
+    attachment URL in rather than trying to re-derive it by title match
+    on every build."""
+    if not announcements:
+        return ""
+
+    today = dt.date.today()
+
+    def is_active(a):
+        expires = a.get("expires")
+        if not expires:
+            return True
+        try:
+            return dt.date.fromisoformat(expires) >= today
+        except ValueError:
+            return True
+
+    announcements = [a for a in announcements if is_active(a)]
     if not announcements:
         return ""
 
@@ -479,15 +517,23 @@ def build_announcement_banner(announcements, context):
             return f'<img class="thes__announce-icon" src="{context["IMAGES_BASE_URL"]}/{filename}" alt="">'
         return ANNOUNCE_ICON_SVG
 
+    def resolve_banner_image(a):
+        filename = a.get("flyer_filename")
+        if filename:
+            return f'{context["FLYER_BASE_URL"]}/announcements/{filename}'
+        drive_href = a.get("flyer_href")
+        if drive_href:
+            return drive_thumbnail_url(drive_href) or drive_href
+        return None
+
     def render_slide(a, i):
         active_style = ' style="display:flex;opacity:1;" ' if i == 0 else " "
         href = resolve_href(a)
-        flyer_filename = a.get("flyer_filename")
-        if flyer_filename:
-            flyer_url = f'{context["FLYER_BASE_URL"]}/announcements/{flyer_filename}'
+        banner_image = resolve_banner_image(a)
+        if banner_image:
             return (
                 f'<a class="thes__announce-slide thes__announce-slide--banner"{active_style}href="{href}">'
-                f'<img class="thes__announce-banner-img" src="{flyer_url}" alt="{a.get("text", "")}"></a>'
+                f'<img class="thes__announce-banner-img" src="{banner_image}" alt="{a.get("text", "")}"></a>'
             )
         return (
             f'<a class="thes__announce-slide"{active_style}href="{href}">'
@@ -503,6 +549,8 @@ def build_announcement_banner(announcements, context):
                     a.get("page_url") or a.get("href", ""),
                     a.get("icon_filename", ""),
                     a.get("flyer_filename", ""),
+                    a.get("flyer_href", ""),
+                    a.get("expires", ""),
                 ]
                 for a in announcements
             ]

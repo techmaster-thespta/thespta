@@ -55,6 +55,45 @@ image's `alt` text for anyone who can't see it. Never combine
 `icon_filename` and `flyer_filename` on the same entry (flyer wins, icon is
 ignored) — pick one.
 
+**Linking an announcement to a real calendar event** (e.g. "add an
+announcement for Fall Fest"): check `config/events.json` for that event —
+if it's there and already has an `attachments` entry (a flyer already on
+the calendar), copy that flyer's `href` into the announcement as
+`flyer_href` instead of `flyer_filename` — this reuses the event's existing
+flyer via the same Drive-thumbnail mechanism the Events page itself uses,
+so nothing needs to be re-uploaded:
+
+```json
+{ "text": "Fall Fest & Trunk or Treat — details and RSVP", "page_url": "events", "flyer_href": "https://drive.google.com/open?id=1SVx35OvI6TtwA_IhRHi4SW1lC35L8liL" }
+```
+
+If that event also has a `date` field, set `expires` to the day *after*
+that date (see below) — computed once, now, not left for a future rebuild
+to figure out.
+
+**Expiration** — add `expires` (an ISO date, `"YYYY-MM-DD"`) to have an
+announcement automatically stop showing after that date (dropped from the
+banner on the next rebuild, so within about an hour via the hourly sync,
+same as everything else calendar-driven on this site):
+
+```json
+{ "text": "Fall Fest & Trunk or Treat — details and RSVP", "page_url": "events", "expires": "2026-10-31" }
+```
+
+- **Linked to a calendar event**: set `expires` to one day after that
+  event's own `date` in `config/events.json` (e.g. event date `2026-10-30`
+  → `expires: "2026-10-31"`). Compute this once, now, when you add the
+  entry — never leave it to be re-derived later, since `config/events.json`
+  only ever holds a *rolling* window of upcoming events and the event
+  itself will have scrolled out of that file by the time its own expiry
+  date actually arrives.
+- **Not calendar-linked** (a general message, an ongoing program): only
+  add `expires` if the user gives you an actual end date. Otherwise leave
+  it unset — the announcement stays up until someone removes it manually.
+- Never guess a date — same rule as everywhere else on this site. If asked
+  to link an announcement to an event you can't find in
+  `config/events.json`, say so rather than inventing a date.
+
 **Important behavior to know**: when this file is `[]`, the entire banner is
 omitted from every page — not shown as an empty bar. Adding the first entry
 makes it appear everywhere automatically; removing the last entry makes it
@@ -74,7 +113,7 @@ does.
 ## Steps
 
 1. Read `config/announcements.json`.
-2. **Adding**: append a new `{ }` entry. Ask for the exact message text and where it should link (an internal page, or an external URL) if not given.
+2. **Adding**: append a new `{ }` entry. Ask for the exact message text and where it should link (an internal page, or an external URL) if not given. If the request references a specific calendar event, check `config/events.json` for it first — reuse its flyer (`flyer_href`, see above) and compute `expires` from its `date` field, rather than asking the user to supply either.
 3. **Editing**: change the relevant field(s) in place.
 4. **Removing**: delete the entry.
 5. Run `python3 src/build.py`.
