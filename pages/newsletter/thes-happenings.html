@@ -59,6 +59,7 @@
     --yellow-text: #8A6C00;
     --teal: #159C9C;
     --teal-tint: #E1F3F3;
+    --teal-rgb: 21,156,156;
     --coral: #F2645A;
     --coral-tint: #FDE7E5;
     --bg-tint: #DDEFEF;
@@ -213,21 +214,25 @@
   /* ---- Announcements banner (see announcement-banner.html.tmpl) ----
      A plain flex row, not the position:absolute stacking technique the
      calendar/welcome-video embeds use — every slide but the active one
-     is display:none, so only one is ever laid out at a time and the
-     banner's height just follows whichever slide is currently showing.
-     Navy background (the palette's "structural chrome" role, same as
-     the footer) rather than teal/yellow, so this reads as part of the
-     site's frame, not another call-to-action competing with real CTAs
-     elsewhere on the page. */
-  .thes__announce { background: var(--navy); }
+     is display:none, so only one is ever laid out at a time. A fixed
+     min-height on each slide (not just "whichever slide is currently
+     showing") is what keeps the banner from visibly growing/shrinking
+     as it rotates between a short message and a longer one that wraps
+     to two lines. Translucent teal (var(--teal-rgb) + alpha, not a
+     solid fill) rather than navy — it reads as tinted glass over
+     whatever's behind it instead of a hard-edged bar, and white text
+     on teal is already an established combination on this site (see
+     .thes__btn--teal). */
+  .thes__announce { background: rgba(var(--teal-rgb), 0.88); }
   .thes__announce-inner { max-width: 1200px; margin: 0 auto; padding: 0 12px; display: flex; align-items: center; gap: 4px; }
   .thes__announce-track { flex: 1; min-width: 0; text-align: center; }
   .thes__announce-slide {
-    display: none; align-items: center; justify-content: center; gap: 6px;
-    padding: 10px 4px; color: #fff; text-decoration: none;
+    display: none; align-items: center; justify-content: center; gap: 8px;
+    min-height: 2.6em; padding: 6px 4px; color: #fff; text-decoration: none;
     font-size: 0.86rem; font-weight: 600; opacity: 0; transition: opacity 0.4s ease;
   }
   .thes__announce-slide:hover { text-decoration: underline; }
+  .thes__announce-icon { flex-shrink: 0; width: 22px; height: 22px; object-fit: contain; }
   .thes__announce-close {
     flex-shrink: 0; background: none; border: none; color: #fff; opacity: 0.75;
     font-size: 1.15rem; line-height: 1; cursor: pointer; padding: 6px;
@@ -579,7 +584,7 @@
 })();
 </script>
 
-<div class="thes__announce" id="thes-announce" data-hash="7e1190299c2e">
+<div class="thes__announce" id="thes-announce" data-hash="76ebc4b23aa5">
   <div class="thes__announce-inner">
     <div class="thes__announce-track" id="thes-announce-track">
 <a class="thes__announce-slide" style="display:flex;opacity:1;" href="../events.html">🎉 Fall Fest & Trunk or Treat is October 30 — view details!</a>

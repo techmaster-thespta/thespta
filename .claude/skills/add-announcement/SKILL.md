@@ -27,7 +27,14 @@ or, to link to a page on this site instead of an external URL:
 Use `page_url` (a key from `config/site.json`'s `page_urls`) for an internal
 page, or `href` for an external link — never both on the same entry. `text`
 is the whole clickable message; keep it short (one line, no line breaks) since
-it has to fit the banner at every screen width.
+it has to fit the banner at every screen width. Plain emoji directly in
+`text` (🎉, 📣, etc.) already works with no extra field. For a real image
+icon instead, add `icon_filename` — a small image file already in
+`assets/images/` (same place hero/board photos live), e.g.:
+
+```json
+{ "text": "New sponsorship levels are open!", "page_url": "become_sponsor", "icon_filename": "megaphone.png" }
+```
 
 **Important behavior to know**: when this file is `[]`, the entire banner is
 omitted from every page — not shown as an empty bar. Adding the first entry

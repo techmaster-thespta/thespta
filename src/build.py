@@ -91,11 +91,16 @@ def build_context(depth=0):
     context["font_body"] = theme["fonts"]["body"]
     context["google_fonts_url"] = theme["fonts"]["google_fonts_url"]
     context.update(flatten(theme["colors"], "colors"))
+    # "R,G,B" (no rgb()/rgba() wrapper) so a template can drop it straight
+    # into `rgba(var(--teal-rgb), 0.88)` for a translucent fill — a plain
+    # hex custom property can't be used inside rgba() directly.
+    context["colors.teal_rgb"] = ",".join(str(int(theme["colors"]["teal"].lstrip("#")[i:i + 2], 16)) for i in (0, 2, 4))
 
     prefix = "../" * depth
 
     # Served by GitHub Pages alongside the HTML — see .github/workflows/deploy.yml,
     # which copies assets/images/* into site/images/ next to pages/*.html.
+    context["IMAGES_BASE_URL"] = f"{prefix}images"
     context["HERO_IMAGE_URL"] = f'{prefix}images/{site["hero_image_filename"]}'
     context["PAGE_HEADER_IMAGE_URL"] = f'{prefix}images/{site["page_header_image_filename"]}'
 
@@ -427,7 +432,14 @@ def build_announcement_banner(announcements, context):
     today's message doesn't hide a different one the PTA adds tomorrow;
     changing the config content changes the hash, which un-dismisses the
     banner for every visitor automatically without needing to touch any
-    per-visitor state."""
+    per-visitor state.
+
+    An announcement can optionally carry `icon_filename` — a small image
+    (a logo, a category icon) served from assets/images/ like every
+    other image on this site, shown before the text. Purely optional:
+    plain emoji directly in `text` already works with zero code (this is
+    just plain HTML), `icon_filename` is only for when a real image
+    (not an emoji) is wanted."""
     if not announcements:
         return ""
 
@@ -436,16 +448,26 @@ def build_announcement_banner(announcements, context):
             return context[f"page_urls.{a['page_url']}"]
         return a.get("href", "#")
 
+    def render_icon(a):
+        filename = a.get("icon_filename")
+        if not filename:
+            return ""
+        return f'<img class="thes__announce-icon" src="{context["IMAGES_BASE_URL"]}/{filename}" alt="">'
+
     content_hash = hashlib.md5(
         json.dumps(
-            [[a.get("text", ""), a.get("page_url") or a.get("href", "")] for a in announcements]
+            [
+                [a.get("text", ""), a.get("page_url") or a.get("href", ""), a.get("icon_filename", "")]
+                for a in announcements
+            ]
         ).encode()
     ).hexdigest()[:12]
 
     slides = "\n".join(
-        '<a class="thes__announce-slide"{}href="{}">{}</a>'.format(
+        '<a class="thes__announce-slide"{}href="{}">{}{}</a>'.format(
             ' style="display:flex;opacity:1;" ' if i == 0 else " ",
             resolve_href(a),
+            render_icon(a),
             a["text"],
         )
         for i, a in enumerate(announcements)
