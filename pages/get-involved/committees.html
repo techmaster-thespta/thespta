@@ -577,6 +577,61 @@
 })();
 </script>
 
+<div class="thes__announce" id="thes-announce" data-hash="7e1190299c2e">
+  <div class="thes__announce-inner">
+    <div class="thes__announce-track" id="thes-announce-track">
+<a class="thes__announce-slide" style="display:flex;opacity:1;" href="../events.html">🎉 Fall Fest & Trunk or Treat is October 30 — view details!</a>
+<a class="thes__announce-slide" href="../become-a-sponsor.html">Become a business sponsor and support Thunder Hill!</a>
+    </div>
+    <button type="button" class="thes__announce-close" id="thes-announce-close" aria-label="Dismiss announcement">&times;</button>
+  </div>
+</div>
+<script>
+(function () {
+  var banner = document.getElementById("thes-announce");
+  if (!banner) return;
+  var STORAGE_KEY = "thes_announce_dismissed";
+  var hash = banner.getAttribute("data-hash");
+  try {
+    if (window.localStorage && localStorage.getItem(STORAGE_KEY) === hash) {
+      banner.style.display = "none";
+      return;
+    }
+  } catch (e) {}
+
+  var closeBtn = document.getElementById("thes-announce-close");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", function () {
+      banner.style.display = "none";
+      try {
+        if (window.localStorage) localStorage.setItem(STORAGE_KEY, hash);
+      } catch (e) {}
+    });
+  }
+
+  var slides = banner.querySelectorAll(".thes__announce-slide");
+  if (slides.length < 2) return;
+  var i = 0;
+  setInterval(function () {
+    var current = slides[i];
+    var nextIndex = (i + 1) % slides.length;
+    var next = slides[nextIndex];
+    current.style.opacity = "0";
+    setTimeout(function () {
+      current.style.display = "none";
+      next.style.display = "flex";
+      next.style.opacity = "0";
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          next.style.opacity = "1";
+        });
+      });
+    }, 400);
+    i = nextIndex;
+  }, 6000);
+})();
+</script>
+
 
   <div class="thes__pagehead">
     <div class="thes__pagehead-text">
