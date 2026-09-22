@@ -62,7 +62,6 @@
     --yellow-text: #8A6C00;
     --teal: #159C9C;
     --teal-tint: #E1F3F3;
-    --teal-rgb: 21,156,156;
     --coral: #F2645A;
     --coral-tint: #FDE7E5;
     --bg-tint: #DDEFEF;
@@ -220,38 +219,60 @@
      is display:none, so only one is ever laid out at a time. A fixed
      min-height (generous enough for a message that wraps to two lines,
      computed against this rule's own explicit line-height rather than
-     inheriting .thes's line-height:1.6 — the first version of this
-     under-budgeted for two wrapped lines against that larger inherited
-     value, so a longer message still grew taller than a short one and
-     the banner visibly jumped when the crossfade swapped between them)
-     is what actually keeps the banner's height constant regardless of
-     which slide is showing. Translucent teal (var(--teal-rgb) + alpha,
-     not a solid fill) rather than navy — it reads as tinted glass over
-     whatever's behind it instead of a hard-edged bar, and white text on
-     teal is already an established combination on this site (see
-     .thes__btn--teal). `.thes__announce a.thes__announce-slide`
-     (two classes + element, specificity 0,2,1) is what actually beats
+     inheriting .thes's line-height:1.6, which under-budgets for a real
+     two-line wrap) is what keeps the banner's height constant regardless
+     of which slide is showing.
+
+     Deliberately more than a flat color + bare sentence — a subtle
+     navy-to-teal gradient (the site's own two structural/CTA colors,
+     nothing new introduced), a thin yellow accent border (the palette's
+     "small cheerful accent" role, same reasoning as icon-circle/badge
+     accents elsewhere), a drop shadow lifting it off the page, an icon
+     "badge" before every message (ANNOUNCE_ICON_SVG in build.py when an
+     announcement doesn't set its own `icon_filename`), and a trailing
+     arrow that nudges right on hover — the same "&rarr;" affordance
+     every other clickable card/button on this site already uses, so a
+     visitor recognizes "this is clickable" the same way they do
+     everywhere else. `.thes__announce a.thes__announce-slide` (two
+     classes + element, specificity 0,2,1) is what actually beats
      `.thes a { color: inherit; }` (0,1,1) — a bare `.thes__announce-slide
      { color: #fff; }` alone is only (0,1,0), which loses regardless of
      source order, the exact .thes__btn--navy specificity bug from
      "Hard-won constraints" (CLAUDE.md), reintroduced here and now fixed
      the same way (combine classes to clearly exceed, not a same-specificity
      tie that depends on which rule happens to be declared later). */
-  .thes__announce { background: rgba(var(--teal-rgb), 0.88); }
-  .thes__announce-inner { max-width: 1200px; margin: 0 auto; padding: 0 12px; display: flex; align-items: center; gap: 4px; }
-  .thes__announce-track { flex: 1; min-width: 0; text-align: center; }
+  .thes__announce {
+    background: linear-gradient(100deg, var(--navy), var(--teal));
+    border-bottom: 3px solid var(--yellow);
+    box-shadow: 0 2px 10px rgba(7, 59, 104, 0.18);
+  }
+  .thes__announce-inner { max-width: 1200px; margin: 0 auto; padding: 9px 14px; display: flex; align-items: center; gap: 10px; }
+  .thes__announce-track { flex: 1; min-width: 0; }
   .thes__announce a.thes__announce-slide {
     display: none; align-items: center; justify-content: center; gap: 8px;
-    min-height: 3.4rem; padding: 6px 4px; color: #fff; text-decoration: none;
-    font-size: 0.86rem; font-weight: 600; line-height: 1.3; opacity: 0; transition: opacity 0.4s ease;
+    min-height: 2.6rem; color: #fff; text-decoration: none;
+    font-size: 0.88rem; font-weight: 600; line-height: 1.35; opacity: 0; transition: opacity 0.4s ease;
   }
-  .thes__announce a.thes__announce-slide:hover { color: #fff; text-decoration: underline; }
-  .thes__announce-icon { flex-shrink: 0; width: 22px; height: 22px; object-fit: contain; }
+  .thes__announce a.thes__announce-slide:hover { color: #fff; }
+  .thes__announce-icon { flex-shrink: 0; width: 17px; height: 17px; object-fit: contain; opacity: 0.95; }
+  .thes__announce-text { text-align: center; }
+  .thes__announce a.thes__announce-slide:hover .thes__announce-text { text-decoration: underline; }
+  .thes__announce-arrow { flex-shrink: 0; font-weight: 700; transition: transform 0.2s ease; }
+  .thes__announce a.thes__announce-slide:hover .thes__announce-arrow { transform: translateX(3px); }
   .thes__announce-close {
-    flex-shrink: 0; background: none; border: none; color: #fff; opacity: 0.75;
-    font-size: 1.15rem; line-height: 1; cursor: pointer; padding: 6px;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%; background: rgba(255, 255, 255, 0.14);
+    border: none; color: #fff; font-size: 1rem; line-height: 1; cursor: pointer;
+    transition: background 0.2s ease;
   }
-  .thes__announce-close:hover { opacity: 1; }
+  .thes__announce-close:hover { background: rgba(255, 255, 255, 0.28); }
+  /* A "banner graphic" slide (an announcement with its own flyer_filename,
+     see build_announcement_banner) — just the image, no icon/text/arrow.
+     The image's height is fixed to match the text slides' own min-height
+     above, so crossfading between a text slide and a graphic slide never
+     visibly changes the bar's height either. */
+  .thes__announce a.thes__announce-slide.thes__announce-slide--banner { padding: 0; }
+  .thes__announce-banner-img { display: block; width: 100%; height: 2.6rem; object-fit: cover; border-radius: 4px; }
 
   /* ---- Page header (About / Get Involved / Events) ----
      Mirrors the home hero's layout (title text on the left, school photo on
@@ -598,11 +619,11 @@
 })();
 </script>
 
-<div class="thes__announce" id="thes-announce" data-hash="76ebc4b23aa5">
+<div class="thes__announce" id="thes-announce" data-hash="69d0cdede0a6">
   <div class="thes__announce-inner">
     <div class="thes__announce-track" id="thes-announce-track">
-<a class="thes__announce-slide" style="display:flex;opacity:1;" href="../events.html">🎉 Fall Fest & Trunk or Treat is October 30 — view details!</a>
-<a class="thes__announce-slide" href="../become-a-sponsor.html">Become a business sponsor and support Thunder Hill!</a>
+<a class="thes__announce-slide" style="display:flex;opacity:1;" href="../events.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">Fall Fest & Trunk or Treat is October 30 — view details!</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
+<a class="thes__announce-slide" href="../become-a-sponsor.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">Become a business sponsor and support Thunder Hill!</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
     </div>
     <button type="button" class="thes__announce-close" id="thes-announce-close" aria-label="Dismiss announcement">&times;</button>
   </div>

@@ -91,10 +91,6 @@ def build_context(depth=0):
     context["font_body"] = theme["fonts"]["body"]
     context["google_fonts_url"] = theme["fonts"]["google_fonts_url"]
     context.update(flatten(theme["colors"], "colors"))
-    # "R,G,B" (no rgb()/rgba() wrapper) so a template can drop it straight
-    # into `rgba(var(--teal-rgb), 0.88)` for a translucent fill — a plain
-    # hex custom property can't be used inside rgba() directly.
-    context["colors.teal_rgb"] = ",".join(str(int(theme["colors"]["teal"].lstrip("#")[i:i + 2], 16)) for i in (0, 2, 4))
 
     prefix = "../" * depth
 
@@ -402,6 +398,14 @@ def with_event_extras(event):
     }
 
 
+ANNOUNCE_ICON_SVG = (
+    '<svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" '
+    'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+    'stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/>'
+    '<path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>'
+)
+
+
 def build_announcement_banner(announcements, context):
     """A thin, dismissible, auto-rotating announcements strip shown right
     under the header on every page — same empty-means-no-section pattern
@@ -436,10 +440,31 @@ def build_announcement_banner(announcements, context):
 
     An announcement can optionally carry `icon_filename` — a small image
     (a logo, a category icon) served from assets/images/ like every
-    other image on this site, shown before the text. Purely optional:
-    plain emoji directly in `text` already works with zero code (this is
-    just plain HTML), `icon_filename` is only for when a real image
-    (not an emoji) is wanted."""
+    other image on this site, shown before the text. Every text slide
+    always shows *some* icon — ANNOUNCE_ICON_SVG (a plain inline speaker
+    glyph, same stroke-icon style already used in the Home page's
+    quick-action cards) when no `icon_filename` is set — so the banner
+    reads as a designed "badge + message + arrow" unit rather than a
+    bare sentence, the single biggest visual difference between a slick
+    announcement bar and a flat one per real-world examples (Elfsight/
+    Popupsmart/UserGuiding). A trailing arrow (&rarr;, the same "this is
+    clickable, here's where" convention already used on every card/
+    button link across the rest of this site) closes out each slide for
+    the same reason. No emoji anywhere in generated markup — deliberate,
+    the PTA wants this professional, not casual.
+
+    An announcement can instead carry `flyer_filename` (a real flyer
+    image, in assets/flyers/announcements/ like every other flyer type
+    on this site) — when set, that entire slide becomes a full-width
+    clickable banner graphic (just the image, no icon/text/arrow
+    chrome) instead of the icon+text treatment, for a PTA that already
+    has a designed flyer and wants to show it as-is rather than
+    re-describe it in a sentence. The image gets a fixed height
+    matching the text slides' own min-height (see .thes__announce-banner-img
+    in tokens.html.tmpl) specifically so a banner-graphic slide and a
+    text slide crossfade at the same height — same "no visible jump"
+    requirement as everywhere else in this banner, just solved once
+    more for a second slide shape."""
     if not announcements:
         return ""
 
@@ -450,28 +475,41 @@ def build_announcement_banner(announcements, context):
 
     def render_icon(a):
         filename = a.get("icon_filename")
-        if not filename:
-            return ""
-        return f'<img class="thes__announce-icon" src="{context["IMAGES_BASE_URL"]}/{filename}" alt="">'
+        if filename:
+            return f'<img class="thes__announce-icon" src="{context["IMAGES_BASE_URL"]}/{filename}" alt="">'
+        return ANNOUNCE_ICON_SVG
+
+    def render_slide(a, i):
+        active_style = ' style="display:flex;opacity:1;" ' if i == 0 else " "
+        href = resolve_href(a)
+        flyer_filename = a.get("flyer_filename")
+        if flyer_filename:
+            flyer_url = f'{context["FLYER_BASE_URL"]}/announcements/{flyer_filename}'
+            return (
+                f'<a class="thes__announce-slide thes__announce-slide--banner"{active_style}href="{href}">'
+                f'<img class="thes__announce-banner-img" src="{flyer_url}" alt="{a.get("text", "")}"></a>'
+            )
+        return (
+            f'<a class="thes__announce-slide"{active_style}href="{href}">'
+            f'{render_icon(a)}<span class="thes__announce-text">{a["text"]}</span>'
+            f'<span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>'
+        )
 
     content_hash = hashlib.md5(
         json.dumps(
             [
-                [a.get("text", ""), a.get("page_url") or a.get("href", ""), a.get("icon_filename", "")]
+                [
+                    a.get("text", ""),
+                    a.get("page_url") or a.get("href", ""),
+                    a.get("icon_filename", ""),
+                    a.get("flyer_filename", ""),
+                ]
                 for a in announcements
             ]
         ).encode()
     ).hexdigest()[:12]
 
-    slides = "\n".join(
-        '<a class="thes__announce-slide"{}href="{}">{}{}</a>'.format(
-            ' style="display:flex;opacity:1;" ' if i == 0 else " ",
-            resolve_href(a),
-            render_icon(a),
-            a["text"],
-        )
-        for i, a in enumerate(announcements)
-    )
+    slides = "\n".join(render_slide(a, i) for i, a in enumerate(announcements))
 
     tmpl = (TEMPLATES / "announcement-banner.html.tmpl").read_text()
     return render(tmpl, {**context, "ANNOUNCEMENT_SLIDES": slides, "ANNOUNCEMENT_HASH": content_hash})

@@ -27,14 +27,33 @@ or, to link to a page on this site instead of an external URL:
 Use `page_url` (a key from `config/site.json`'s `page_urls`) for an internal
 page, or `href` for an external link — never both on the same entry. `text`
 is the whole clickable message; keep it short (one line, no line breaks) since
-it has to fit the banner at every screen width. Plain emoji directly in
-`text` (🎉, 📣, etc.) already works with no extra field. For a real image
-icon instead, add `icon_filename` — a small image file already in
-`assets/images/` (same place hero/board photos live), e.g.:
+it has to fit the banner at every screen width. **Never use emoji in `text`**
+— the PTA wants this professional, not casual; every text announcement
+already gets a small built-in speaker icon automatically, so no icon of any
+kind needs to be typed into the message itself.
+
+For a real image icon instead of the built-in speaker icon, add
+`icon_filename` — a small image file already in `assets/images/` (same place
+hero/board photos live):
 
 ```json
 { "text": "New sponsorship levels are open!", "page_url": "become_sponsor", "icon_filename": "megaphone.png" }
 ```
+
+If the PTA already has a **designed flyer graphic** for this announcement,
+use `flyer_filename` instead — the whole banner becomes that flyer image
+(no icon/text/arrow), clickable through to `href`/`page_url` same as any
+other entry. The file goes in `assets/flyers/announcements/` (same pattern
+as `assets/flyers/before-after-school/`, `assets/flyers/fundraising/`, etc.):
+
+```json
+{ "text": "Fall Fest flyer", "page_url": "events", "flyer_filename": "fall-fest-2026.jpg" }
+```
+
+`text` is still required even with `flyer_filename` — it becomes the
+image's `alt` text for anyone who can't see it. Never combine
+`icon_filename` and `flyer_filename` on the same entry (flyer wins, icon is
+ignored) — pick one.
 
 **Important behavior to know**: when this file is `[]`, the entire banner is
 omitted from every page — not shown as an empty bar. Adding the first entry
