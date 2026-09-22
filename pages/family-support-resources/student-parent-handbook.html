@@ -211,6 +211,30 @@
     .thes__nav-submenu { display: none; position: static; box-shadow: none; border: none; padding: 0 0 4px 16px; }
   }
 
+  /* ---- Announcements banner (see announcement-banner.html.tmpl) ----
+     A plain flex row, not the position:absolute stacking technique the
+     calendar/welcome-video embeds use — every slide but the active one
+     is display:none, so only one is ever laid out at a time and the
+     banner's height just follows whichever slide is currently showing.
+     Navy background (the palette's "structural chrome" role, same as
+     the footer) rather than teal/yellow, so this reads as part of the
+     site's frame, not another call-to-action competing with real CTAs
+     elsewhere on the page. */
+  .thes__announce { background: var(--navy); }
+  .thes__announce-inner { max-width: 1200px; margin: 0 auto; padding: 0 12px; display: flex; align-items: center; gap: 4px; }
+  .thes__announce-track { flex: 1; min-width: 0; text-align: center; }
+  .thes__announce-slide {
+    display: none; align-items: center; justify-content: center; gap: 6px;
+    padding: 10px 4px; color: #fff; text-decoration: none;
+    font-size: 0.86rem; font-weight: 600; opacity: 0; transition: opacity 0.4s ease;
+  }
+  .thes__announce-slide:hover { text-decoration: underline; }
+  .thes__announce-close {
+    flex-shrink: 0; background: none; border: none; color: #fff; opacity: 0.75;
+    font-size: 1.15rem; line-height: 1; cursor: pointer; padding: 6px;
+  }
+  .thes__announce-close:hover { opacity: 1; }
+
   /* ---- Page header (About / Get Involved / Events) ----
      Mirrors the home hero's layout (title text on the left, school photo on
      the right) and matches its aspect ratio (1695:928, the source banner

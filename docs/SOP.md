@@ -275,6 +275,25 @@ from that event directly, wherever the event appears.
 
 ---
 
+## Task 4d — Add, remove, or edit an announcement
+
+**File:** `config/announcements.json` · **Skill:** `.claude/skills/add-announcement/`
+
+Each entry is `{ "text": "...", "href": "..." }` (external link) or
+`{ "text": "...", "page_url": "..." }` (internal page — a key from
+`page_urls` below). Same empty-list-means-nothing-shown behavior as
+sponsors/flyers — this powers the horizontal announcements banner shown
+just under the header on *every* page of the site, not just one.
+
+With more than one entry, the banner auto-rotates between them with a
+smooth fade every few seconds. A visitor can dismiss it (×) — that's
+remembered per-browser, but only for the exact set of announcements
+they dismissed: editing this file in any way (even just fixing a typo)
+automatically re-shows the banner to everyone, since dismissal is keyed
+to a hash of the content, not "the banner" in general.
+
+---
+
 ## Task 5 — Add, remove, or reorder a nav menu item
 
 **File:** `config/site.json` → `nav`

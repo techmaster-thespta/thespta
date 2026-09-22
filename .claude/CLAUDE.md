@@ -216,7 +216,7 @@ never requires touching `header.html.tmpl` or `build.py`.
 - `.claude/skills/` — one skill per addable content type (`add-event`,
   `add-board-member`, `add-sponsor`, `add-flyer`, `add-committee`,
   `add-afterschool-program`, `add-pta-meeting`,
-  `add-family-support-resource`), the GitHub issue
+  `add-family-support-resource`, `add-announcement`), the GitHub issue
   workflow (`create-issue` to plan a change and file it, `from-issue` to
   pull an issue by number, implement it, open a PR), `rebuild-now`
   (push pending changes + force an immediate rebuild/redeploy, for

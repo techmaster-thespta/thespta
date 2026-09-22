@@ -22,6 +22,7 @@ additions (events, board members, sponsors, flyers) are meant to be made
 — config only, never this file — by an agent working from .claude/skills/.
 """
 import datetime as dt
+import hashlib
 import json
 import re
 import urllib.parse
@@ -394,6 +395,64 @@ def with_event_extras(event):
         "SIGNUP_BUTTON": render_event_signup(event.get("signup_href")),
         "MEET_BUTTON": render_event_meet(event.get("meet_href")),
     }
+
+
+def build_announcement_banner(announcements, context):
+    """A thin, dismissible, auto-rotating announcements strip shown right
+    under the header on every page — same empty-means-no-section pattern
+    as sponsors/flyers/every other optional content type on this site:
+    an empty config/announcements.json means this renders nothing at
+    all, not an empty bar. Each announcement links somewhere relevant —
+    either an internal page via `page_url` (resolved the same
+    depth-aware way every other internal link on this site is, so it
+    works correctly regardless of how deep the current page sits) or a
+    plain external `href` — clicking anywhere on the slide navigates
+    there. This is *"manage dynamically"* the same way every other
+    config-only content type on this site is: editing
+    config/announcements.json (see .claude/skills/add-announcement/),
+    not a live/authenticated admin panel — there's no backend here to
+    host one.
+
+    More than one announcement crossfades on an interval via the
+    <script> in announcement-banner.html.tmpl; a single one just sits
+    still, no rotation needed. The crossfade is a sequential fade-out-
+    swap-fade-in (opacity only, one slide visible at a time via
+    display:none/flex) rather than the position:absolute stacking
+    technique the calendar/welcome-video embeds use — deliberately, to
+    avoid introducing a 5th position:absolute use beyond the ones
+    "Hard-won constraints" in CLAUDE.md already vetted.
+
+    Dismissal is remembered in the visitor's own localStorage, keyed by
+    a hash of the *current* announcement set's content — so dismissing
+    today's message doesn't hide a different one the PTA adds tomorrow;
+    changing the config content changes the hash, which un-dismisses the
+    banner for every visitor automatically without needing to touch any
+    per-visitor state."""
+    if not announcements:
+        return ""
+
+    def resolve_href(a):
+        if a.get("page_url"):
+            return context[f"page_urls.{a['page_url']}"]
+        return a.get("href", "#")
+
+    content_hash = hashlib.md5(
+        json.dumps(
+            [[a.get("text", ""), a.get("page_url") or a.get("href", "")] for a in announcements]
+        ).encode()
+    ).hexdigest()[:12]
+
+    slides = "\n".join(
+        '<a class="thes__announce-slide"{}href="{}">{}</a>'.format(
+            ' style="display:flex;opacity:1;" ' if i == 0 else " ",
+            resolve_href(a),
+            a["text"],
+        )
+        for i, a in enumerate(announcements)
+    )
+
+    tmpl = (TEMPLATES / "announcement-banner.html.tmpl").read_text()
+    return render(tmpl, {**context, "ANNOUNCEMENT_SLIDES": slides, "ANNOUNCEMENT_HASH": content_hash})
 
 
 def build_welcome_video_section(site):
@@ -1463,6 +1522,7 @@ def main():
     board_cards = build_board_cards()
     events = load_json("events.json", default=[])
     hcpss_events = load_json("hcpss-family-events.json", default=[])
+    announcements = load_json("announcements.json", default=[])
     site = load_json("site.json")
     committees_section = build_committees_section(
         load_json("committees.json", default=[]), site["volunteerForm"]
@@ -1501,6 +1561,7 @@ def main():
         current_page_url = page_url_keys_by_name.get(page_name.removesuffix(".html"))
         header = build_header(context, current_page_url)
         breadcrumb = render_breadcrumb(site.get("nav", []), current_page_url, context)
+        announcement_banner = build_announcement_banner(announcements, context)
         footer = build_footer(context)
         home_events_section = build_home_events_section(events, context)
         events_page_section = build_events_page_section(events, context)
@@ -1562,8 +1623,13 @@ def main():
         # template has to remember to include. A real page once shipped
         # without one (copied from before this branch had a header at
         # all) because nothing enforced its presence — this makes it
-        # impossible for any current or future page to omit it.
-        text = text.replace('<div class="thes">', f'<div class="thes">\n{header}', 1)
+        # impossible for any current or future page to omit it. The
+        # announcement banner (built above, "" when config/announcements.json
+        # is empty) rides along in this same structural insertion, right
+        # below the header, for the same reason — every page gets it with
+        # no per-template marker to remember.
+        header_block = header + (f"\n{announcement_banner}" if announcement_banner else "")
+        text = text.replace('<div class="thes">', f'<div class="thes">\n{header_block}', 1)
 
         leftover = PLACEHOLDER.findall(text)
         if leftover:
