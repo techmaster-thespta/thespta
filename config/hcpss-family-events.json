@@ -1,26 +1,26 @@
 [
   {
-    "day": "21",
-    "month": "Sep",
-    "title": "SPECIALCENTS MONEY SKILLS COURSE",
-    "when": "6:00 \u2013 6:45 PM",
-    "featured": true,
-    "description": "SPECIALCENTS MONEY SKILLS COURSE September 21, 2026 6:00\u20136:45 p.m. - SpecialCents Introduction + Money Basics October 5, 2026 6:00\u20136:30 p.m. Money Basics Review + Smart Saving October 19, 2026\u2026"
-  },
-  {
-    "day": "21",
-    "month": "Sep",
-    "title": "NAVIGATING THE BACK-TO-SCHOOL TRANSITION WITH WORLD-RENOWNED AUTISM ACTIVIST AND ANIMAL BEHAVIORIST DR. TEMPLE GRANDIN",
-    "when": "6:00 \u2013 8:00 PM",
-    "featured": false,
-    "description": "NAVIGATING THE BACK-TO-SCHOOL TRANSITION WITH WORLD-RENOWNED AUTISM ACTIVIST AND ANIMAL BEHAVIORIST DR. TEMPLE GRANDIN Monday, September 21, 2026 6:00-8:00 p.m. Virtual Event Join world-renowned\u2026"
-  },
-  {
     "day": "23",
     "month": "Sep",
     "title": "ADHD KIDS ARE AWESOME: PENN & KIM HOLDERNESS ON CELEBRATING BRAIN DIFFERENCES",
     "when": "1:00 \u2013 2:00 PM",
-    "featured": false,
+    "featured": true,
     "description": "ADHD KIDS ARE AWESOME: PENN &amp; KIM HOLDERNESS ON CELEBRATING BRAIN DIFFERENCES Wednesday, September 23, 2026 1:00 p.m. Virtual Event Join Penn and Kim Holderness, authors of ADHD Is Awesome: A\u2026"
+  },
+  {
+    "day": "23",
+    "month": "Sep",
+    "title": "NAMI FAMILY TO FAMILY",
+    "when": "7:00 \u2013 9:30 PM",
+    "featured": false,
+    "description": "NAMI FAMILY TO FAMILY Tuesdays, September 22 to November 10, 2026 7:00-9:30 p.m. Virtual or in person NAMI Office 9650 Santiago Rd, Suite 1 Columbia MD NAMI Family-to-Family is an 8-session\u2026"
+  },
+  {
+    "day": "23",
+    "month": "Sep",
+    "title": "THE SIGNS WE OFTEN MISS: HELPING PARENTS RECOGNIZE EATING DISORDERS EARLIER",
+    "when": "7:00 \u2013 8:00 PM",
+    "featured": false,
+    "description": "THE SIGNS WE OFTEN MISS: HELPING PARENTS RECOGNIZE EATING DISORDERS EARLIER Wednesday, September 23, 2026 7:00-8:00 p.m. Virtual Event Many eating disorders begin long before they become obvious\u2026"
   }
 ]
