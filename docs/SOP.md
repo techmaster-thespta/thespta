@@ -227,6 +227,22 @@ needed) in `config/site.json` and push. The embed, the sync script, the
 `.ics` download link are all built from that one ID — you never edit those
 URLs by hand.
 
+### Giving one event its own page (so people can find it on Google)
+
+Calendar events only appear in the Events page's rolling list. For an
+event you want people to find by searching — like the Holiday Market —
+add an entry to `config/event-pages.json` (see
+`.claude/skills/add-event-page/SKILL.md` for the fields). That creates
+its own page at `www.thespta.org/events/<slug>.html` with the flyer,
+details, and the hidden event data Google uses to show it as an event in
+search results, plus a "Featured Events" card on the Events page until
+the event has passed. Only events listed there get a page — nothing is
+added automatically from the calendar.
+
+After it's live, open [Google Search Console](https://search.google.com/search-console),
+paste the page's URL into **URL Inspection**, and click **Request
+indexing** — then share the link everywhere you promote the event.
+
 ---
 
 ## Task 4b — Add, remove, or edit a sponsor

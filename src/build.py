@@ -23,6 +23,7 @@ additions (events, board members, sponsors, flyers) are meant to be made
 """
 import datetime as dt
 import hashlib
+import html
 import json
 import re
 import urllib.parse
@@ -655,6 +656,244 @@ def build_events_page_section(events, context):
     section_tmpl = (TEMPLATES / "events-list-section.html.tmpl").read_text()
     rows = "\n".join(indent(render(row_tmpl, {**context, **with_event_extras(e)}), 8) for e in events[:EVENTS_PAGE_MAX])
     return render(section_tmpl, {**context, "EVENTS_LIST": rows})
+
+
+# ---- Opt-in event pages (config/event-pages.json) ----
+#
+# Most events only ever live on the calendar (and so in the rolling
+# config/events.json highlights list). An event the PTA specifically
+# wants people to find from a Google search — the Holiday Market, say —
+# gets its own page at pages/events/<slug>.html instead, plus schema.org
+# Event structured data so Google can show it as an event (date, place)
+# in results. Opt-in on purpose: not every calendar entry is meant to be
+# promoted publicly, so nothing here is derived from the calendar feed.
+
+EVENT_PAGES_DIR = "events"
+
+
+def event_page_name(event):
+    return f"{EVENT_PAGES_DIR}/{event['slug']}.html"
+
+
+def format_event_time(t):
+    hour = t.hour % 12 or 12
+    suffix = "AM" if t.hour < 12 else "PM"
+    return f"{hour}:{t.minute:02d} {suffix}"
+
+
+def format_event_when(event):
+    start = dt.datetime.fromisoformat(event["start"])
+    end = dt.datetime.fromisoformat(event["end"]) if event.get("end") else None
+    day = f"{start:%A, %B} {start.day}, {start.year}"
+    if end and end.date() == start.date():
+        return f"{day} · {format_event_time(start)} – {format_event_time(end)}"
+    if end:
+        return f"{day}, {format_event_time(start)} – {end:%A, %B} {end.day}, {format_event_time(end)}"
+    return f"{day} · {format_event_time(start)}"
+
+
+def event_page_is_upcoming(event, today=None):
+    last = dt.datetime.fromisoformat(event.get("end") or event["start"]).date()
+    return last >= (today or dt.date.today())
+
+
+def event_location_address(event, site):
+    return event.get("address") or f'{site.get("address_line1", "")}, {site.get("address_line2", "")}'
+
+
+def build_postal_address(line1, line2):
+    """schema.org PostalAddress from a street line + a free-text
+    "City, ST 12345" line — see build_organization_jsonld for why it's
+    parsed best-effort rather than stored pre-split in config."""
+    address = {"@type": "PostalAddress", "streetAddress": line1}
+    m = re.match(r"^\s*(.+?),\s*([A-Z]{2})\s+(\d{5}(?:-\d{4})?)\s*$", line2)
+    if m:
+        address["addressLocality"] = m.group(1)
+        address["addressRegion"] = m.group(2)
+        address["postalCode"] = m.group(3)
+    elif line2:
+        address["addressLocality"] = line2
+    address["addressCountry"] = "US"
+    return address
+
+
+def build_event_jsonld(event, site):
+    """schema.org Event structured data for one opt-in event page — what
+    Google's event search results read (name, date, place, image), so
+    the event can show up *as an event* rather than just a blue link.
+    Dates carry a real UTC offset computed from the calendar's timezone
+    (EST vs EDT) rather than a hardcoded one."""
+    from zoneinfo import ZoneInfo
+
+    tz = ZoneInfo(site["calendar"]["timezone"])
+    domain = site["custom_domain"]
+
+    def iso(value):
+        return dt.datetime.fromisoformat(value).replace(tzinfo=tz).isoformat()
+
+    line1 = event.get("address_line1") or site.get("address_line1", "")
+    line2 = event.get("address_line2") or site.get("address_line2", "")
+    data = {
+        "@context": "https://schema.org",
+        "@type": "Event",
+        "name": event["title"],
+        "description": event["summary"],
+        "startDate": iso(event["start"]),
+        "eventStatus": "https://schema.org/EventScheduled",
+        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "location": {
+            "@type": "Place",
+            "name": event.get("location_name") or site.get("school_name", ""),
+            "address": build_postal_address(line1, line2),
+        },
+        "organizer": {
+            "@type": "Organization",
+            "name": site.get("org_name", ""),
+            "url": f"https://{domain}/",
+        },
+        "url": f"https://{domain}/{event_page_name(event)}",
+    }
+    if event.get("end"):
+        data["endDate"] = iso(event["end"])
+    if event.get("flyer_filename"):
+        data["image"] = [f"https://{domain}/flyers/{event['flyer_filename']}"]
+    return f'<script type="application/ld+json">{json.dumps(data)}</script>\n'
+
+
+def google_calendar_add_url(event, site):
+    """A one-click "add this event to my Google Calendar" link — just
+    this one event, unlike the Events page's subscribe-to-everything
+    link."""
+    def stamp(value):
+        return dt.datetime.fromisoformat(value).strftime("%Y%m%dT%H%M%S")
+
+    end = event.get("end") or event["start"]
+    params = {
+        "action": "TEMPLATE",
+        "text": event["title"],
+        "dates": f"{stamp(event['start'])}/{stamp(end)}",
+        "ctz": site["calendar"]["timezone"],
+        "details": f'{event["summary"]}\n\nhttps://{site["custom_domain"]}/{event_page_name(event)}',
+        "location": f'{event.get("location_name", "")}, {event_location_address(event, site)}',
+    }
+    return "https://calendar.google.com/calendar/render?" + urllib.parse.urlencode(params)
+
+
+CHECK_ICON = (
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+    'stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>'
+)
+
+
+def render_event_page(event, site, context):
+    """One opt-in event page's body — the same shared template for every
+    entry in config/event-pages.json, filled in from that entry."""
+    esc = html.escape
+    email = event.get("contact_email") or site.get("email", "")
+    contact = f'<a href="mailto:{esc(email)}">{esc(email)}</a>'
+    if event.get("contact_name"):
+        contact = f'{esc(event["contact_name"])} · {contact}'
+
+    actions = []
+    if event.get("register_href"):
+        actions.append(
+            f'<a class="thes__btn thes__btn--teal" href="{esc(event["register_href"])}" '
+            'target="_blank" rel="noopener">Register as a Vendor &rarr;</a>'
+        )
+    actions.append(
+        f'<a class="thes__btn thes__btn--navy" href="{esc(google_calendar_add_url(event, site))}" '
+        'target="_blank" rel="noopener">Add to Google Calendar</a>'
+    )
+    if event.get("flyer_filename"):
+        actions.append(
+            f'<a class="thes__btn thes__btn--outline" href="{context["FLYER_BASE_URL"]}/{esc(event["flyer_filename"])}" '
+            'target="_blank" rel="noopener">View Flyer</a>'
+        )
+
+    about = "\n".join(
+        f'        <p style="color:var(--text-muted); margin:0 0 14px;">{esc(p)}</p>' for p in event.get("about", [])
+    )
+
+    section_cards = []
+    for section in event.get("sections", []):
+        items = "\n".join(
+            f"            <li>{CHECK_ICON}<span>{esc(item)}</span></li>" for item in section.get("items", [])
+        )
+        extra = ""
+        if section.get("note"):
+            extra = f'\n        <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">{esc(section["note"])}</p>'
+        section_cards.append(
+            '      <div class="thes__info-card">\n'
+            f'        <h2 style="font-size:clamp(1.15rem,2.4vw,1.4rem);">{esc(section["heading"])}</h2>\n'
+            f'        <ul class="thes__checklist">\n{items}\n        </ul>{extra}\n'
+            "      </div>"
+        )
+
+    flyer = ""
+    if event.get("flyer_filename"):
+        flyer_url = f'{context["FLYER_BASE_URL"]}/{esc(event["flyer_filename"])}'
+        flyer = (
+            '  <section class="thes__section">\n'
+            '    <div class="thes__wrap">\n'
+            '      <div class="thes__section-head"><h2>Event Flyer</h2></div>\n'
+            f'      <a href="{flyer_url}" target="_blank" rel="noopener">'
+            f'<img src="{flyer_url}" alt="{esc(event.get("flyer_alt") or event["title"] + " flyer")}" '
+            'loading="lazy" style="display:block; width:100%; max-width:900px; height:auto; '
+            'border-radius:14px; border:1px solid var(--border);"></a>\n'
+            "    </div>\n"
+            "  </section>"
+        )
+
+    location = f'{esc(event.get("location_name") or site.get("school_name", ""))}<br>{esc(event_location_address(event, site))}'
+    tmpl = (TEMPLATES / "event-page.html.tmpl").read_text()
+    return render(tmpl, {
+        **context,
+        "PAGE_TITLE": colorize_title_words(esc(event["title"])),
+        "EVENT_TITLE": esc(event["title"]),
+        "EVENT_EYEBROW": esc(event.get("eyebrow") or "Featured Event"),
+        "EVENT_TAGLINE": esc(event.get("tagline", "")),
+        "EVENT_WHEN": esc(format_event_when(event)),
+        "EVENT_LOCATION": location,
+        "EVENT_CONTACT": contact,
+        "EVENT_ACTIONS": "\n          ".join(actions),
+        "EVENT_ABOUT": about,
+        "EVENT_SECTIONS": "\n".join(section_cards),
+        "EVENT_FLYER": flyer,
+    })
+
+
+def build_event_pages_section(event_pages, context):
+    """"Featured Events" cards on the Events page, one per *upcoming*
+    opt-in event page — the page itself stays up after the event (so a
+    shared link doesn't 404), it just stops being promoted here. "" (no
+    section) when there are none, same empty-means-no-section pattern as
+    sponsors/flyers."""
+    upcoming = [e for e in event_pages if event_page_is_upcoming(e)]
+    if not upcoming:
+        return ""
+    prefix = context["page_urls.events"].removesuffix("events.html")
+    cards = "\n".join(
+        '        <div class="thes__card thes__card--teal">\n'
+        f'          <h3>{html.escape(e["title"])}</h3>\n'
+        f'          <p><strong>{html.escape(format_event_when(e))}</strong></p>\n'
+        f'          <p>{html.escape(e.get("tagline", ""))}</p>\n'
+        f'          <a href="{prefix}{event_page_name(e)}">Event Details &rarr;</a>\n'
+        "        </div>"
+        for e in upcoming
+    )
+    return (
+        '<section class="thes__section">\n'
+        '  <div class="thes__wrap">\n'
+        '    <div class="thes__section-head">\n'
+        '      <span class="thes__eyebrow">Don\'t Miss</span>\n'
+        "      <h2>Featured Events</h2>\n"
+        "    </div>\n"
+        '    <div class="thes__grid">\n'
+        f"{cards}\n"
+        "    </div>\n"
+        "  </div>\n"
+        "</section>"
+    )
 
 
 def build_optional_section(config_name, card_template_name, section_template_name, cards_key, context):
@@ -1492,16 +1731,7 @@ def build_organization_jsonld(site):
     postalCode for schema.org's PostalAddress shape, falling back to
     putting the whole line in addressLocality if it doesn't match the
     expected "City, ST 12345" pattern rather than raising or guessing."""
-    address = {"@type": "PostalAddress", "streetAddress": site.get("address_line1", "")}
-    line2 = site.get("address_line2", "")
-    m = re.match(r"^\s*(.+?),\s*([A-Z]{2})\s+(\d{5}(?:-\d{4})?)\s*$", line2)
-    if m:
-        address["addressLocality"] = m.group(1)
-        address["addressRegion"] = m.group(2)
-        address["postalCode"] = m.group(3)
-    elif line2:
-        address["addressLocality"] = line2
-    address["addressCountry"] = "US"
+    address = build_postal_address(site.get("address_line1", ""), site.get("address_line2", ""))
 
     data = {
         "@context": "https://schema.org",
@@ -1637,6 +1867,7 @@ def main():
     )
     welcome_video_section = build_welcome_video_section(site)
     organization_jsonld = build_organization_jsonld(site)
+    event_pages = load_json("event-pages.json", default=[])
 
     # Inverse of page_urls (e.g. "get-involved/committees" -> "committees")
     # so the nav can mark "you are here" — see render_nav_items — from
@@ -1648,14 +1879,22 @@ def main():
     if not page_templates:
         raise SystemExit("No page templates found in src/templates/pages/")
 
+    # Every page is (page_name, template path, opt-in event or None):
+    # the hand-written page templates, plus one generated page per entry
+    # in config/event-pages.json, all sharing event-page.html.tmpl. Both
+    # go through the exact same document shell/header/sitemap handling
+    # below — an event page is a real page, not a special case of one.
+    page_jobs = [
+        (str(p.relative_to(TEMPLATES / "pages")).removesuffix(".tmpl"), p, None) for p in page_templates
+    ]
+    page_jobs += [(event_page_name(e), TEMPLATES / "event-page.html.tmpl", e) for e in event_pages]
+
     PAGES_OUT.mkdir(exist_ok=True)
     context_by_depth = {}
     built_page_names = []
 
-    for tmpl_path in page_templates:
-        rel = tmpl_path.relative_to(TEMPLATES / "pages")
-        depth = len(rel.parts) - 1
-        page_name = str(rel).removesuffix(".tmpl")
+    for page_name, tmpl_path, event_page in page_jobs:
+        depth = page_name.count("/")
 
         # Everything that depends on page_urls.*/HERO_IMAGE_URL/etc has to
         # be rebuilt per depth — a page one directory down needs "../"
@@ -1696,6 +1935,7 @@ def main():
             load_json("family-support-resources.json", default=[]), context
         )
         hcpss_events_section = build_hcpss_events_section(hcpss_events, context)
+        event_pages_section = build_event_pages_section(event_pages, context)
 
         shared_markers = {
             "{{TOKENS}}": tokens,
@@ -1715,13 +1955,16 @@ def main():
             "{{PTA_MEETINGS_SECTION}}": pta_meetings_section,
             "{{FAMILY_SUPPORT_RESOURCES_SECTION}}": family_support_resources_section,
             "{{HCPSS_EVENTS_SECTION}}": hcpss_events_section,
+            "{{EVENT_PAGES_SECTION}}": event_pages_section,
         }
 
         page_context = context
         if page_name in PAGE_TITLES:
             page_context = {**context, "PAGE_TITLE": colorize_title_words(PAGE_TITLES[page_name])}
-        text = tmpl_path.read_text()
-        text = render(text, page_context)
+        if event_page:
+            text = render_event_page(event_page, site, context)
+        else:
+            text = render(tmpl_path.read_text(), page_context)
         for marker, value in shared_markers.items():
             text = text.replace(marker, value)
 
@@ -1756,9 +1999,15 @@ def main():
         # parent directories — "get-involved/committees.html" should say
         # "Committees", not "Get-Involved/Committees".
         page_title = "Home" if page_name == "index.html" else Path(page_name).stem.replace("-", " ").title()
+        page_jsonld = organization_jsonld
+        if event_page:
+            page_title = html.escape(event_page["title"])
+            page_jsonld += build_event_jsonld(event_page, site)
         analytics_snippet = build_analytics_snippet(context.get("google_analytics_id", ""))
         analytics_snippet += build_umami_snippet(context.get("umami_website_id", ""))
         page_description = PAGE_DESCRIPTIONS.get(page_name, PAGE_DESCRIPTIONS["index.html"])
+        if event_page:
+            page_description = html.escape(event_page["summary"])
         canonical_url = f'https://{site["custom_domain"]}/{"" if page_name == "index.html" else page_name}'
         text = (
             "<!DOCTYPE html>\n"
@@ -1769,7 +2018,7 @@ def main():
             f'<meta name="description" content="{page_description}">\n'
             f'<link rel="canonical" href="{canonical_url}">\n'
             f"<title>{context.get('org_name', '')} — {page_title}</title>\n"
-            f"{organization_jsonld}"
+            f"{page_jsonld}"
             f"</head>\n<body>\n{text}\n</body>\n</html>\n"
         )
 
@@ -1851,7 +2100,7 @@ def main():
         (PAGES_OUT / "robots.txt").write_text(robots_txt)
         print(f"  built {(PAGES_OUT / 'robots.txt').relative_to(ROOT)}")
 
-    print(f"\nDone — {len(page_templates)} pages written to /pages.")
+    print(f"\nDone — {len(built_page_names)} pages written to /pages.")
     print("Push to main to deploy — GitHub Actions rebuilds, validates, and redeploys to GitHub Pages automatically.")
 
 
