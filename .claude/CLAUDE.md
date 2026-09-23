@@ -315,14 +315,25 @@ never requires touching `header.html.tmpl` or `build.py`.
   the skills describe `gh` commands as the reference implementation; an
   MCP-only agent should translate the same intent into MCP tool calls.
 - **SEO / AI-assistant discoverability** — `src/build.py`'s `main()`
-  generates, per page: a `<meta name="description">` from the
+  generates, per page: a `<title>` from `build_document_title()` (page
+  name from its nav label, then the org, then "Columbia, MD" — the Home
+  page also adds "Howard County"; the town/county/state/school district
+  come from `config/site.json`'s `address_line2`, `county`,
+  `state_name`, `school_district`, which also feed the footer line and
+  the structured data — keep location keywords there, in titles,
+  descriptions, and the footer, not in visible headlines or body copy),
+  a `<meta name="description">` from the
   `PAGE_DESCRIPTIONS` dict (add an entry there for any new page — falls
   back to the Home page's description if missing, rather than shipping
   no description, but a real one is better), a `<link rel="canonical">`
   and `sitemap.xml` entry built from `config/site.json`'s
   `custom_domain`, and one shared `Organization` JSON-LD block
   (`build_organization_jsonld`) built from `site.json`'s
-  name/address/email/social fields — this is what lets Google's
+  name/address/email/social/location fields (with `alternateName`
+  "THES PTA"/"Thunder Hill PTA" and `areaServed` Columbia + Howard
+  County). Home links (`page_urls.home`) resolve to the site root
+  (`./`/`../`), never `index.html`, so Google stops finding the
+  index.html duplicate — this is what lets Google's
   Knowledge Graph (and an AI assistant grounding an answer in search
   results) resolve "Thunder Hill Elementary PTA" as a real, addressable
   entity rather than just prose on a page. `robots.txt` explicitly

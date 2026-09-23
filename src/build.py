@@ -188,6 +188,14 @@ def build_context(depth=0):
     for key in list(context.keys()):
         if key.startswith("page_urls."):
             context[key] = f"{prefix}{context[key]}.html"
+    # Home links to the site root ("./" or "../"), not index.html — the
+    # root is the canonical URL, and linking to index.html is how Google
+    # kept finding it as a duplicate ("Alternate page with proper
+    # canonical tag" in Search Console).
+    if "page_urls.home" in context:
+        context["page_urls.home"] = prefix or "./"
+
+    context["ADDRESS_LINE2_LONG"] = site_address_line2_long(site)
 
     cal_id = site["calendar"]["calendar_id"]
     cal_id_q = urllib.parse.quote(cal_id, safe="")
@@ -784,6 +792,28 @@ def build_postal_address(line1, line2):
     return address
 
 
+def site_city(site):
+    """The city from address_line2 ("Columbia, MD 21045" -> "Columbia")."""
+    return site.get("address_line2", "").split(",")[0].strip()
+
+
+def site_location_short(site):
+    """"Columbia, MD" — appended to every page's <title> so each page
+    (and every featured event page) carries the town people search by."""
+    m = re.match(r"^\s*(.+?),\s*([A-Z]{2})\b", site.get("address_line2", ""))
+    return f"{m.group(1)}, {m.group(2)}" if m else site_city(site)
+
+
+def site_address_line2_long(site):
+    """address_line2 with the state spelled out ("Columbia, Maryland
+    21045") for the footer — people search the full state name."""
+    line2 = site.get("address_line2", "")
+    state_name = site.get("state_name")
+    if not state_name:
+        return line2
+    return re.sub(r",\s*[A-Z]{2}(\s+\d{5}(?:-\d{4})?)?\s*$", lambda m: f", {state_name}{m.group(1) or ''}", line2)
+
+
 def build_event_jsonld(event, site):
     """schema.org Event structured data for one opt-in event page — what
     Google's event search results read (name, date, place, image), so
@@ -820,6 +850,13 @@ def build_event_jsonld(event, site):
         },
         "url": f"https://{domain}/{event_page_name(event)}",
     }
+    if site.get("county") and not event.get("address_line2"):
+        # Only for on-site events at the school's own address — an
+        # off-site event's county isn't known here.
+        data["location"]["containedInPlace"] = {
+            "@type": "AdministrativeArea",
+            "name": f'{site["county"]}, {site.get("state_name", "")}'.rstrip(", "),
+        }
     if event.get("end"):
         data["endDate"] = iso(event["end"])
     if event.get("flyer_filename"):
@@ -917,6 +954,8 @@ def render_event_page(event, site, context):
         )
 
     location = f'{esc(event.get("location_name") or site.get("school_name", ""))}<br>{esc(event_location_address(event, site))}'
+    if site.get("county") and not event.get("address_line2"):
+        location += f' · {esc(site["county"])}'
     tmpl = (TEMPLATES / "event-page.html.tmpl").read_text()
     return render(tmpl, {
         **context,
@@ -1808,6 +1847,16 @@ def build_organization_jsonld(site):
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": site.get("org_name", ""),
+        "alternateName": ["THES PTA", f'{site.get("school_short_name", "")} PTA'],
+        "description": (
+            f'The parent-teacher association of {site.get("school_name", "")}, a '
+            f'{site.get("school_district", "")} elementary school in '
+            f'{site_city(site)}, {site.get("state_name", "")}.'
+        ),
+        "areaServed": [
+            {"@type": "City", "name": f'{site_city(site)}, {site.get("state_name", "")}'},
+            {"@type": "AdministrativeArea", "name": f'{site.get("county", "")}, {site.get("state_name", "")}'},
+        ],
         "url": f'https://{site["custom_domain"]}/',
         "logo": f'https://{site["custom_domain"]}/images/{site["hero_image_filename"]}',
         "email": site.get("email", ""),
@@ -1815,6 +1864,25 @@ def build_organization_jsonld(site):
         "sameAs": [href for href in site.get("social", {}).values() if href],
     }
     return f'<script type="application/ld+json">{json.dumps(data)}</script>\n'
+
+
+def build_document_title(page_name, site, nav_labels, event_page=None):
+    """The <title> — the blue link in search results, and the strongest
+    single signal of what a page is about. Every page carries the town
+    ("Columbia, MD"); the Home page also names the county, since that's
+    the page a "Howard County PTA" search should land on. Inner pages
+    lead with their own name (what a searcher — or a visitor with
+    several tabs open — needs first), taken from its nav label, then
+    PAGE_TITLES, then the filename."""
+    org = site.get("org_name", "")
+    where = site_location_short(site)
+    if page_name == "index.html":
+        county = f' · {site["county"]}' if site.get("county") else ""
+        return html.escape(f"{org} | {where}{county}")
+    if event_page:
+        return html.escape(f'{event_page["title"]} · {where} | {org}')
+    name = nav_labels.get(page_name) or PAGE_TITLES.get(page_name) or Path(page_name).stem.replace("-", " ").title()
+    return html.escape(f"{name} | {org} · {where}")
 
 
 def colorize_title_words(text):
@@ -1855,20 +1923,22 @@ PAGE_TITLES = {
 PAGE_DESCRIPTIONS = {
     "index.html": (
         "The official website of the Thunder Hill Elementary PTA (THES PTA) in "
-        "Columbia, MD — events, PTA meetings, volunteering, and fundraising, all "
-        "in one place."
+        "Columbia, Maryland — events, PTA meetings, volunteering, and fundraising "
+        "for our Howard County school community."
     ),
     "about.html": (
         "Meet the Thunder Hill Elementary PTA Executive Board and learn about our "
-        "mission to support students, staff, and families at THES."
+        "mission to support students, staff, and families at THES in Columbia, "
+        "Maryland (Howard County)."
     ),
     "get-involved.html": (
-        "Volunteer opportunities, committees, and membership information for the "
-        "Thunder Hill Elementary PTA — find out how to get involved at THES."
+        "Volunteer opportunities, committees, and membership for the Thunder Hill "
+        "Elementary PTA in Columbia, MD — get involved at our Howard County school."
     ),
     "events.html": (
-        "See every upcoming Thunder Hill Elementary PTA event, synced live from "
-        "our calendar — meetings, fundraisers, and school-wide celebrations."
+        "Upcoming Thunder Hill Elementary PTA events in Columbia, MD — family "
+        "nights, fundraisers, and PTA meetings for our Howard County school "
+        "community."
     ),
     "newsletter.html": (
         "Two ways to keep up with Thunder Hill Elementary — the school's own "
@@ -1939,12 +2009,22 @@ def main():
     welcome_video_section = build_welcome_video_section(site)
     organization_jsonld = build_organization_jsonld(site)
     event_pages = load_active_event_pages(site)
+    for e in event_pages:
+        if site_city(site) and site_city(site).lower() not in e.get("summary", "").lower():
+            print(f'  ! event page "{e["slug"]}": summary doesn\'t mention {site_city(site)} — '
+                  "it's the search-result snippet; name the town so local searches match")
 
     # Inverse of page_urls (e.g. "get-involved/committees" -> "committees")
     # so the nav can mark "you are here" — see render_nav_items — from
     # nothing but the page filename already being built, with no need for
     # every page template to separately declare which nav item is its own.
     page_url_keys_by_name = {v: k for k, v in site.get("page_urls", {}).items()}
+    nav_labels = {
+        f'{site["page_urls"][item["page_url"]]}.html': item["label"]
+        for top in site.get("nav", [])
+        for item in [top] + (top.get("children") or [])
+        if item.get("page_url") in site.get("page_urls", {})
+    }
 
     page_templates = sorted((TEMPLATES / "pages").rglob("*.html.tmpl"))
     if not page_templates:
@@ -2075,11 +2155,10 @@ def main():
         # last path segment (Path.stem) as the title base, ignoring any
         # parent directories — "get-involved/committees.html" should say
         # "Committees", not "Get-Involved/Committees".
-        page_title = "Home" if page_name == "index.html" else Path(page_name).stem.replace("-", " ").title()
         page_jsonld = organization_jsonld
         if event_page:
-            page_title = html.escape(event_page["title"])
             page_jsonld += build_event_jsonld(event_page, site)
+        document_title = build_document_title(page_name, site, nav_labels, event_page)
         analytics_snippet = build_analytics_snippet(context.get("google_analytics_id", ""))
         analytics_snippet += build_umami_snippet(context.get("umami_website_id", ""))
         page_description = PAGE_DESCRIPTIONS.get(page_name, PAGE_DESCRIPTIONS["index.html"])
@@ -2094,7 +2173,7 @@ def main():
             '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
             f'<meta name="description" content="{page_description}">\n'
             f'<link rel="canonical" href="{canonical_url}">\n'
-            f"<title>{context.get('org_name', '')} — {page_title}</title>\n"
+            f"<title>{document_title}</title>\n"
             f"{page_jsonld}"
             f"</head>\n<body>\n{text}\n</body>\n</html>\n"
         )

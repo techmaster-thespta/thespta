@@ -79,8 +79,12 @@ override with `address_line1`/`address_line2` for an off-site event.
    Drive link — see the "images" constraint in `.claude/CLAUDE.md`) and
    set `flyer_filename` to `events/<file>`.
 3. Add/edit/remove the entry in `config/event-pages.json`. Put the
-   event's name, town ("Columbia, MD"), and full date in `summary` —
-   that's the text people see in search results.
+   event's name, full date, and location — "in Columbia, Maryland
+   (Howard County)" — in `summary`: that's the snippet people see in
+   search results, and the build prints a `!` warning if it doesn't
+   mention Columbia. The page's `<title>` gets "· Columbia, MD" and the
+   Where line / event data get "Howard County" automatically — don't
+   stuff them into `title` itself.
 4. Run `python3 src/build.py` and `python3 test/validate_build.py`.
 5. Push (`docs/SOP.md` Task 7). Then remind the user to use Google
    Search Console → URL Inspection → "Request indexing" on the new page
