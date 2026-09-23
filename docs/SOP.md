@@ -314,7 +314,7 @@ sponsors/flyers — this powers the horizontal announcements banner shown
 just under the header on *every* page of the site, not just one.
 
 With more than one entry, the banner auto-rotates between them with a
-smooth fade every few seconds. A visitor can dismiss it (×) — that's
+smooth fade every 3 seconds. A visitor can dismiss it (×) — that's
 remembered per-browser, but only for the exact set of announcements
 they dismissed: editing this file in any way (even just fixing a typo)
 automatically re-shows the banner to everyone, since dismissal is keyed

@@ -112,7 +112,7 @@ disappear everywhere automatically. This is by design — don't "fix" it by
 editing templates.
 
 **Rotation and dismissal**: with more than one entry, the banner
-auto-rotates between them every few seconds with a smooth fade. A visitor
+auto-rotates between them every 3 seconds with a smooth fade. A visitor
 who dismisses the banner (the × button) won't see it again on that browser
 *for the same set of announcements* — changing this file's content
 (adding, removing, or editing any entry) automatically un-dismisses the
