@@ -216,7 +216,9 @@ never requires touching `header.html.tmpl` or `build.py`.
 - `.claude/skills/` — one skill per addable content type (`add-event`,
   `add-board-member`, `add-sponsor`, `add-flyer`, `add-committee`,
   `add-afterschool-program`, `add-pta-meeting`,
-  `add-family-support-resource`), the GitHub issue
+  `add-family-support-resource`, `add-announcement`, `add-event-page` — an
+  opt-in featured page with schema.org Event data for one event the PTA
+  wants searchable, auto-listed under the Events menu), the GitHub issue
   workflow (`create-issue` to plan a change and file it, `from-issue` to
   pull an issue by number, implement it, open a PR), `rebuild-now`
   (push pending changes + force an immediate rebuild/redeploy, for
@@ -258,6 +260,18 @@ never requires touching `header.html.tmpl` or `build.py`.
   further out than the general highlights window. Run by
   `.github/workflows/sync-events.yml` (hourly) and by `deploy.yml` (every
   push/manual run). See `docs/SOP.md` Task 4.
+- `scripts/archive_expired.py` — moves expired entries (past their
+  `expires` date, Eastern time) out of `config/announcements.json` and
+  `config/event-pages.json` into `archive/` (plus their flyers into
+  `archive/flyers/`), which is never deployed. Runs in **both**
+  `deploy.yml` and `sync-events.yml` before the build — sync-events.yml's
+  change check includes the archive paths so an expiry alone triggers a
+  redeploy within the hour. `src/build.py` also filters expired entries
+  itself and clears `pages/events/` every build, so a stale featured
+  page can never linger in `pages/` and get redeployed. Featured event
+  pages are injected into the Events nav dropdown by `load_site()` in
+  `build.py` — read site.json through that, not `load_json("site.json")`,
+  anywhere the nav or `page_urls` matter.
 - `scripts/sync_hcpss_calendar.py` — a second, independent calendar
   sync, for a completely different calendar owned by Howard County
   Public School System (not the PTA): the Special Education Parent &
@@ -301,14 +315,25 @@ never requires touching `header.html.tmpl` or `build.py`.
   the skills describe `gh` commands as the reference implementation; an
   MCP-only agent should translate the same intent into MCP tool calls.
 - **SEO / AI-assistant discoverability** — `src/build.py`'s `main()`
-  generates, per page: a `<meta name="description">` from the
+  generates, per page: a `<title>` from `build_document_title()` (page
+  name from its nav label, then the org, then "Columbia, MD" — the Home
+  page also adds "Howard County"; the town/county/state/school district
+  come from `config/site.json`'s `address_line2`, `county`,
+  `state_name`, `school_district`, which also feed the footer line and
+  the structured data — keep location keywords there, in titles,
+  descriptions, and the footer, not in visible headlines or body copy),
+  a `<meta name="description">` from the
   `PAGE_DESCRIPTIONS` dict (add an entry there for any new page — falls
   back to the Home page's description if missing, rather than shipping
   no description, but a real one is better), a `<link rel="canonical">`
   and `sitemap.xml` entry built from `config/site.json`'s
   `custom_domain`, and one shared `Organization` JSON-LD block
   (`build_organization_jsonld`) built from `site.json`'s
-  name/address/email/social fields — this is what lets Google's
+  name/address/email/social/location fields (with `alternateName`
+  "THES PTA"/"Thunder Hill PTA" and `areaServed` Columbia + Howard
+  County). Home links (`page_urls.home`) resolve to the site root
+  (`./`/`../`), never `index.html`, so Google stops finding the
+  index.html duplicate — this is what lets Google's
   Knowledge Graph (and an AI assistant grounding an answer in search
   results) resolve "Thunder Hill Elementary PTA" as a real, addressable
   entity rather than just prose on a page. `robots.txt` explicitly

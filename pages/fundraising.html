@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Ways to give to the Thunder Hill Elementary PTA — membership, donations, and fundraisers that support our students and teachers.">
 <link rel="canonical" href="https://www.thespta.org/fundraising.html">
-<title>Thunder Hill Elementary PTA — Fundraising</title>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Thunder Hill Elementary PTA", "url": "https://www.thespta.org/", "logo": "https://www.thespta.org/images/hero-banner.jpg", "email": "president.thespta@gmail.com", "address": {"@type": "PostalAddress", "streetAddress": "9357 Mellenbrook Road", "addressLocality": "Columbia", "addressRegion": "MD", "postalCode": "21045", "addressCountry": "US"}, "sameAs": ["https://www.facebook.com/share/195cbRL7Qp/?mibextid=wwXIfr", "https://www.instagram.com/thunderhilles_pta?igsi=MTVsYW5reXl0MXd5Yw=="]}</script>
+<title>Ways to Give | Thunder Hill Elementary PTA · Columbia, MD</title>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Thunder Hill Elementary PTA", "alternateName": ["THES PTA", "Thunder Hill PTA"], "description": "The parent-teacher association of Thunder Hill Elementary School, a Howard County Public School System elementary school in Columbia, Maryland.", "areaServed": [{"@type": "City", "name": "Columbia, Maryland"}, {"@type": "AdministrativeArea", "name": "Howard County, Maryland"}], "url": "https://www.thespta.org/", "logo": "https://www.thespta.org/images/hero-banner.jpg", "email": "president.thespta@gmail.com", "address": {"@type": "PostalAddress", "streetAddress": "9357 Mellenbrook Road", "addressLocality": "Columbia", "addressRegion": "MD", "postalCode": "21045", "addressCountry": "US"}, "sameAs": ["https://www.facebook.com/share/195cbRL7Qp/?mibextid=wwXIfr", "https://www.instagram.com/thunderhilles_pta?igsi=MTVsYW5reXl0MXd5Yw=="]}</script>
 </head>
 <body>
 <!--
@@ -209,6 +209,67 @@
     .thes__nav-submenu { display: none; position: static; box-shadow: none; border: none; padding: 0 0 4px 16px; }
   }
 
+  /* ---- Announcements banner (see announcement-banner.html.tmpl) ----
+     A plain flex row, not the position:absolute stacking technique the
+     calendar/welcome-video embeds use — every slide but the active one
+     is display:none, so only one is ever laid out at a time. A fixed
+     min-height (generous enough for a message that wraps to two lines,
+     computed against this rule's own explicit line-height rather than
+     inheriting .thes's line-height:1.6, which under-budgets for a real
+     two-line wrap) is what keeps the banner's height constant regardless
+     of which slide is showing.
+
+     Deliberately more than a flat color + bare sentence — a subtle
+     navy-to-teal gradient (the site's own two structural/CTA colors,
+     nothing new introduced), a thin yellow accent border (the palette's
+     "small cheerful accent" role, same reasoning as icon-circle/badge
+     accents elsewhere), a drop shadow lifting it off the page, an icon
+     "badge" before every message (ANNOUNCE_ICON_SVG in build.py when an
+     announcement doesn't set its own `icon_filename`), and a trailing
+     arrow that nudges right on hover — the same "&rarr;" affordance
+     every other clickable card/button on this site already uses, so a
+     visitor recognizes "this is clickable" the same way they do
+     everywhere else. `.thes__announce a.thes__announce-slide` (two
+     classes + element, specificity 0,2,1) is what actually beats
+     `.thes a { color: inherit; }` (0,1,1) — a bare `.thes__announce-slide
+     { color: #fff; }` alone is only (0,1,0), which loses regardless of
+     source order, the exact .thes__btn--navy specificity bug from
+     "Hard-won constraints" (CLAUDE.md), reintroduced here and now fixed
+     the same way (combine classes to clearly exceed, not a same-specificity
+     tie that depends on which rule happens to be declared later). */
+  .thes__announce {
+    background: linear-gradient(100deg, var(--navy), var(--teal));
+    border-bottom: 3px solid var(--yellow);
+    box-shadow: 0 2px 10px rgba(7, 59, 104, 0.18);
+  }
+  .thes__announce-inner { max-width: 1200px; margin: 0 auto; padding: 9px 14px; display: flex; align-items: center; gap: 10px; }
+  .thes__announce-track { flex: 1; min-width: 0; }
+  .thes__announce a.thes__announce-slide {
+    display: none; align-items: center; justify-content: center; gap: 8px;
+    min-height: 2.6rem; color: #fff; text-decoration: none;
+    font-size: 0.88rem; font-weight: 600; line-height: 1.35; opacity: 0; transition: opacity 0.4s ease;
+  }
+  .thes__announce a.thes__announce-slide:hover { color: #fff; }
+  .thes__announce-icon { flex-shrink: 0; width: 17px; height: 17px; object-fit: contain; opacity: 0.95; }
+  .thes__announce-text { text-align: center; }
+  .thes__announce a.thes__announce-slide:hover .thes__announce-text { text-decoration: underline; }
+  .thes__announce-arrow { flex-shrink: 0; font-weight: 700; transition: transform 0.2s ease; }
+  .thes__announce a.thes__announce-slide:hover .thes__announce-arrow { transform: translateX(3px); }
+  .thes__announce-close {
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%; background: rgba(255, 255, 255, 0.14);
+    border: none; color: #fff; font-size: 1rem; line-height: 1; cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .thes__announce-close:hover { background: rgba(255, 255, 255, 0.28); }
+  /* A "banner graphic" slide (an announcement with its own flyer_filename,
+     see build_announcement_banner) — just the image, no icon/text/arrow.
+     The image's height is fixed to match the text slides' own min-height
+     above, so crossfading between a text slide and a graphic slide never
+     visibly changes the bar's height either. */
+  .thes__announce a.thes__announce-slide.thes__announce-slide--banner { padding: 0; }
+  .thes__announce-banner-img { display: block; width: 100%; height: 2.6rem; object-fit: cover; border-radius: 4px; }
+
   /* ---- Page header (About / Get Involved / Events) ----
      Mirrors the home hero's layout (title text on the left, school photo on
      the right) and matches its aspect ratio (1695:928, the source banner
@@ -227,6 +288,11 @@
      already baked into the home hero image's headline. */
   .thes__title-a { color: var(--text); }
   .thes__title-b { color: var(--teal); }
+  /* Visually hidden but read by search engines and screen readers — for
+     the Home page's main H1 heading, whose visible headline is baked into the hero
+     image. Deliberately no position:absolute (see the mobile-safety
+     constraint in CLAUDE.md); clip-path + 1px box does the same job. */
+  .thes__sr-only { width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
   .thes__pagehead-text p { color: var(--text-muted); margin: 10px 0 0; max-width: 46ch; }
   .thes__pagehead-media { position: relative; min-width: 0; overflow: hidden; }
   .thes__pagehead-media img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; display: block; }
@@ -511,14 +577,14 @@
     <button type="button" class="thes__menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="thes-header-nav">
       <span></span><span></span><span></span>
     </button>
-    <a class="thes__header-brand" href="index.html">Parent Teacher Association</a>
+    <a class="thes__header-brand" href="./">Parent Teacher Association</a>
     <nav class="thes__header-nav" id="thes-header-nav" aria-label="Primary">
       <ul>
-<li class="thes__nav-item"><a href="index.html">Home</a></li>
+<li class="thes__nav-item"><a href="./">Home</a></li>
 <li class="thes__nav-item"><a href="about.html">About</a></li>
 <li class="thes__nav-item thes__nav-item--parent thes__nav-item--active"><span class="thes__nav-item-row"><a href="fundraising.html" class="thes__nav-link--current">Ways to Give</a><button type="button" class="thes__nav-caret" aria-label="Show Ways to Give submenu" aria-expanded="false" aria-controls="thes-submenu-2"></button></span><ul class="thes__nav-submenu" id="thes-submenu-2"><li><a href="become-a-sponsor.html">Become a Sponsor</a></li><li><a href="sponsors.html">Our Sponsors</a></li></ul></li>
 <li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="get-involved.html">Get Involved</a><button type="button" class="thes__nav-caret" aria-label="Show Get Involved submenu" aria-expanded="false" aria-controls="thes-submenu-3"></button></span><ul class="thes__nav-submenu" id="thes-submenu-3"><li><a href="get-involved/committees.html">Committees</a></li></ul></li>
-<li class="thes__nav-item"><a href="events.html">Events</a></li>
+<li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="events.html">Events</a><button type="button" class="thes__nav-caret" aria-label="Show Events submenu" aria-expanded="false" aria-controls="thes-submenu-4"></button></span><ul class="thes__nav-submenu" id="thes-submenu-4"><li><a href="events/holiday-market.html">Holiday Market</a></li></ul></li>
 <li class="thes__nav-item"><a href="pta-meetings.html">PTA Meetings</a></li>
 <li class="thes__nav-item"><a href="before-after-school-programs.html">Before & After School</a></li>
 <li class="thes__nav-item thes__nav-item--parent"><span class="thes__nav-item-row"><a href="family-support-resources.html">Family Support Resources</a><button type="button" class="thes__nav-caret" aria-label="Show Family Support Resources submenu" aria-expanded="false" aria-controls="thes-submenu-7"></button></span><ul class="thes__nav-submenu" id="thes-submenu-7"><li><a href="family-support-resources/special-education-family-support.html">Special Education & Family Support</a></li><li><a href="family-support-resources/student-parent-handbook.html">HCPSS Student & Parent Handbook</a></li></ul></li>
@@ -551,6 +617,63 @@
       });
     })(carets[i]);
   }
+})();
+</script>
+
+<div class="thes__announce" id="thes-announce" data-hash="2af27f8c479e">
+  <div class="thes__announce-inner">
+    <div class="thes__announce-track" id="thes-announce-track">
+<a class="thes__announce-slide" style="display:flex;opacity:1;" href="events.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">Fall Fest & Trunk or Treat is October 30 — view details!</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
+<a class="thes__announce-slide" href="become-a-sponsor.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">Become a business sponsor and support Thunder Hill!</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
+<a class="thes__announce-slide" href="events/holiday-market.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">Holiday Market Nov 21 — shop local or become a vendor!</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
+<a class="thes__announce-slide" href="https://howardastro.org/hal-star-parties-and-outreach/"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">HAL Star Party Sat, Oct 17 — free family stargazing!</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
+    </div>
+    <button type="button" class="thes__announce-close" id="thes-announce-close" aria-label="Dismiss announcement">&times;</button>
+  </div>
+</div>
+<script>
+(function () {
+  var banner = document.getElementById("thes-announce");
+  if (!banner) return;
+  var STORAGE_KEY = "thes_announce_dismissed";
+  var hash = banner.getAttribute("data-hash");
+  try {
+    if (window.localStorage && localStorage.getItem(STORAGE_KEY) === hash) {
+      banner.style.display = "none";
+      return;
+    }
+  } catch (e) {}
+
+  var closeBtn = document.getElementById("thes-announce-close");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", function () {
+      banner.style.display = "none";
+      try {
+        if (window.localStorage) localStorage.setItem(STORAGE_KEY, hash);
+      } catch (e) {}
+    });
+  }
+
+  var slides = banner.querySelectorAll(".thes__announce-slide");
+  if (slides.length < 2) return;
+  var i = 0;
+  setInterval(function () {
+    var current = slides[i];
+    var nextIndex = (i + 1) % slides.length;
+    var next = slides[nextIndex];
+    current.style.opacity = "0";
+    setTimeout(function () {
+      current.style.display = "none";
+      next.style.display = "flex";
+      next.style.opacity = "0";
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          next.style.opacity = "1";
+        });
+      });
+    }, 400);
+    i = nextIndex;
+  }, 4800);  // 4s fully readable + 0.4s fade out + 0.4s fade in
 })();
 </script>
 
@@ -587,7 +710,7 @@
       <p>Dated and seasonal fundraisers the PTA runs every year — some are happening now, some are still to come.</p>
     </div>
     <div class="thes__fund-grid">
-      <div class="thes__fund-card"><span class="thes__badge thes__badge--fund-recurring">Recurring Fundraiser</span><h3>Restaurant Nights</h3><p>Eat at a partner restaurant on its scheduled night and a share of sales goes straight to the PTA — no extra cost to you.</p><ul class="thes__fund-dates"><li><strong>Sept 28</strong> — Chick-fil-A — Executive Park Drive, Columbia, 5:30 – 7:30 PM<p class="thes__fund-date-note">Order through the Chick-fil-A app and tap “Support Community Care Event” at checkout.</p></li><li><strong>Oct 13</strong> — Pupatella — across from THES, 11:30 AM – 9:00 PM</li><li><strong>Nov 18</strong> — Chipotle — Old Dobbin Lane, 5:00 PM – 9:00 PM</li><li><strong>Dec 17</strong> — BurgerFi — Old Dobbin Lane, 11:00 AM – 10:00 PM</li></ul><p class="thes__fund-howto">Just show up during the scheduled window below. Some restaurants (like Chick-fil-A) require ordering through their app and selecting the PTA's event at checkout — see the note on that date.</p><details class="thes__program-more"><summary>Details</summary><div class="thes__program-more-body"><a class="thes__flyer" href="flyers/fundraising/restaurant-nights.jpg" target="_blank" rel="noopener"><img src="flyers/fundraising/restaurant-nights.jpg" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div></details></div>
+      <div class="thes__fund-card"><span class="thes__badge thes__badge--fund-recurring">Recurring Fundraiser</span><h3>Restaurant Nights</h3><p>Eat at a partner restaurant on its scheduled night and a share of sales goes straight to the PTA — no extra cost to you.</p><ul class="thes__fund-dates"><li><strong>Sept 28</strong> — Chick-fil-A — Executive Park Drive, Columbia, 5:30 – 7:30 PM<p class="thes__fund-date-note">Order through the Chick-fil-A app and tap “Support Community Care Event” at checkout.</p></li><li><strong>Oct 13</strong> — Pupatella — across from THES, 11:30 AM – 9:00 PM</li><li><strong>Nov 18</strong> — Chipotle — Old Dobbin Lane, 5:00 PM – 9:00 PM</li><li><strong>Dec 17</strong> — BurgerFi — Old Dobbin Lane, 11:00 AM – 10:00 PM</li></ul><p class="thes__fund-howto">Just show up during the scheduled window below. Some restaurants (like Chick-fil-A) require ordering through their app and selecting the PTA's event at checkout — see the note on that date.</p><details class="thes__program-more"><summary>Details</summary><div class="thes__program-more-body"><a class="thes__flyer" href="flyers/fundraising/restaurant-nights.jpg" target="_blank" rel="noopener"><img src="flyers/fundraising/restaurant-nights.jpg" alt="Flyer: Restaurant Nights" width="160" loading="lazy"><span>Click for more information</span></a></div></details></div>
       <div class="thes__fund-card"><span class="thes__badge thes__badge--fund-seasonal">Seasonal Sale</span><h3>THES Spirit Wear</h3><p>Thunder Hill gear — hoodies, tees, and more — with a portion of every purchase going back to the PTA.</p><p class="thes__fund-howto">Shop either online store below — no minimum, ships straight to you.</p><div class="thes__fund-actions"><a class="thes__btn thes__btn--teal" href="https://thunderhillfall2026.itemorder.com/" target="_blank" rel="noopener">Shop the Fall Store &rarr;</a><a class="thes__btn thes__btn--navy" href="https://chesapeakedistribution.com/collections/thunder-hill-elementary-school" target="_blank" rel="noopener">Shop the Parent-Designed Store &rarr;</a></div></div>
       <div class="thes__fund-card"><span class="thes__badge thes__badge--fund-annual">Annual Drive</span><h3>PTA Membership</h3><p>The PTA's biggest annual fundraiser — one membership a year funds the programs we run all year long.</p><p class="thes__fund-howto">Join or renew online — takes less than a minute. No volunteering required.</p><div class="thes__fund-actions"><a class="thes__btn thes__btn--teal" href="https://1thes.givebacks.com/shop?search=Membership" target="_blank" rel="noopener">Join or Renew &rarr;</a><a class="thes__btn thes__btn--navy" href="get-involved.html">See full membership pricing &rarr;</a></div></div>
     </div>
@@ -602,11 +725,11 @@
       <p>Set these up once and they keep giving all year long, at no extra cost to you.</p>
     </div>
     <div class="thes__fund-grid">
-      <div class="thes__fund-card"><span class="thes__badge thes__badge--fund-everyday">Everyday Giving</span><h3>Box Tops for Education</h3><p>Scan your grocery and online purchase receipts in the free Box Tops app — the PTA earns money automatically, at no cost to you.</p><p class="thes__fund-howto">Download the Box Tops app and link it to Thunder Hill Elementary School PTA.</p><div class="thes__fund-actions"><a class="thes__btn thes__btn--teal" href="https://btfe.smart.link/c2jjdifkw?referral_code=F8QZ1Z1S" target="_blank" rel="noopener">Get the App &rarr;</a></div><details class="thes__program-more"><summary>Details</summary><div class="thes__program-more-body"><a class="thes__flyer" href="flyers/fundraising/box-tops.jpg" target="_blank" rel="noopener"><img src="flyers/fundraising/box-tops.jpg" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div></details></div>
-      <div class="thes__fund-card"><span class="thes__badge thes__badge--fund-everyday">Everyday Giving</span><h3>See's Candies Fundraiser</h3><p>Order See's Candies online through the PTA's storefront — 50% of every purchase is donated straight back to the PTA.</p><p class="thes__fund-howto">Shop the storefront any time of year — great for holidays and gifts.</p><div class="thes__fund-actions"><a class="thes__btn thes__btn--teal" href="https://www.yumraising.com/store/all-year-2026-thunder-hill-elementary-school-pta-da40/NatMis5429" target="_blank" rel="noopener">Shop See's Candies &rarr;</a></div><details class="thes__program-more"><summary>Details</summary><div class="thes__program-more-body"><a class="thes__flyer" href="flyers/fundraising/sees-candies.jpg" target="_blank" rel="noopener"><img src="flyers/fundraising/sees-candies.jpg" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div></details></div>
-      <div class="thes__fund-card"><span class="thes__badge thes__badge--fund-everyday">Everyday Giving</span><h3>Mabel's Labels</h3><p>Durable, dishwasher- and laundry-safe labels for backpacks, water bottles, and school gear — 20% of your purchase supports the PTA.</p><p class="thes__fund-howto">Visit campaigns.mabelslabels.com and search for Thunder Hill Elementary School PTA, then purchase — labels ship right to your door.</p><div class="thes__fund-actions"><a class="thes__btn thes__btn--teal" href="https://campaigns.mabelslabels.com/" target="_blank" rel="noopener">Shop Mabel's Labels &rarr;</a></div><details class="thes__program-more"><summary>Details</summary><div class="thes__program-more-body"><a class="thes__flyer" href="flyers/fundraising/mabels-labels.jpg" target="_blank" rel="noopener"><img src="flyers/fundraising/mabels-labels.jpg" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div></details></div>
+      <div class="thes__fund-card"><span class="thes__badge thes__badge--fund-everyday">Everyday Giving</span><h3>Box Tops for Education</h3><p>Scan your grocery and online purchase receipts in the free Box Tops app — the PTA earns money automatically, at no cost to you.</p><p class="thes__fund-howto">Download the Box Tops app and link it to Thunder Hill Elementary School PTA.</p><div class="thes__fund-actions"><a class="thes__btn thes__btn--teal" href="https://btfe.smart.link/c2jjdifkw?referral_code=F8QZ1Z1S" target="_blank" rel="noopener">Get the App &rarr;</a></div><details class="thes__program-more"><summary>Details</summary><div class="thes__program-more-body"><a class="thes__flyer" href="flyers/fundraising/box-tops.jpg" target="_blank" rel="noopener"><img src="flyers/fundraising/box-tops.jpg" alt="Flyer: Box Tops for Education" width="160" loading="lazy"><span>Click for more information</span></a></div></details></div>
+      <div class="thes__fund-card"><span class="thes__badge thes__badge--fund-everyday">Everyday Giving</span><h3>See's Candies Fundraiser</h3><p>Order See's Candies online through the PTA's storefront — 50% of every purchase is donated straight back to the PTA.</p><p class="thes__fund-howto">Shop the storefront any time of year — great for holidays and gifts.</p><div class="thes__fund-actions"><a class="thes__btn thes__btn--teal" href="https://www.yumraising.com/store/all-year-2026-thunder-hill-elementary-school-pta-da40/NatMis5429" target="_blank" rel="noopener">Shop See's Candies &rarr;</a></div><details class="thes__program-more"><summary>Details</summary><div class="thes__program-more-body"><a class="thes__flyer" href="flyers/fundraising/sees-candies.jpg" target="_blank" rel="noopener"><img src="flyers/fundraising/sees-candies.jpg" alt="Flyer: See&#x27;s Candies Fundraiser" width="160" loading="lazy"><span>Click for more information</span></a></div></details></div>
+      <div class="thes__fund-card"><span class="thes__badge thes__badge--fund-everyday">Everyday Giving</span><h3>Mabel's Labels</h3><p>Durable, dishwasher- and laundry-safe labels for backpacks, water bottles, and school gear — 20% of your purchase supports the PTA.</p><p class="thes__fund-howto">Visit campaigns.mabelslabels.com and search for Thunder Hill Elementary School PTA, then purchase — labels ship right to your door.</p><div class="thes__fund-actions"><a class="thes__btn thes__btn--teal" href="https://campaigns.mabelslabels.com/" target="_blank" rel="noopener">Shop Mabel's Labels &rarr;</a></div><details class="thes__program-more"><summary>Details</summary><div class="thes__program-more-body"><a class="thes__flyer" href="flyers/fundraising/mabels-labels.jpg" target="_blank" rel="noopener"><img src="flyers/fundraising/mabels-labels.jpg" alt="Flyer: Mabel&#x27;s Labels" width="160" loading="lazy"><span>Click for more information</span></a></div></details></div>
       <div class="thes__fund-card"><span class="thes__badge thes__badge--fund-everyday">Everyday Giving</span><h3>Givebacks Rewards (Shop to Give)</h3><p>Shop online or dine out through the Givebacks app or Chrome extension and earn cashback automatically — families earn about $100 a year on average, and you choose how much of it to donate to the PTA.</p><p class="thes__fund-howto">Sign up free, add the Chrome extension or app, and link a card for in-store and dining offers — no purchase required to join.</p><div class="thes__fund-actions"><a class="thes__btn thes__btn--teal" href="https://givebacks.com/families/platform-1/rewards" target="_blank" rel="noopener">Sign Up &rarr;</a></div></div>
-      <div class="thes__fund-card"><span class="thes__badge thes__badge--fund-everyday">Everyday Giving</span><h3>RaiseRight Gift Cards</h3><p>Buy everyday gift cards at full value — groceries, gas, takeout, and more — and a percentage comes back to the PTA on every purchase.</p><p class="thes__fund-howto">Download the RaiseRight app or visit raiseright.com and use the enrollment code below to get started.</p><p class="thes__fund-code">Enrollment code: <strong>J77AQSBNQDUP</strong></p><div class="thes__fund-actions"><a class="thes__btn thes__btn--teal" href="https://www.raiseright.com/" target="_blank" rel="noopener">Get Started at RaiseRight &rarr;</a></div><details class="thes__program-more"><summary>Details</summary><div class="thes__program-more-body"><a class="thes__flyer" href="flyers/fundraising/raiseright.jpg" target="_blank" rel="noopener"><img src="flyers/fundraising/raiseright.jpg" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div></details></div>
+      <div class="thes__fund-card"><span class="thes__badge thes__badge--fund-everyday">Everyday Giving</span><h3>RaiseRight Gift Cards</h3><p>Buy everyday gift cards at full value — groceries, gas, takeout, and more — and a percentage comes back to the PTA on every purchase.</p><p class="thes__fund-howto">Download the RaiseRight app or visit raiseright.com and use the enrollment code below to get started.</p><p class="thes__fund-code">Enrollment code: <strong>J77AQSBNQDUP</strong></p><div class="thes__fund-actions"><a class="thes__btn thes__btn--teal" href="https://www.raiseright.com/" target="_blank" rel="noopener">Get Started at RaiseRight &rarr;</a></div><details class="thes__program-more"><summary>Details</summary><div class="thes__program-more-body"><a class="thes__flyer" href="flyers/fundraising/raiseright.jpg" target="_blank" rel="noopener"><img src="flyers/fundraising/raiseright.jpg" alt="Flyer: RaiseRight Gift Cards" width="160" loading="lazy"><span>Click for more information</span></a></div></details></div>
     </div>
   </div>
 </section>
@@ -627,12 +750,12 @@
       <div class="thes__footer-grid">
         <div>
           <div class="thes__footer-brand">Thunder Hill Elementary PTA</div>
-          <p>Thunder Hill Elementary School<br>9357 Mellenbrook Road<br>Columbia, MD 21045</p>
+          <p>Thunder Hill Elementary School · Howard County Public School System<br>9357 Mellenbrook Road<br>Columbia, Maryland 21045</p>
         </div>
         <div>
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="index.html">Home</a></li>
+            <li><a href="./">Home</a></li>
             <li><a href="events.html">Events</a></li>
             <li><a href="get-involved.html">Get Involved</a></li>
             <li><a href="about.html">About</a></li>

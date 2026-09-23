@@ -227,6 +227,34 @@ needed) in `config/site.json` and push. The embed, the sync script, the
 `.ics` download link are all built from that one ID — you never edit those
 URLs by hand.
 
+### Featured event pages (so people can find an event on Google)
+
+Calendar events only appear in the Events page's rolling list. For an
+event you want people to find by searching — like the Holiday Market —
+add an entry to `config/event-pages.json` (see
+`.claude/skills/add-event-page/SKILL.md` for the fields). That creates:
+
+- its own page at `www.thespta.org/events/<slug>.html` with the flyer,
+  details, and the hidden event data Google uses to show it as an event
+  in search results,
+- a link to it under the **Events** menu (using its short `nav_label`),
+- a "Featured Events" card at the top of the Events page.
+
+Only events listed there get a page — nothing is added automatically
+from the calendar. Each page is edited independently through its own
+entry.
+
+**Expiration**: every featured page has an `expires` date (the last day
+it's shown — defaults to the day the event ends). Within the hour after
+that, the automatic pipeline moves the entry to
+`archive/event-pages.json` and its flyer to `archive/flyers/`, and the
+page, menu link, and card all come down. Archived entries stay in the
+repo for reference; to reuse one next year, copy it back with new dates.
+
+After it's live, open [Google Search Console](https://search.google.com/search-console),
+paste the page's URL into **URL Inspection**, and click **Request
+indexing** — then share the link everywhere you promote the event.
+
 ---
 
 ## Task 4b — Add, remove, or edit a sponsor
@@ -272,6 +300,33 @@ specific date.
 **A flyer for a specific event doesn't go here** — attach it to that
 event in Google Calendar instead (Task 4, step 3) so it shows up linked
 from that event directly, wherever the event appears.
+
+---
+
+## Task 4d — Add, remove, or edit an announcement
+
+**File:** `config/announcements.json` · **Skill:** `.claude/skills/add-announcement/`
+
+Each entry is `{ "text": "...", "href": "..." }` (external link) or
+`{ "text": "...", "page_url": "..." }` (internal page — a key from
+`page_urls` below). Same empty-list-means-nothing-shown behavior as
+sponsors/flyers — this powers the horizontal announcements banner shown
+just under the header on *every* page of the site, not just one.
+
+With more than one entry, the banner auto-rotates between them with a
+smooth fade — each message is fully readable for 4 seconds. A visitor can dismiss it (×) — that's
+remembered per-browser, but only for the exact set of announcements
+they dismissed: editing this file in any way (even just fixing a typo)
+automatically re-shows the banner to everyone, since dismissal is keyed
+to a hash of the content, not "the banner" in general.
+
+Keep each message to **60 characters or fewer** — longer ones wrap to a
+third line on phones and make the banner grow. Use short dates ("Nov 21")
+and let the linked page carry the details.
+
+Add `"expires": "YYYY-MM-DD"` (the last day it should show) and it takes
+itself down: within the hour after that date, the automatic pipeline
+moves it to `archive/announcements.json` for reference and redeploys.
 
 ---
 

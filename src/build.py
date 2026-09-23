@@ -22,6 +22,8 @@ additions (events, board members, sponsors, flyers) are meant to be made
 — config only, never this file — by an agent working from .claude/skills/.
 """
 import datetime as dt
+import hashlib
+import html
 import json
 import re
 import urllib.parse
@@ -71,6 +73,77 @@ def load_json(name, default=None):
     return json.loads(path.read_text())
 
 
+def site_today(site):
+    """Today's date in the PTA's own timezone (config/site.json's
+    calendar.timezone), not the machine's — GitHub Actions runners are on
+    UTC, which would otherwise flip to "tomorrow" at 8 PM Eastern and
+    expire an announcement or event page hours early on its last day."""
+    from zoneinfo import ZoneInfo
+
+    return dt.datetime.now(ZoneInfo(site["calendar"]["timezone"])).date()
+
+
+def is_expired(expires, today):
+    """True once `today` is past an ISO `expires` date ("YYYY-MM-DD") —
+    `expires` is the *last day* something is shown, inclusive. A missing
+    or malformed value never expires (shown until removed by hand) rather
+    than silently vanishing on a typo."""
+    if not expires:
+        return False
+    try:
+        return dt.date.fromisoformat(expires) < today
+    except ValueError:
+        return False
+
+
+def event_page_expires(event):
+    """A featured event page's `expires` date — its own explicit one if
+    set, otherwise the day the event ends (so it disappears the morning
+    after)."""
+    if event.get("expires"):
+        return event["expires"]
+    return dt.datetime.fromisoformat(event.get("end") or event["start"]).date().isoformat()
+
+
+def load_active_event_pages(site):
+    """Entries in config/event-pages.json that haven't expired yet. The
+    hourly/push pipelines normally move expired ones out to archive/ via
+    scripts/archive_expired.py before building, but the build filters
+    them too, so a local build (or a pipeline run that hasn't archived
+    yet) never publishes an expired page either."""
+    today = site_today(site)
+    return [e for e in load_json("event-pages.json", default=[]) if not is_expired(event_page_expires(e), today)]
+
+
+def event_page_url_key(event):
+    return "event_" + re.sub(r"\W", "_", event["slug"])
+
+
+def load_site():
+    """config/site.json, plus one page_urls entry and one Events-menu
+    child per active featured event page — so each featured event shows
+    up under Events in the nav (and gets breadcrumbs / "you are here"
+    highlighting) automatically, sorted by date, and drops out of the
+    menu the moment it expires, with no hand-edit of the nav needed
+    either way. Every place that needs the nav or page_urls reads
+    through this rather than site.json directly."""
+    site = load_json("site.json")
+    event_pages = sorted(load_active_event_pages(site), key=lambda e: e["start"])
+    if not event_pages:
+        return site
+    page_urls = site.setdefault("page_urls", {})
+    for e in event_pages:
+        page_urls[event_page_url_key(e)] = event_page_name(e).removesuffix(".html")
+    for item in site.get("nav", []):
+        if item.get("page_url") == "events":
+            item["children"] = (item.get("children") or []) + [
+                {"label": html.escape(e.get("nav_label") or e["title"]), "page_url": event_page_url_key(e)}
+                for e in event_pages
+            ]
+            break
+    return site
+
+
 def build_context(depth=0):
     """`depth` is how many directory levels below the site root the page
     being built lives (0 for a top-level page like about.html, 1 for a
@@ -82,7 +155,7 @@ def build_context(depth=0):
     to a staging repo served from a URL *subpath*
     (.../thespta-prestage/...), not the domain root, where root-absolute
     links would silently point at the wrong site."""
-    site = load_json("site.json")
+    site = load_site()
     theme = load_json("theme.json")
 
     context = flatten(site)
@@ -95,6 +168,7 @@ def build_context(depth=0):
 
     # Served by GitHub Pages alongside the HTML — see .github/workflows/deploy.yml,
     # which copies assets/images/* into site/images/ next to pages/*.html.
+    context["IMAGES_BASE_URL"] = f"{prefix}images"
     context["HERO_IMAGE_URL"] = f'{prefix}images/{site["hero_image_filename"]}'
     context["PAGE_HEADER_IMAGE_URL"] = f'{prefix}images/{site["page_header_image_filename"]}'
 
@@ -114,6 +188,14 @@ def build_context(depth=0):
     for key in list(context.keys()):
         if key.startswith("page_urls."):
             context[key] = f"{prefix}{context[key]}.html"
+    # Home links to the site root ("./" or "../"), not index.html — the
+    # root is the canonical URL, and linking to index.html is how Google
+    # kept finding it as a duplicate ("Alternate page with proper
+    # canonical tag" in Search Console).
+    if "page_urls.home" in context:
+        context["page_urls.home"] = prefix or "./"
+
+    context["ADDRESS_LINE2_LONG"] = site_address_line2_long(site)
 
     cal_id = site["calendar"]["calendar_id"]
     cal_id_q = urllib.parse.quote(cal_id, safe="")
@@ -208,7 +290,7 @@ def render_nav_items(items, context, current_page_url=None):
 
 
 def build_header(context, current_page_url=None):
-    nav_items = render_nav_items(load_json("site.json").get("nav", []), context, current_page_url)
+    nav_items = render_nav_items(load_site().get("nav", []), context, current_page_url)
     return render((TEMPLATES / "header.html.tmpl").read_text(), {**context, "NAV_ITEMS": nav_items})
 
 
@@ -303,7 +385,14 @@ def drive_thumbnail_url(href):
 ATTACHMENT_LINK_TEXT = "Click for more information"
 
 
-def render_event_attachments(attachments):
+def flyer_alt(name):
+    """Alt text for a flyer thumbnail. Never alt="": Bing Webmaster
+    Tools' SEO audit reports an empty alt as missing, and a flyer is
+    real content (the details), not decoration."""
+    return html.escape(f"Flyer: {name}") if name else "Flyer"
+
+
+def render_event_attachments(attachments, event_title=""):
     """A file attached to a calendar event (e.g. a flyer PDF or image —
     see scripts/sync_calendar_events.py) becomes a small clickable
     thumbnail preview, or a plain text link when there's no thumbnail to
@@ -324,7 +413,7 @@ def render_event_attachments(attachments):
         if thumb_url:
             items.append(
                 f'<a class="thes__flyer" href="{a["href"]}" target="_blank" rel="noopener">'
-                f'<img src="{thumb_url}" alt="" width="160" loading="lazy">'
+                f'<img src="{thumb_url}" alt="{flyer_alt(event_title)}" width="160" loading="lazy">'
                 f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
             )
         else:
@@ -389,11 +478,178 @@ def render_more_event_meet(href):
 def with_event_extras(event):
     return {
         **event,
-        "ATTACHMENTS": render_event_attachments(event.get("attachments", [])),
+        "ATTACHMENTS": render_event_attachments(event.get("attachments", []), event.get("title", "")),
         "DESCRIPTION_BLOCK": render_event_description(event.get("description")),
         "SIGNUP_BUTTON": render_event_signup(event.get("signup_href")),
         "MEET_BUTTON": render_event_meet(event.get("meet_href")),
     }
+
+
+# Longest announcement text that still fits the banner's fixed two-line
+# height on a small (360px) phone — measured against the real Lato font
+# metrics and the banner's icon/arrow/close-button widths, not guessed.
+# A third line makes the whole bar grow, and jump in height as it
+# rotates between messages. Banner-graphic slides (flyer_filename) are
+# exempt — their text is only the image's alt text.
+ANNOUNCEMENT_MAX_CHARS = 60
+
+ANNOUNCE_ICON_SVG = (
+    '<svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" '
+    'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+    'stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/>'
+    '<path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>'
+)
+
+
+def build_announcement_banner(announcements, context):
+    """A thin, dismissible, auto-rotating announcements strip shown right
+    under the header on every page — same empty-means-no-section pattern
+    as sponsors/flyers/every other optional content type on this site:
+    an empty config/announcements.json means this renders nothing at
+    all, not an empty bar. Each announcement links somewhere relevant —
+    either an internal page via `page_url` (resolved the same
+    depth-aware way every other internal link on this site is, so it
+    works correctly regardless of how deep the current page sits) or a
+    plain external `href` — clicking anywhere on the slide navigates
+    there. This is *"manage dynamically"* the same way every other
+    config-only content type on this site is: editing
+    config/announcements.json (see .claude/skills/add-announcement/),
+    not a live/authenticated admin panel — there's no backend here to
+    host one.
+
+    More than one announcement crossfades on an interval via the
+    <script> in announcement-banner.html.tmpl; a single one just sits
+    still, no rotation needed. The crossfade is a sequential fade-out-
+    swap-fade-in (opacity only, one slide visible at a time via
+    display:none/flex) rather than the position:absolute stacking
+    technique the calendar/welcome-video embeds use — deliberately, to
+    avoid introducing a 5th position:absolute use beyond the ones
+    "Hard-won constraints" in CLAUDE.md already vetted.
+
+    Dismissal is remembered in the visitor's own localStorage, keyed by
+    a hash of the *current* announcement set's content — so dismissing
+    today's message doesn't hide a different one the PTA adds tomorrow;
+    changing the config content changes the hash, which un-dismisses the
+    banner for every visitor automatically without needing to touch any
+    per-visitor state.
+
+    An announcement can optionally carry `icon_filename` — a small image
+    (a logo, a category icon) served from assets/images/ like every
+    other image on this site, shown before the text. Every text slide
+    always shows *some* icon — ANNOUNCE_ICON_SVG (a plain inline speaker
+    glyph, same stroke-icon style already used in the Home page's
+    quick-action cards) when no `icon_filename` is set — so the banner
+    reads as a designed "badge + message + arrow" unit rather than a
+    bare sentence, the single biggest visual difference between a slick
+    announcement bar and a flat one per real-world examples (Elfsight/
+    Popupsmart/UserGuiding). A trailing arrow (&rarr;, the same "this is
+    clickable, here's where" convention already used on every card/
+    button link across the rest of this site) closes out each slide for
+    the same reason. No emoji anywhere in generated markup — deliberate,
+    the PTA wants this professional, not casual.
+
+    An announcement can carry a banner graphic instead of the icon+text
+    treatment — either `flyer_filename` (a real flyer image, in
+    assets/flyers/announcements/ like every other flyer type on this
+    site, for a flyer the PTA uploaded here directly) or `flyer_href` (a
+    Drive share link — for reusing a flyer that's *already* attached to
+    a calendar event, via the same drive_thumbnail_url() mechanism
+    events/afterschool-programs/fundraisers already use for their own
+    flyer previews, so a calendar-linked announcement never needs a
+    second copy of an image that's already sitting on that event).
+    Either way, that entire slide becomes a full-width clickable banner
+    graphic (just the image, no icon/text/arrow chrome), with a fixed
+    height matching the text slides' own min-height (see
+    .thes__announce-banner-img in tokens.html.tmpl) specifically so a
+    banner-graphic slide and a text slide crossfade at the same height
+    — same "no visible jump" requirement as everywhere else in this
+    banner, just solved once more for a second slide shape.
+
+    An announcement can carry `expires` (an ISO date, "YYYY-MM-DD") —
+    once today is past that date, it's silently dropped from the
+    rendered banner on the next rebuild (hourly via sync-events.yml, so
+    within about an hour of actually expiring even with no human
+    action), same as every other date-driven filter on this site (the
+    Events page's own lookahead window works the same way). For an
+    announcement linked to a real calendar event, `expires` is computed
+    *once*, when the announcement is added — event date + 1 day, read
+    from that event's own `date` field in config/events.json (see
+    .claude/skills/add-announcement/) — rather than re-resolved live on
+    every build: config/events.json is a *rolling* window of only the
+    next several upcoming events, so by the time an event's expiry date
+    actually arrives the event itself may have already scrolled out of
+    that file, and a live lookup would fail at exactly the moment it's
+    needed. Baking the literal date in at add-time sidesteps that
+    entirely — same reasoning as why `flyer_href` copies the event's
+    attachment URL in rather than trying to re-derive it by title match
+    on every build."""
+    if not announcements:
+        return ""
+
+    today = site_today(load_json("site.json"))
+    announcements = [a for a in announcements if not is_expired(a.get("expires"), today)]
+    if not announcements:
+        return ""
+
+    def resolve_href(a):
+        if a.get("page_url"):
+            # A featured event page's page_urls key only exists while that
+            # page is live (see load_site), so an announcement outliving
+            # its event page falls back to the Events page instead of
+            # crashing the whole build with a KeyError.
+            return context.get(f"page_urls.{a['page_url']}", context["page_urls.events"])
+        return a.get("href", "#")
+
+    def render_icon(a):
+        filename = a.get("icon_filename")
+        if filename:
+            return f'<img class="thes__announce-icon" src="{context["IMAGES_BASE_URL"]}/{filename}" alt="">'
+        return ANNOUNCE_ICON_SVG
+
+    def resolve_banner_image(a):
+        filename = a.get("flyer_filename")
+        if filename:
+            return f'{context["FLYER_BASE_URL"]}/announcements/{filename}'
+        drive_href = a.get("flyer_href")
+        if drive_href:
+            return drive_thumbnail_url(drive_href) or drive_href
+        return None
+
+    def render_slide(a, i):
+        active_style = ' style="display:flex;opacity:1;" ' if i == 0 else " "
+        href = resolve_href(a)
+        banner_image = resolve_banner_image(a)
+        if banner_image:
+            return (
+                f'<a class="thes__announce-slide thes__announce-slide--banner"{active_style}href="{href}">'
+                f'<img class="thes__announce-banner-img" src="{banner_image}" alt="{a.get("text", "")}"></a>'
+            )
+        return (
+            f'<a class="thes__announce-slide"{active_style}href="{href}">'
+            f'{render_icon(a)}<span class="thes__announce-text">{a["text"]}</span>'
+            f'<span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>'
+        )
+
+    content_hash = hashlib.md5(
+        json.dumps(
+            [
+                [
+                    a.get("text", ""),
+                    a.get("page_url") or a.get("href", ""),
+                    a.get("icon_filename", ""),
+                    a.get("flyer_filename", ""),
+                    a.get("flyer_href", ""),
+                    a.get("expires", ""),
+                ]
+                for a in announcements
+            ]
+        ).encode()
+    ).hexdigest()[:12]
+
+    slides = "\n".join(render_slide(a, i) for i, a in enumerate(announcements))
+
+    tmpl = (TEMPLATES / "announcement-banner.html.tmpl").read_text()
+    return render(tmpl, {**context, "ANNOUNCEMENT_SLIDES": slides, "ANNOUNCEMENT_HASH": content_hash})
 
 
 def build_welcome_video_section(site):
@@ -488,6 +744,274 @@ def build_events_page_section(events, context):
     section_tmpl = (TEMPLATES / "events-list-section.html.tmpl").read_text()
     rows = "\n".join(indent(render(row_tmpl, {**context, **with_event_extras(e)}), 8) for e in events[:EVENTS_PAGE_MAX])
     return render(section_tmpl, {**context, "EVENTS_LIST": rows})
+
+
+# ---- Opt-in event pages (config/event-pages.json) ----
+#
+# Most events only ever live on the calendar (and so in the rolling
+# config/events.json highlights list). An event the PTA specifically
+# wants people to find from a Google search — the Holiday Market, say —
+# gets its own page at pages/events/<slug>.html instead, plus schema.org
+# Event structured data so Google can show it as an event (date, place)
+# in results. Opt-in on purpose: not every calendar entry is meant to be
+# promoted publicly, so nothing here is derived from the calendar feed.
+
+EVENT_PAGES_DIR = "events"
+
+
+def event_page_name(event):
+    return f"{EVENT_PAGES_DIR}/{event['slug']}.html"
+
+
+def format_event_time(t):
+    hour = t.hour % 12 or 12
+    suffix = "AM" if t.hour < 12 else "PM"
+    return f"{hour}:{t.minute:02d} {suffix}"
+
+
+def format_event_when(event):
+    start = dt.datetime.fromisoformat(event["start"])
+    end = dt.datetime.fromisoformat(event["end"]) if event.get("end") else None
+    day = f"{start:%A, %B} {start.day}, {start.year}"
+    if end and end.date() == start.date():
+        return f"{day} · {format_event_time(start)} – {format_event_time(end)}"
+    if end:
+        return f"{day}, {format_event_time(start)} – {end:%A, %B} {end.day}, {format_event_time(end)}"
+    return f"{day} · {format_event_time(start)}"
+
+
+def event_location_address(event, site):
+    return event.get("address") or f'{site.get("address_line1", "")}, {site.get("address_line2", "")}'
+
+
+def build_postal_address(line1, line2):
+    """schema.org PostalAddress from a street line + a free-text
+    "City, ST 12345" line — see build_organization_jsonld for why it's
+    parsed best-effort rather than stored pre-split in config."""
+    address = {"@type": "PostalAddress", "streetAddress": line1}
+    m = re.match(r"^\s*(.+?),\s*([A-Z]{2})\s+(\d{5}(?:-\d{4})?)\s*$", line2)
+    if m:
+        address["addressLocality"] = m.group(1)
+        address["addressRegion"] = m.group(2)
+        address["postalCode"] = m.group(3)
+    elif line2:
+        address["addressLocality"] = line2
+    address["addressCountry"] = "US"
+    return address
+
+
+def site_city(site):
+    """The city from address_line2 ("Columbia, MD 21045" -> "Columbia")."""
+    return site.get("address_line2", "").split(",")[0].strip()
+
+
+def site_location_short(site):
+    """"Columbia, MD" — appended to every page's <title> so each page
+    (and every featured event page) carries the town people search by."""
+    m = re.match(r"^\s*(.+?),\s*([A-Z]{2})\b", site.get("address_line2", ""))
+    return f"{m.group(1)}, {m.group(2)}" if m else site_city(site)
+
+
+def site_address_line2_long(site):
+    """address_line2 with the state spelled out ("Columbia, Maryland
+    21045") for the footer — people search the full state name."""
+    line2 = site.get("address_line2", "")
+    state_name = site.get("state_name")
+    if not state_name:
+        return line2
+    return re.sub(r",\s*[A-Z]{2}(\s+\d{5}(?:-\d{4})?)?\s*$", lambda m: f", {state_name}{m.group(1) or ''}", line2)
+
+
+def build_event_jsonld(event, site):
+    """schema.org Event structured data for one opt-in event page — what
+    Google's event search results read (name, date, place, image), so
+    the event can show up *as an event* rather than just a blue link.
+    Dates carry a real UTC offset computed from the calendar's timezone
+    (EST vs EDT) rather than a hardcoded one."""
+    from zoneinfo import ZoneInfo
+
+    tz = ZoneInfo(site["calendar"]["timezone"])
+    domain = site["custom_domain"]
+
+    def iso(value):
+        return dt.datetime.fromisoformat(value).replace(tzinfo=tz).isoformat()
+
+    line1 = event.get("address_line1") or site.get("address_line1", "")
+    line2 = event.get("address_line2") or site.get("address_line2", "")
+    data = {
+        "@context": "https://schema.org",
+        "@type": "Event",
+        "name": event["title"],
+        "description": event["summary"],
+        "startDate": iso(event["start"]),
+        "eventStatus": "https://schema.org/EventScheduled",
+        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "location": {
+            "@type": "Place",
+            "name": event.get("location_name") or site.get("school_name", ""),
+            "address": build_postal_address(line1, line2),
+        },
+        "organizer": {
+            "@type": "Organization",
+            "name": site.get("org_name", ""),
+            "url": f"https://{domain}/",
+        },
+        "url": f"https://{domain}/{event_page_name(event)}",
+    }
+    if site.get("county") and not event.get("address_line2"):
+        # Only for on-site events at the school's own address — an
+        # off-site event's county isn't known here.
+        data["location"]["containedInPlace"] = {
+            "@type": "AdministrativeArea",
+            "name": f'{site["county"]}, {site.get("state_name", "")}'.rstrip(", "),
+        }
+    if event.get("end"):
+        data["endDate"] = iso(event["end"])
+    if event.get("flyer_filename"):
+        data["image"] = [f"https://{domain}/flyers/{event['flyer_filename']}"]
+    return f'<script type="application/ld+json">{json.dumps(data)}</script>\n'
+
+
+def google_calendar_add_url(event, site):
+    """A one-click "add this event to my Google Calendar" link — just
+    this one event, unlike the Events page's subscribe-to-everything
+    link."""
+    def stamp(value):
+        return dt.datetime.fromisoformat(value).strftime("%Y%m%dT%H%M%S")
+
+    end = event.get("end") or event["start"]
+    params = {
+        "action": "TEMPLATE",
+        "text": event["title"],
+        "dates": f"{stamp(event['start'])}/{stamp(end)}",
+        "ctz": site["calendar"]["timezone"],
+        "details": f'{event["summary"]}\n\nhttps://{site["custom_domain"]}/{event_page_name(event)}',
+        "location": f'{event.get("location_name", "")}, {event_location_address(event, site)}',
+    }
+    return "https://calendar.google.com/calendar/render?" + urllib.parse.urlencode(params)
+
+
+CHECK_ICON = (
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+    'stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>'
+)
+
+
+def render_event_page(event, site, context):
+    """One opt-in event page's body — the same shared template for every
+    entry in config/event-pages.json, filled in from that entry."""
+    esc = html.escape
+    email = event.get("contact_email") or site.get("email", "")
+    contact = f'<a href="mailto:{esc(email)}">{esc(email)}</a>'
+    if event.get("contact_name"):
+        contact = f'{esc(event["contact_name"])} · {contact}'
+
+    actions = []
+    if event.get("register_href"):
+        actions.append(
+            f'<a class="thes__btn thes__btn--teal" href="{esc(event["register_href"])}" '
+            'target="_blank" rel="noopener">Register as a Vendor &rarr;</a>'
+        )
+    actions.append(
+        f'<a class="thes__btn thes__btn--navy" href="{esc(google_calendar_add_url(event, site))}" '
+        'target="_blank" rel="noopener">Add to Google Calendar</a>'
+    )
+    if event.get("flyer_filename"):
+        actions.append(
+            f'<a class="thes__btn thes__btn--outline" href="{context["FLYER_BASE_URL"]}/{esc(event["flyer_filename"])}" '
+            'target="_blank" rel="noopener">View Flyer</a>'
+        )
+
+    about = "\n".join(
+        f'        <p style="color:var(--text-muted); margin:0 0 14px;">{esc(p)}</p>' for p in event.get("about", [])
+    )
+
+    section_cards = []
+    for section in event.get("sections", []):
+        items = "\n".join(
+            f"            <li>{CHECK_ICON}<span>{esc(item)}</span></li>" for item in section.get("items", [])
+        )
+        extra = ""
+        if section.get("note"):
+            extra = f'\n        <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">{esc(section["note"])}</p>'
+        if section.get("button_href"):
+            extra += (
+                f'\n        <div><a class="thes__btn thes__btn--teal" href="{esc(section["button_href"])}" '
+                f'target="_blank" rel="noopener">{esc(section.get("button_label") or "Learn More")} &rarr;</a></div>'
+            )
+        section_cards.append(
+            '      <div class="thes__info-card">\n'
+            f'        <h2 style="font-size:clamp(1.15rem,2.4vw,1.4rem);">{esc(section["heading"])}</h2>\n'
+            f'        <ul class="thes__checklist">\n{items}\n        </ul>{extra}\n'
+            "      </div>"
+        )
+
+    flyer = ""
+    if event.get("flyer_filename"):
+        flyer_url = f'{context["FLYER_BASE_URL"]}/{esc(event["flyer_filename"])}'
+        flyer = (
+            '  <section class="thes__section">\n'
+            '    <div class="thes__wrap">\n'
+            '      <div class="thes__section-head"><h2>Event Flyer</h2></div>\n'
+            f'      <a href="{flyer_url}" target="_blank" rel="noopener">'
+            f'<img src="{flyer_url}" alt="{esc(event.get("flyer_alt") or event["title"] + " flyer")}" '
+            'loading="lazy" style="display:block; width:100%; max-width:900px; height:auto; margin:0 auto; '
+            'border-radius:14px; border:1px solid var(--border);"></a>\n'
+            "    </div>\n"
+            "  </section>"
+        )
+
+    location = f'{esc(event.get("location_name") or site.get("school_name", ""))}<br>{esc(event_location_address(event, site))}'
+    if site.get("county") and not event.get("address_line2"):
+        location += f' · {esc(site["county"])}'
+    tmpl = (TEMPLATES / "event-page.html.tmpl").read_text()
+    return render(tmpl, {
+        **context,
+        "PAGE_TITLE": colorize_title_words(esc(event["title"])),
+        "EVENT_TITLE": esc(event["title"]),
+        "EVENT_EYEBROW": esc(event.get("eyebrow") or "Featured Event"),
+        "EVENT_TAGLINE": esc(event.get("tagline", "")),
+        "EVENT_WHEN": esc(format_event_when(event)),
+        "EVENT_LOCATION": location,
+        "EVENT_CONTACT": contact,
+        "EVENT_ACTIONS": "\n          ".join(actions),
+        "EVENT_ABOUT": about,
+        "EVENT_SECTIONS": "\n".join(section_cards),
+        "EVENT_FLYER": flyer,
+    })
+
+
+def build_event_pages_section(event_pages, context):
+    """"Featured Events" cards on the Events page, one per active
+    (unexpired) featured event page, soonest first. "" (no section) when
+    there are none, same empty-means-no-section pattern as
+    sponsors/flyers."""
+    upcoming = sorted(event_pages, key=lambda e: e["start"])
+    if not upcoming:
+        return ""
+    prefix = context["page_urls.events"].removesuffix("events.html")
+    cards = "\n".join(
+        '        <div class="thes__card thes__card--teal">\n'
+        f'          <h3>{html.escape(e["title"])}</h3>\n'
+        f'          <p><strong>{html.escape(format_event_when(e))}</strong></p>\n'
+        f'          <p>{html.escape(e.get("tagline", ""))}</p>\n'
+        f'          <a href="{prefix}{event_page_name(e)}">Event Details &rarr;</a>\n'
+        "        </div>"
+        for e in upcoming
+    )
+    return (
+        '<section class="thes__section">\n'
+        '  <div class="thes__wrap">\n'
+        '    <div class="thes__section-head">\n'
+        '      <span class="thes__eyebrow">Don\'t Miss</span>\n'
+        "      <h2>Featured Events</h2>\n"
+        "    </div>\n"
+        '    <div class="thes__grid">\n'
+        f"{cards}\n"
+        "    </div>\n"
+        "  </div>\n"
+        "</section>"
+    )
 
 
 def build_optional_section(config_name, card_template_name, section_template_name, cards_key, context):
@@ -677,7 +1201,7 @@ def render_afterschool_program_card(program, context):
         flyer_url = f'{context["FLYER_BASE_URL"]}/before-after-school/{flyer_filename}'
         details.append(
             f'<a class="thes__flyer" href="{flyer_url}" target="_blank" rel="noopener">'
-            f'<img src="{flyer_url}" alt="" width="160" loading="lazy">'
+            f'<img src="{flyer_url}" alt="{flyer_alt(program.get("name"))}" width="160" loading="lazy">'
             f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
         )
 
@@ -807,7 +1331,7 @@ def render_fundraiser_card(campaign, context):
         flyer_url = f'{context["FLYER_BASE_URL"]}/fundraising/{flyer_filename}'
         details.append(
             f'<a class="thes__flyer" href="{flyer_url}" target="_blank" rel="noopener">'
-            f'<img src="{flyer_url}" alt="" width="160" loading="lazy">'
+            f'<img src="{flyer_url}" alt="{flyer_alt(campaign.get("name"))}" width="160" loading="lazy">'
             f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
         )
     if campaign.get("contact"):
@@ -1130,7 +1654,7 @@ def render_meeting_flyer(meeting, context):
     flyer_url = f'{context["FLYER_BASE_URL"]}/pta-meetings/{flyer_filename}'
     return (
         f'<a class="thes__flyer" href="{flyer_url}" target="_blank" rel="noopener">'
-        f'<img src="{flyer_url}" alt="" width="160" loading="lazy">'
+        f'<img src="{flyer_url}" alt="{flyer_alt(meeting.get("title"))}" width="160" loading="lazy">'
         f"<span>{ATTACHMENT_LINK_TEXT}</span></a>"
     )
 
@@ -1325,21 +1849,22 @@ def build_organization_jsonld(site):
     postalCode for schema.org's PostalAddress shape, falling back to
     putting the whole line in addressLocality if it doesn't match the
     expected "City, ST 12345" pattern rather than raising or guessing."""
-    address = {"@type": "PostalAddress", "streetAddress": site.get("address_line1", "")}
-    line2 = site.get("address_line2", "")
-    m = re.match(r"^\s*(.+?),\s*([A-Z]{2})\s+(\d{5}(?:-\d{4})?)\s*$", line2)
-    if m:
-        address["addressLocality"] = m.group(1)
-        address["addressRegion"] = m.group(2)
-        address["postalCode"] = m.group(3)
-    elif line2:
-        address["addressLocality"] = line2
-    address["addressCountry"] = "US"
+    address = build_postal_address(site.get("address_line1", ""), site.get("address_line2", ""))
 
     data = {
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": site.get("org_name", ""),
+        "alternateName": ["THES PTA", f'{site.get("school_short_name", "")} PTA'],
+        "description": (
+            f'The parent-teacher association of {site.get("school_name", "")}, a '
+            f'{site.get("school_district", "")} elementary school in '
+            f'{site_city(site)}, {site.get("state_name", "")}.'
+        ),
+        "areaServed": [
+            {"@type": "City", "name": f'{site_city(site)}, {site.get("state_name", "")}'},
+            {"@type": "AdministrativeArea", "name": f'{site.get("county", "")}, {site.get("state_name", "")}'},
+        ],
         "url": f'https://{site["custom_domain"]}/',
         "logo": f'https://{site["custom_domain"]}/images/{site["hero_image_filename"]}',
         "email": site.get("email", ""),
@@ -1347,6 +1872,25 @@ def build_organization_jsonld(site):
         "sameAs": [href for href in site.get("social", {}).values() if href],
     }
     return f'<script type="application/ld+json">{json.dumps(data)}</script>\n'
+
+
+def build_document_title(page_name, site, nav_labels, event_page=None):
+    """The <title> — the blue link in search results, and the strongest
+    single signal of what a page is about. Every page carries the town
+    ("Columbia, MD"); the Home page also names the county, since that's
+    the page a "Howard County PTA" search should land on. Inner pages
+    lead with their own name (what a searcher — or a visitor with
+    several tabs open — needs first), taken from its nav label, then
+    PAGE_TITLES, then the filename."""
+    org = site.get("org_name", "")
+    where = site_location_short(site)
+    if page_name == "index.html":
+        county = f' · {site["county"]}' if site.get("county") else ""
+        return html.escape(f"{org} | {where}{county}")
+    if event_page:
+        return html.escape(f'{event_page["title"]} · {where} | {org}')
+    name = nav_labels.get(page_name) or PAGE_TITLES.get(page_name) or Path(page_name).stem.replace("-", " ").title()
+    return html.escape(f"{name} | {org} · {where}")
 
 
 def colorize_title_words(text):
@@ -1387,20 +1931,22 @@ PAGE_TITLES = {
 PAGE_DESCRIPTIONS = {
     "index.html": (
         "The official website of the Thunder Hill Elementary PTA (THES PTA) in "
-        "Columbia, MD — events, PTA meetings, volunteering, and fundraising, all "
-        "in one place."
+        "Columbia, Maryland — events, PTA meetings, volunteering, and fundraising "
+        "for our Howard County school community."
     ),
     "about.html": (
         "Meet the Thunder Hill Elementary PTA Executive Board and learn about our "
-        "mission to support students, staff, and families at THES."
+        "mission to support students, staff, and families at THES in Columbia, "
+        "Maryland (Howard County)."
     ),
     "get-involved.html": (
-        "Volunteer opportunities, committees, and membership information for the "
-        "Thunder Hill Elementary PTA — find out how to get involved at THES."
+        "Volunteer opportunities, committees, and membership for the Thunder Hill "
+        "Elementary PTA in Columbia, MD — get involved at our Howard County school."
     ),
     "events.html": (
-        "See every upcoming Thunder Hill Elementary PTA event, synced live from "
-        "our calendar — meetings, fundraisers, and school-wide celebrations."
+        "Upcoming Thunder Hill Elementary PTA events in Columbia, MD — family "
+        "nights, fundraisers, and PTA meetings for our Howard County school "
+        "community."
     ),
     "newsletter.html": (
         "Two ways to keep up with Thunder Hill Elementary — the school's own "
@@ -1463,31 +2009,61 @@ def main():
     board_cards = build_board_cards()
     events = load_json("events.json", default=[])
     hcpss_events = load_json("hcpss-family-events.json", default=[])
-    site = load_json("site.json")
+    announcements = load_json("announcements.json", default=[])
+    for a in announcements:
+        if not a.get("flyer_filename") and len(a.get("text", "")) > ANNOUNCEMENT_MAX_CHARS:
+            print(f'  ! announcement is {len(a["text"])} characters (max {ANNOUNCEMENT_MAX_CHARS}) — '
+                  f'it will wrap to a third line on phones and grow the banner: "{a["text"]}"')
+    site = load_site()
     committees_section = build_committees_section(
         load_json("committees.json", default=[]), site["volunteerForm"]
     )
     welcome_video_section = build_welcome_video_section(site)
     organization_jsonld = build_organization_jsonld(site)
+    event_pages = load_active_event_pages(site)
+    for e in event_pages:
+        if site_city(site) and site_city(site).lower() not in e.get("summary", "").lower():
+            print(f'  ! event page "{e["slug"]}": summary doesn\'t mention {site_city(site)} — '
+                  "it's the search-result snippet; name the town so local searches match")
 
     # Inverse of page_urls (e.g. "get-involved/committees" -> "committees")
     # so the nav can mark "you are here" — see render_nav_items — from
     # nothing but the page filename already being built, with no need for
     # every page template to separately declare which nav item is its own.
     page_url_keys_by_name = {v: k for k, v in site.get("page_urls", {}).items()}
+    nav_labels = {
+        f'{site["page_urls"][item["page_url"]]}.html': item["label"]
+        for top in site.get("nav", [])
+        for item in [top] + (top.get("children") or [])
+        if item.get("page_url") in site.get("page_urls", {})
+    }
 
     page_templates = sorted((TEMPLATES / "pages").rglob("*.html.tmpl"))
     if not page_templates:
         raise SystemExit("No page templates found in src/templates/pages/")
 
+    # Every page is (page_name, template path, opt-in event or None):
+    # the hand-written page templates, plus one generated page per entry
+    # in config/event-pages.json, all sharing event-page.html.tmpl. Both
+    # go through the exact same document shell/header/sitemap handling
+    # below — an event page is a real page, not a special case of one.
+    page_jobs = [
+        (str(p.relative_to(TEMPLATES / "pages")).removesuffix(".tmpl"), p, None) for p in page_templates
+    ]
+    page_jobs += [(event_page_name(e), TEMPLATES / "event-page.html.tmpl", e) for e in event_pages]
+
     PAGES_OUT.mkdir(exist_ok=True)
+    # pages/events/ holds nothing but generated featured-event pages, so
+    # it's cleared on every build — otherwise an expired/archived event's
+    # old HTML would linger in pages/ and keep getting deployed (both
+    # workflows copy pages/ wholesale into the site).
+    for stale in (PAGES_OUT / EVENT_PAGES_DIR).glob("*.html"):
+        stale.unlink()
     context_by_depth = {}
     built_page_names = []
 
-    for tmpl_path in page_templates:
-        rel = tmpl_path.relative_to(TEMPLATES / "pages")
-        depth = len(rel.parts) - 1
-        page_name = str(rel).removesuffix(".tmpl")
+    for page_name, tmpl_path, event_page in page_jobs:
+        depth = page_name.count("/")
 
         # Everything that depends on page_urls.*/HERO_IMAGE_URL/etc has to
         # be rebuilt per depth — a page one directory down needs "../"
@@ -1501,6 +2077,7 @@ def main():
         current_page_url = page_url_keys_by_name.get(page_name.removesuffix(".html"))
         header = build_header(context, current_page_url)
         breadcrumb = render_breadcrumb(site.get("nav", []), current_page_url, context)
+        announcement_banner = build_announcement_banner(announcements, context)
         footer = build_footer(context)
         home_events_section = build_home_events_section(events, context)
         events_page_section = build_events_page_section(events, context)
@@ -1527,6 +2104,7 @@ def main():
             load_json("family-support-resources.json", default=[]), context
         )
         hcpss_events_section = build_hcpss_events_section(hcpss_events, context)
+        event_pages_section = build_event_pages_section(event_pages, context)
 
         shared_markers = {
             "{{TOKENS}}": tokens,
@@ -1546,13 +2124,16 @@ def main():
             "{{PTA_MEETINGS_SECTION}}": pta_meetings_section,
             "{{FAMILY_SUPPORT_RESOURCES_SECTION}}": family_support_resources_section,
             "{{HCPSS_EVENTS_SECTION}}": hcpss_events_section,
+            "{{EVENT_PAGES_SECTION}}": event_pages_section,
         }
 
         page_context = context
         if page_name in PAGE_TITLES:
             page_context = {**context, "PAGE_TITLE": colorize_title_words(PAGE_TITLES[page_name])}
-        text = tmpl_path.read_text()
-        text = render(text, page_context)
+        if event_page:
+            text = render_event_page(event_page, site, context)
+        else:
+            text = render(tmpl_path.read_text(), page_context)
         for marker, value in shared_markers.items():
             text = text.replace(marker, value)
 
@@ -1562,8 +2143,13 @@ def main():
         # template has to remember to include. A real page once shipped
         # without one (copied from before this branch had a header at
         # all) because nothing enforced its presence — this makes it
-        # impossible for any current or future page to omit it.
-        text = text.replace('<div class="thes">', f'<div class="thes">\n{header}', 1)
+        # impossible for any current or future page to omit it. The
+        # announcement banner (built above, "" when config/announcements.json
+        # is empty) rides along in this same structural insertion, right
+        # below the header, for the same reason — every page gets it with
+        # no per-template marker to remember.
+        header_block = header + (f"\n{announcement_banner}" if announcement_banner else "")
+        text = text.replace('<div class="thes">', f'<div class="thes">\n{header_block}', 1)
 
         leftover = PLACEHOLDER.findall(text)
         if leftover:
@@ -1581,10 +2167,15 @@ def main():
         # last path segment (Path.stem) as the title base, ignoring any
         # parent directories — "get-involved/committees.html" should say
         # "Committees", not "Get-Involved/Committees".
-        page_title = "Home" if page_name == "index.html" else Path(page_name).stem.replace("-", " ").title()
+        page_jsonld = organization_jsonld
+        if event_page:
+            page_jsonld += build_event_jsonld(event_page, site)
+        document_title = build_document_title(page_name, site, nav_labels, event_page)
         analytics_snippet = build_analytics_snippet(context.get("google_analytics_id", ""))
         analytics_snippet += build_umami_snippet(context.get("umami_website_id", ""))
         page_description = PAGE_DESCRIPTIONS.get(page_name, PAGE_DESCRIPTIONS["index.html"])
+        if event_page:
+            page_description = html.escape(event_page["summary"])
         canonical_url = f'https://{site["custom_domain"]}/{"" if page_name == "index.html" else page_name}'
         text = (
             "<!DOCTYPE html>\n"
@@ -1594,8 +2185,8 @@ def main():
             '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
             f'<meta name="description" content="{page_description}">\n'
             f'<link rel="canonical" href="{canonical_url}">\n'
-            f"<title>{context.get('org_name', '')} — {page_title}</title>\n"
-            f"{organization_jsonld}"
+            f"<title>{document_title}</title>\n"
+            f"{page_jsonld}"
             f"</head>\n<body>\n{text}\n</body>\n</html>\n"
         )
 
@@ -1677,7 +2268,7 @@ def main():
         (PAGES_OUT / "robots.txt").write_text(robots_txt)
         print(f"  built {(PAGES_OUT / 'robots.txt').relative_to(ROOT)}")
 
-    print(f"\nDone — {len(page_templates)} pages written to /pages.")
+    print(f"\nDone — {len(built_page_names)} pages written to /pages.")
     print("Push to main to deploy — GitHub Actions rebuilds, validates, and redeploys to GitHub Pages automatically.")
 
 
