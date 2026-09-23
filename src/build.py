@@ -838,7 +838,7 @@ def render_event_page(event, site, context):
             '      <div class="thes__section-head"><h2>Event Flyer</h2></div>\n'
             f'      <a href="{flyer_url}" target="_blank" rel="noopener">'
             f'<img src="{flyer_url}" alt="{esc(event.get("flyer_alt") or event["title"] + " flyer")}" '
-            'loading="lazy" style="display:block; width:100%; max-width:900px; height:auto; '
+            'loading="lazy" style="display:block; width:100%; max-width:900px; height:auto; margin:0 auto; '
             'border-radius:14px; border:1px solid var(--border);"></a>\n'
             "    </div>\n"
             "  </section>"
