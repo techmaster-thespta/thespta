@@ -217,8 +217,8 @@ never requires touching `header.html.tmpl` or `build.py`.
   `add-board-member`, `add-sponsor`, `add-flyer`, `add-committee`,
   `add-afterschool-program`, `add-pta-meeting`,
   `add-family-support-resource`, `add-announcement`, `add-event-page` — an
-  opt-in page with schema.org Event data for one event the PTA wants
-  searchable), the GitHub issue
+  opt-in featured page with schema.org Event data for one event the PTA
+  wants searchable, auto-listed under the Events menu), the GitHub issue
   workflow (`create-issue` to plan a change and file it, `from-issue` to
   pull an issue by number, implement it, open a PR), `rebuild-now`
   (push pending changes + force an immediate rebuild/redeploy, for
@@ -260,6 +260,18 @@ never requires touching `header.html.tmpl` or `build.py`.
   further out than the general highlights window. Run by
   `.github/workflows/sync-events.yml` (hourly) and by `deploy.yml` (every
   push/manual run). See `docs/SOP.md` Task 4.
+- `scripts/archive_expired.py` — moves expired entries (past their
+  `expires` date, Eastern time) out of `config/announcements.json` and
+  `config/event-pages.json` into `archive/` (plus their flyers into
+  `archive/flyers/`), which is never deployed. Runs in **both**
+  `deploy.yml` and `sync-events.yml` before the build — sync-events.yml's
+  change check includes the archive paths so an expiry alone triggers a
+  redeploy within the hour. `src/build.py` also filters expired entries
+  itself and clears `pages/events/` every build, so a stale featured
+  page can never linger in `pages/` and get redeployed. Featured event
+  pages are injected into the Events nav dropdown by `load_site()` in
+  `build.py` — read site.json through that, not `load_json("site.json")`,
+  anywhere the nav or `page_urls` matter.
 - `scripts/sync_hcpss_calendar.py` — a second, independent calendar
   sync, for a completely different calendar owned by Howard County
   Public School System (not the PTA): the Special Education Parent &

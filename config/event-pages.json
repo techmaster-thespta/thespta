@@ -2,11 +2,13 @@
   {
     "slug": "holiday-market",
     "title": "THES PTA Holiday Market 2026",
+    "nav_label": "Holiday Market",
     "eyebrow": "Save the Date",
     "tagline": "Shop local makers, unique gifts, treats, and more — and support Thunder Hill Elementary.",
     "summary": "The Thunder Hill Elementary PTA Holiday Market is Saturday, November 21, 2026, 11 AM–3 PM at Thunder Hill Elementary School in Columbia, MD. Shop local makers and small businesses — vendor spaces available now.",
     "start": "2026-11-21T11:00",
     "end": "2026-11-21T15:00",
+    "expires": "2026-11-21",
     "location_name": "Thunder Hill Elementary School",
     "flyer_filename": "events/holiday-market-2026.png",
     "flyer_alt": "THES PTA Holiday Market 2026 flyer — Saturday, November 21, 2026, 11:00 AM to 3:00 PM at Thunder Hill Elementary School. Vendor registration: $30 early bird until November 1, $40 from November 2 to 18, per 8 by 6 foot space.",

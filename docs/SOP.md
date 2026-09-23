@@ -227,17 +227,29 @@ needed) in `config/site.json` and push. The embed, the sync script, the
 `.ics` download link are all built from that one ID — you never edit those
 URLs by hand.
 
-### Giving one event its own page (so people can find it on Google)
+### Featured event pages (so people can find an event on Google)
 
 Calendar events only appear in the Events page's rolling list. For an
 event you want people to find by searching — like the Holiday Market —
 add an entry to `config/event-pages.json` (see
-`.claude/skills/add-event-page/SKILL.md` for the fields). That creates
-its own page at `www.thespta.org/events/<slug>.html` with the flyer,
-details, and the hidden event data Google uses to show it as an event in
-search results, plus a "Featured Events" card on the Events page until
-the event has passed. Only events listed there get a page — nothing is
-added automatically from the calendar.
+`.claude/skills/add-event-page/SKILL.md` for the fields). That creates:
+
+- its own page at `www.thespta.org/events/<slug>.html` with the flyer,
+  details, and the hidden event data Google uses to show it as an event
+  in search results,
+- a link to it under the **Events** menu (using its short `nav_label`),
+- a "Featured Events" card at the top of the Events page.
+
+Only events listed there get a page — nothing is added automatically
+from the calendar. Each page is edited independently through its own
+entry.
+
+**Expiration**: every featured page has an `expires` date (the last day
+it's shown — defaults to the day the event ends). Within the hour after
+that, the automatic pipeline moves the entry to
+`archive/event-pages.json` and its flyer to `archive/flyers/`, and the
+page, menu link, and card all come down. Archived entries stay in the
+repo for reference; to reuse one next year, copy it back with new dates.
 
 After it's live, open [Google Search Console](https://search.google.com/search-console),
 paste the page's URL into **URL Inspection**, and click **Request
@@ -307,6 +319,10 @@ remembered per-browser, but only for the exact set of announcements
 they dismissed: editing this file in any way (even just fixing a typo)
 automatically re-shows the banner to everyone, since dismissal is keyed
 to a hash of the content, not "the banner" in general.
+
+Add `"expires": "YYYY-MM-DD"` (the last day it should show) and it takes
+itself down: within the hour after that date, the automatic pipeline
+moves it to `archive/announcements.json` for reference and redeploys.
 
 ---
 

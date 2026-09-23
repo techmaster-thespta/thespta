@@ -1,6 +1,6 @@
 ---
 name: add-event-page
-description: Give one specific event its own searchable page (e.g. the Holiday Market) — with Google event structured data — or edit/remove one. Opt-in only; config-only — never edit src/.
+description: Feature one specific event with its own searchable page (e.g. the Holiday Market) — Google event structured data, an Events-menu link, auto-archived when it expires — or edit/remove one. Opt-in only; config-only — never edit src/.
 ---
 
 # Add / edit / remove an event page
@@ -19,9 +19,15 @@ Each entry in `config/event-pages.json` becomes
   as an event in search results),
 - a `<meta name="description">` from `summary`, a canonical URL, and a
   `sitemap.xml` entry,
-- a card in the "Featured Events" section at the top of the Events page
-  while the event is still upcoming (the page itself stays up afterward,
-  so shared links don't break).
+- a link under the **Events** nav menu (label: `nav_label`), added
+  automatically — never edit `config/site.json`'s nav for this,
+- a card in the "Featured Events" section at the top of the Events page.
+
+All of that stays up through the `expires` date (inclusive, Eastern
+time) and then comes down on its own: the pipelines run
+`scripts/archive_expired.py`, which moves the entry to
+`archive/event-pages.json` and its flyer to `archive/flyers/`, and the
+build clears the old page out of `pages/events/`.
 
 ## File
 
@@ -32,11 +38,13 @@ no "Featured Events" section. Each entry:
 {
   "slug": "holiday-market",
   "title": "THES PTA Holiday Market 2026",
+  "nav_label": "Holiday Market",
   "eyebrow": "Save the Date",
   "tagline": "One sentence shown under the title and on the Events page card.",
   "summary": "1–2 sentences naming the event, full date, time, and place — becomes the Google search snippet and the JSON-LD description.",
   "start": "2026-11-21T11:00",
   "end": "2026-11-21T15:00",
+  "expires": "2026-11-21",
   "location_name": "Thunder Hill Elementary School",
   "flyer_filename": "events/holiday-market-2026.png",
   "flyer_alt": "Text version of what the flyer says.",
@@ -51,7 +59,11 @@ no "Featured Events" section. Each entry:
 ```
 
 Required: `slug`, `title`, `summary`, `start`. Everything else is
-optional. `start`/`end` are local time in `config/site.json`'s
+optional. `nav_label` is the short name for the Events menu (defaults to
+`title` — keep it short). `expires` is the last day the page is live;
+it defaults to the day the event ends, so only set it to keep a page up
+longer (e.g. a recap) — always write it explicitly when adding an entry,
+computed from the real event date, never guessed. `start`/`end` are local time in `config/site.json`'s
 `calendar.timezone` (no offset — the build adds the right EST/EDT one).
 Location defaults to the school's address from `config/site.json`;
 override with `address_line1`/`address_line2` for an off-site event.
@@ -74,9 +86,15 @@ override with `address_line1`/`address_line2` for an off-site event.
    URL, and to share that link (social, newsletter, community calendars)
    — Google ranks pages other sites link to.
 
-**Removing**: when an event is long past and no one will look for it,
-delete its entry and its flyer file. Changing a `slug` changes the URL —
-avoid that once a page has been shared.
+**Removing early** (event cancelled): set `expires` to yesterday and
+let the pipeline archive it, rather than deleting the entry — that keeps
+the record in `archive/`. Changing a `slug` changes the URL — avoid that
+once a page has been shared.
+
+**Reviving an archived event** (an annual one): copy its entry from
+`archive/event-pages.json` back into `config/event-pages.json`, drop
+`archived_on`, update the dates/`expires`/details, and move its flyer
+back from `archive/flyers/` (or add the new year's flyer).
 
 ## Do not
 

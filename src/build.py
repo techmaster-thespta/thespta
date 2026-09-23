@@ -73,6 +73,77 @@ def load_json(name, default=None):
     return json.loads(path.read_text())
 
 
+def site_today(site):
+    """Today's date in the PTA's own timezone (config/site.json's
+    calendar.timezone), not the machine's — GitHub Actions runners are on
+    UTC, which would otherwise flip to "tomorrow" at 8 PM Eastern and
+    expire an announcement or event page hours early on its last day."""
+    from zoneinfo import ZoneInfo
+
+    return dt.datetime.now(ZoneInfo(site["calendar"]["timezone"])).date()
+
+
+def is_expired(expires, today):
+    """True once `today` is past an ISO `expires` date ("YYYY-MM-DD") —
+    `expires` is the *last day* something is shown, inclusive. A missing
+    or malformed value never expires (shown until removed by hand) rather
+    than silently vanishing on a typo."""
+    if not expires:
+        return False
+    try:
+        return dt.date.fromisoformat(expires) < today
+    except ValueError:
+        return False
+
+
+def event_page_expires(event):
+    """A featured event page's `expires` date — its own explicit one if
+    set, otherwise the day the event ends (so it disappears the morning
+    after)."""
+    if event.get("expires"):
+        return event["expires"]
+    return dt.datetime.fromisoformat(event.get("end") or event["start"]).date().isoformat()
+
+
+def load_active_event_pages(site):
+    """Entries in config/event-pages.json that haven't expired yet. The
+    hourly/push pipelines normally move expired ones out to archive/ via
+    scripts/archive_expired.py before building, but the build filters
+    them too, so a local build (or a pipeline run that hasn't archived
+    yet) never publishes an expired page either."""
+    today = site_today(site)
+    return [e for e in load_json("event-pages.json", default=[]) if not is_expired(event_page_expires(e), today)]
+
+
+def event_page_url_key(event):
+    return "event_" + re.sub(r"\W", "_", event["slug"])
+
+
+def load_site():
+    """config/site.json, plus one page_urls entry and one Events-menu
+    child per active featured event page — so each featured event shows
+    up under Events in the nav (and gets breadcrumbs / "you are here"
+    highlighting) automatically, sorted by date, and drops out of the
+    menu the moment it expires, with no hand-edit of the nav needed
+    either way. Every place that needs the nav or page_urls reads
+    through this rather than site.json directly."""
+    site = load_json("site.json")
+    event_pages = sorted(load_active_event_pages(site), key=lambda e: e["start"])
+    if not event_pages:
+        return site
+    page_urls = site.setdefault("page_urls", {})
+    for e in event_pages:
+        page_urls[event_page_url_key(e)] = event_page_name(e).removesuffix(".html")
+    for item in site.get("nav", []):
+        if item.get("page_url") == "events":
+            item["children"] = (item.get("children") or []) + [
+                {"label": html.escape(e.get("nav_label") or e["title"]), "page_url": event_page_url_key(e)}
+                for e in event_pages
+            ]
+            break
+    return site
+
+
 def build_context(depth=0):
     """`depth` is how many directory levels below the site root the page
     being built lives (0 for a top-level page like about.html, 1 for a
@@ -84,7 +155,7 @@ def build_context(depth=0):
     to a staging repo served from a URL *subpath*
     (.../thespta-prestage/...), not the domain root, where root-absolute
     links would silently point at the wrong site."""
-    site = load_json("site.json")
+    site = load_site()
     theme = load_json("theme.json")
 
     context = flatten(site)
@@ -211,7 +282,7 @@ def render_nav_items(items, context, current_page_url=None):
 
 
 def build_header(context, current_page_url=None):
-    nav_items = render_nav_items(load_json("site.json").get("nav", []), context, current_page_url)
+    nav_items = render_nav_items(load_site().get("nav", []), context, current_page_url)
     return render((TEMPLATES / "header.html.tmpl").read_text(), {**context, "NAV_ITEMS": nav_items})
 
 
@@ -492,18 +563,8 @@ def build_announcement_banner(announcements, context):
     if not announcements:
         return ""
 
-    today = dt.date.today()
-
-    def is_active(a):
-        expires = a.get("expires")
-        if not expires:
-            return True
-        try:
-            return dt.date.fromisoformat(expires) >= today
-        except ValueError:
-            return True
-
-    announcements = [a for a in announcements if is_active(a)]
+    today = site_today(load_json("site.json"))
+    announcements = [a for a in announcements if not is_expired(a.get("expires"), today)]
     if not announcements:
         return ""
 
@@ -692,11 +753,6 @@ def format_event_when(event):
     return f"{day} · {format_event_time(start)}"
 
 
-def event_page_is_upcoming(event, today=None):
-    last = dt.datetime.fromisoformat(event.get("end") or event["start"]).date()
-    return last >= (today or dt.date.today())
-
-
 def event_location_address(event, site):
     return event.get("address") or f'{site.get("address_line1", "")}, {site.get("address_line2", "")}'
 
@@ -863,12 +919,11 @@ def render_event_page(event, site, context):
 
 
 def build_event_pages_section(event_pages, context):
-    """"Featured Events" cards on the Events page, one per *upcoming*
-    opt-in event page — the page itself stays up after the event (so a
-    shared link doesn't 404), it just stops being promoted here. "" (no
-    section) when there are none, same empty-means-no-section pattern as
+    """"Featured Events" cards on the Events page, one per active
+    (unexpired) featured event page, soonest first. "" (no section) when
+    there are none, same empty-means-no-section pattern as
     sponsors/flyers."""
-    upcoming = [e for e in event_pages if event_page_is_upcoming(e)]
+    upcoming = sorted(event_pages, key=lambda e: e["start"])
     if not upcoming:
         return ""
     prefix = context["page_urls.events"].removesuffix("events.html")
@@ -1861,13 +1916,13 @@ def main():
     events = load_json("events.json", default=[])
     hcpss_events = load_json("hcpss-family-events.json", default=[])
     announcements = load_json("announcements.json", default=[])
-    site = load_json("site.json")
+    site = load_site()
     committees_section = build_committees_section(
         load_json("committees.json", default=[]), site["volunteerForm"]
     )
     welcome_video_section = build_welcome_video_section(site)
     organization_jsonld = build_organization_jsonld(site)
-    event_pages = load_json("event-pages.json", default=[])
+    event_pages = load_active_event_pages(site)
 
     # Inverse of page_urls (e.g. "get-involved/committees" -> "committees")
     # so the nav can mark "you are here" — see render_nav_items — from
@@ -1890,6 +1945,12 @@ def main():
     page_jobs += [(event_page_name(e), TEMPLATES / "event-page.html.tmpl", e) for e in event_pages]
 
     PAGES_OUT.mkdir(exist_ok=True)
+    # pages/events/ holds nothing but generated featured-event pages, so
+    # it's cleared on every build — otherwise an expired/archived event's
+    # old HTML would linger in pages/ and keep getting deployed (both
+    # workflows copy pages/ wholesale into the site).
+    for stale in (PAGES_OUT / EVENT_PAGES_DIR).glob("*.html"):
+        stale.unlink()
     context_by_depth = {}
     built_page_names = []
 

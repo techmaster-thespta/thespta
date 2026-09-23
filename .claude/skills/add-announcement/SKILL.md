@@ -71,10 +71,14 @@ If that event also has a `date` field, set `expires` to the day *after*
 that date (see below) — computed once, now, not left for a future rebuild
 to figure out.
 
-**Expiration** — add `expires` (an ISO date, `"YYYY-MM-DD"`) to have an
-announcement automatically stop showing after that date (dropped from the
-banner on the next rebuild, so within about an hour via the hourly sync,
-same as everything else calendar-driven on this site):
+**Expiration** — add `expires` (an ISO date, `"YYYY-MM-DD"`, the last
+day it shows, in Eastern time) to have an announcement automatically stop
+showing after that date. Within about an hour of expiring, the hourly
+sync's `scripts/archive_expired.py` moves it out of
+`config/announcements.json` into `archive/announcements.json` (and its
+`flyer_filename` image into `archive/flyers/`) and redeploys — kept for
+reference, never published. Don't hand-delete an expired entry; let the
+pipeline archive it:
 
 ```json
 { "text": "Fall Fest & Trunk or Treat — details and RSVP", "page_url": "events", "expires": "2026-10-31" }
