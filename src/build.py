@@ -878,6 +878,11 @@ def render_event_page(event, site, context):
         extra = ""
         if section.get("note"):
             extra = f'\n        <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">{esc(section["note"])}</p>'
+        if section.get("button_href"):
+            extra += (
+                f'\n        <div><a class="thes__btn thes__btn--teal" href="{esc(section["button_href"])}" '
+                f'target="_blank" rel="noopener">{esc(section.get("button_label") or "Learn More")} &rarr;</a></div>'
+            )
         section_cards.append(
             '      <div class="thes__info-card">\n'
             f'        <h2 style="font-size:clamp(1.15rem,2.4vw,1.4rem);">{esc(section["heading"])}</h2>\n'

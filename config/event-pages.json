@@ -37,10 +37,12 @@
           "Vendors bring their own tables, chairs, and extension cords (the PTA can't supply these)",
           "Vendor setup 9:30 – 11:00 AM · cleanup 3:00 – 4:00 PM"
         ],
-        "note": "We're looking for: Artists & artisans, crafters & makers, bakers, food & beverage vendors and food trucks, and direct-sales representatives (Scentsy, Tastefully Simple, Pampered Chef, Tupperware, Nailed It, and more)."
+        "note": "We're looking for: Artists & artisans, crafters & makers, bakers, food & beverage vendors and food trucks, and direct-sales representatives (Scentsy, Tastefully Simple, Pampered Chef, Tupperware, Nailed It, and more).",
+        "button_label": "Register as a Vendor",
+        "button_href": "https://thespta.givebacks.gives/3acad9/Campaign/Details"
       }
     ],
-    "register_href": "",
+    "register_href": "https://thespta.givebacks.gives/3acad9/Campaign/Details",
     "contact_name": "Natalie Miskimins",
     "contact_email": "president.thespta@gmail.com"
   }

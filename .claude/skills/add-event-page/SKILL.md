@@ -50,7 +50,8 @@ no "Featured Events" section. Each entry:
   "flyer_alt": "Text version of what the flyer says.",
   "about": ["Paragraph.", "Paragraph."],
   "sections": [
-    { "heading": "What You'll Find", "items": ["Bullet", "Bullet"], "note": "Optional line under the list." }
+    { "heading": "What You'll Find", "items": ["Bullet", "Bullet"], "note": "Optional line under the list.",
+      "button_label": "Optional button text", "button_href": "https://..." }
   ],
   "register_href": "",
   "contact_name": "Natalie Miskimins",
