@@ -377,7 +377,14 @@ def drive_thumbnail_url(href):
 ATTACHMENT_LINK_TEXT = "Click for more information"
 
 
-def render_event_attachments(attachments):
+def flyer_alt(name):
+    """Alt text for a flyer thumbnail. Never alt="": Bing Webmaster
+    Tools' SEO audit reports an empty alt as missing, and a flyer is
+    real content (the details), not decoration."""
+    return html.escape(f"Flyer: {name}") if name else "Flyer"
+
+
+def render_event_attachments(attachments, event_title=""):
     """A file attached to a calendar event (e.g. a flyer PDF or image —
     see scripts/sync_calendar_events.py) becomes a small clickable
     thumbnail preview, or a plain text link when there's no thumbnail to
@@ -398,7 +405,7 @@ def render_event_attachments(attachments):
         if thumb_url:
             items.append(
                 f'<a class="thes__flyer" href="{a["href"]}" target="_blank" rel="noopener">'
-                f'<img src="{thumb_url}" alt="" width="160" loading="lazy">'
+                f'<img src="{thumb_url}" alt="{flyer_alt(event_title)}" width="160" loading="lazy">'
                 f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
             )
         else:
@@ -463,7 +470,7 @@ def render_more_event_meet(href):
 def with_event_extras(event):
     return {
         **event,
-        "ATTACHMENTS": render_event_attachments(event.get("attachments", [])),
+        "ATTACHMENTS": render_event_attachments(event.get("attachments", []), event.get("title", "")),
         "DESCRIPTION_BLOCK": render_event_description(event.get("description")),
         "SIGNUP_BUTTON": render_event_signup(event.get("signup_href")),
         "MEET_BUTTON": render_event_meet(event.get("meet_href")),
@@ -1147,7 +1154,7 @@ def render_afterschool_program_card(program, context):
         flyer_url = f'{context["FLYER_BASE_URL"]}/before-after-school/{flyer_filename}'
         details.append(
             f'<a class="thes__flyer" href="{flyer_url}" target="_blank" rel="noopener">'
-            f'<img src="{flyer_url}" alt="" width="160" loading="lazy">'
+            f'<img src="{flyer_url}" alt="{flyer_alt(program.get("name"))}" width="160" loading="lazy">'
             f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
         )
 
@@ -1277,7 +1284,7 @@ def render_fundraiser_card(campaign, context):
         flyer_url = f'{context["FLYER_BASE_URL"]}/fundraising/{flyer_filename}'
         details.append(
             f'<a class="thes__flyer" href="{flyer_url}" target="_blank" rel="noopener">'
-            f'<img src="{flyer_url}" alt="" width="160" loading="lazy">'
+            f'<img src="{flyer_url}" alt="{flyer_alt(campaign.get("name"))}" width="160" loading="lazy">'
             f'<span>{ATTACHMENT_LINK_TEXT}</span></a>'
         )
     if campaign.get("contact"):
@@ -1600,7 +1607,7 @@ def render_meeting_flyer(meeting, context):
     flyer_url = f'{context["FLYER_BASE_URL"]}/pta-meetings/{flyer_filename}'
     return (
         f'<a class="thes__flyer" href="{flyer_url}" target="_blank" rel="noopener">'
-        f'<img src="{flyer_url}" alt="" width="160" loading="lazy">'
+        f'<img src="{flyer_url}" alt="{flyer_alt(meeting.get("title"))}" width="160" loading="lazy">'
         f"<span>{ATTACHMENT_LINK_TEXT}</span></a>"
     )
 

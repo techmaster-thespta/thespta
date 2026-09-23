@@ -286,6 +286,11 @@
      already baked into the home hero image's headline. */
   .thes__title-a { color: var(--text); }
   .thes__title-b { color: var(--teal); }
+  /* Visually hidden but read by search engines and screen readers — for
+     the Home page's main H1 heading, whose visible headline is baked into the hero
+     image. Deliberately no position:absolute (see the mobile-safety
+     constraint in CLAUDE.md); clip-path + 1px box does the same job. */
+  .thes__sr-only { width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
   .thes__pagehead-text p { color: var(--text-muted); margin: 10px 0 0; max-width: 46ch; }
   .thes__pagehead-media { position: relative; min-width: 0; overflow: hidden; }
   .thes__pagehead-media img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; display: block; }
@@ -710,7 +715,7 @@
             <p class="thes__event-description">Join us for THES Spirit Wear Online Sale Ends (Fall Store) — see the full calendar for details.</p>
     
     
-            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/open?id=14IzTAznYw9bA03Bf0ZDvJsjvQGbuWDSX" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=14IzTAznYw9bA03Bf0ZDvJsjvQGbuWDSX&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
+            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/open?id=14IzTAznYw9bA03Bf0ZDvJsjvQGbuWDSX" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=14IzTAznYw9bA03Bf0ZDvJsjvQGbuWDSX&sz=w400" alt="Flyer: THES Spirit Wear Online Sale Ends (Fall Store)" width="160" loading="lazy"><span>Click for more information</span></a></div>
           </div>
         </div>
         <div class="thes__event-row">
@@ -732,7 +737,7 @@
             <p class="thes__event-description">This will ensure that the items arrive before the Holiday Season as well as mailed to homes in time. It will run for 3 weeks.</p>
     
     
-            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/open?id=1SVx35OvI6TtwA_IhRHi4SW1lC35L8liL" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1SVx35OvI6TtwA_IhRHi4SW1lC35L8liL&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
+            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/open?id=1SVx35OvI6TtwA_IhRHi4SW1lC35L8liL" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1SVx35OvI6TtwA_IhRHi4SW1lC35L8liL&sz=w400" alt="Flyer: Joe Corbi&#x27;s Believe Fall Fundraiser" width="160" loading="lazy"><span>Click for more information</span></a></div>
           </div>
         </div>
         <div class="thes__event-row">
@@ -743,7 +748,7 @@
             <p class="thes__event-description">Help clean up and refresh the school garden for the fall season. Meet at the school gardens behind the Thunder Hill building. Please bring: • Garden gloves • Clothes and shoes that can get dirty •…</p>
     
     
-            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/file/d/1zsvBWRktz7CBBBEGiCXiNvWYESGOTRej" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1zsvBWRktz7CBBBEGiCXiNvWYESGOTRej&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
+            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/file/d/1zsvBWRktz7CBBBEGiCXiNvWYESGOTRej" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1zsvBWRktz7CBBBEGiCXiNvWYESGOTRej&sz=w400" alt="Flyer: Beautification Day — School Garden Cleanup" width="160" loading="lazy"><span>Click for more information</span></a></div>
           </div>
         </div>
         <div class="thes__event-row">
@@ -754,7 +759,7 @@
             <p class="thes__event-description">Support THES while you dine! Place your order using the Chick-fil-a app and support this fundraiser!</p>
     
     
-            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/file/d/1wtUMC80p60sXY9RF7jp7YgKXsId8pDqb" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1wtUMC80p60sXY9RF7jp7YgKXsId8pDqb&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
+            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/file/d/1wtUMC80p60sXY9RF7jp7YgKXsId8pDqb" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1wtUMC80p60sXY9RF7jp7YgKXsId8pDqb&sz=w400" alt="Flyer: PTA Restaurant Night Out Chick-fil-a" width="160" loading="lazy"><span>Click for more information</span></a></div>
           </div>
         </div>
         <div class="thes__event-row">
@@ -765,7 +770,7 @@
     
     
     
-            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/open?id=1OfuG_ypdZfZNFDrZTwonAkzl0buQjsfX" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1OfuG_ypdZfZNFDrZTwonAkzl0buQjsfX&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
+            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/open?id=1OfuG_ypdZfZNFDrZTwonAkzl0buQjsfX" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1OfuG_ypdZfZNFDrZTwonAkzl0buQjsfX&sz=w400" alt="Flyer: Last Day of PTA Membership Drive (Free Lanyard)" width="160" loading="lazy"><span>Click for more information</span></a></div>
           </div>
         </div>
         <div class="thes__event-row">
@@ -776,7 +781,7 @@
     
     
     
-            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/open?id=1xmnk3azLmK1vSivBhK1X7r7H6-1AqP3g" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1xmnk3azLmK1vSivBhK1X7r7H6-1AqP3g&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
+            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/open?id=1xmnk3azLmK1vSivBhK1X7r7H6-1AqP3g" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1xmnk3azLmK1vSivBhK1X7r7H6-1AqP3g&sz=w400" alt="Flyer: PTA Spirit Wear Sale Ends (Parent-Designed Store)" width="160" loading="lazy"><span>Click for more information</span></a></div>
           </div>
         </div>
         <div class="thes__event-row">
@@ -787,7 +792,7 @@
             <p class="thes__event-description">🍂 Join THES PTA at the Oakland Mills Fall Festival on Saturday, October 3rd from 11 am - 3 pm (rain or shine)! 🍂 We will have a booth in the Children’s Area with games and activities!! 🍂 It’s a free…</p>
             <a class="thes__btn thes__btn--teal" href="https://www.signupgenius.com/go/10C084EA9A92BA2FCC70-65957288-thes?utm_source=gemini#/" target="_blank" rel="noopener">Sign Up &rarr;</a>
     
-            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/file/d/1lGfTmX3Qln_3DlAw5pkBjRyCCM_HwyzU" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1lGfTmX3Qln_3DlAw5pkBjRyCCM_HwyzU&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
+            <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/file/d/1lGfTmX3Qln_3DlAw5pkBjRyCCM_HwyzU" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=1lGfTmX3Qln_3DlAw5pkBjRyCCM_HwyzU&sz=w400" alt="Flyer: Okland Mills Fall Fest" width="160" loading="lazy"><span>Click for more information</span></a></div>
           </div>
         </div>
     </div>

@@ -284,6 +284,11 @@
      already baked into the home hero image's headline. */
   .thes__title-a { color: var(--text); }
   .thes__title-b { color: var(--teal); }
+  /* Visually hidden but read by search engines and screen readers — for
+     the Home page's main H1 heading, whose visible headline is baked into the hero
+     image. Deliberately no position:absolute (see the mobile-safety
+     constraint in CLAUDE.md); clip-path + 1px box does the same job. */
+  .thes__sr-only { width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
   .thes__pagehead-text p { color: var(--text-muted); margin: 10px 0 0; max-width: 46ch; }
   .thes__pagehead-media { position: relative; min-width: 0; overflow: hidden; }
   .thes__pagehead-media img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; display: block; }
@@ -668,6 +673,10 @@
 </script>
 
 
+  <!-- The page's one H1 heading: the visible headline is text inside the hero
+       image, which search engines can't read. -->
+  <h1 class="thes__sr-only">Thunder Hill Elementary PTA — Columbia, Maryland (Howard County)</h1>
+
   <!-- ===== Banner (Google Drive-hosted photo, fades to white) ===== -->
   <div style="position:relative; width:100%; max-width:1200px; margin:0 auto; line-height:0;">
     <img
@@ -757,7 +766,7 @@
           <p>Join us for THES Spirit Wear Online Sale Ends (Fall Store) — see the full calendar for details.</p>
   
   
-          <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/open?id=14IzTAznYw9bA03Bf0ZDvJsjvQGbuWDSX" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=14IzTAznYw9bA03Bf0ZDvJsjvQGbuWDSX&sz=w400" alt="" width="160" loading="lazy"><span>Click for more information</span></a></div>
+          <div class="thes__event-attachments"><a class="thes__flyer" href="https://drive.google.com/open?id=14IzTAznYw9bA03Bf0ZDvJsjvQGbuWDSX" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=14IzTAznYw9bA03Bf0ZDvJsjvQGbuWDSX&sz=w400" alt="Flyer: THES Spirit Wear Online Sale Ends (Fall Store)" width="160" loading="lazy"><span>Click for more information</span></a></div>
           <a href="events.html">Learn More &rarr;</a>
         </div>
       <div class="thes__more-events">
