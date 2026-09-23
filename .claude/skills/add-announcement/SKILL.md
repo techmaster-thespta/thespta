@@ -26,8 +26,15 @@ or, to link to a page on this site instead of an external URL:
 
 Use `page_url` (a key from `config/site.json`'s `page_urls`) for an internal
 page, or `href` for an external link — never both on the same entry. `text`
-is the whole clickable message; keep it short (one line, no line breaks) since
-it has to fit the banner at every screen width. **Never use emoji in `text`**
+is the whole clickable message. **Hard limit: 60 characters** (spaces
+included, no line breaks) — that's the most that fits the banner's
+two-line height on a small phone; anything longer wraps to a third line
+and makes the whole bar grow (the build prints a `!` warning naming it).
+Use short dates ("Nov 21", "Sat, Oct 17") and put the details on the page
+it links to, e.g. "Holiday Market Nov 21 — shop local or become a
+vendor!" (54), not "Holiday Market is Saturday, November 21 — shop local
+or reserve a vendor space!" (79). Count before saving. (Exempt: an entry
+with `flyer_filename`, where `text` is only the image's alt text.) **Never use emoji in `text`**
 — the PTA wants this professional, not casual; every text announcement
 already gets a small built-in speaker icon automatically, so no icon of any
 kind needs to be typed into the message itself.

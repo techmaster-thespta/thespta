@@ -485,6 +485,14 @@ def with_event_extras(event):
     }
 
 
+# Longest announcement text that still fits the banner's fixed two-line
+# height on a small (360px) phone — measured against the real Lato font
+# metrics and the banner's icon/arrow/close-button widths, not guessed.
+# A third line makes the whole bar grow, and jump in height as it
+# rotates between messages. Banner-graphic slides (flyer_filename) are
+# exempt — their text is only the image's alt text.
+ANNOUNCEMENT_MAX_CHARS = 60
+
 ANNOUNCE_ICON_SVG = (
     '<svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" '
     'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
@@ -2002,6 +2010,10 @@ def main():
     events = load_json("events.json", default=[])
     hcpss_events = load_json("hcpss-family-events.json", default=[])
     announcements = load_json("announcements.json", default=[])
+    for a in announcements:
+        if not a.get("flyer_filename") and len(a.get("text", "")) > ANNOUNCEMENT_MAX_CHARS:
+            print(f'  ! announcement is {len(a["text"])} characters (max {ANNOUNCEMENT_MAX_CHARS}) — '
+                  f'it will wrap to a third line on phones and grow the banner: "{a["text"]}"')
     site = load_site()
     committees_section = build_committees_section(
         load_json("committees.json", default=[]), site["volunteerForm"]

@@ -320,6 +320,10 @@ they dismissed: editing this file in any way (even just fixing a typo)
 automatically re-shows the banner to everyone, since dismissal is keyed
 to a hash of the content, not "the banner" in general.
 
+Keep each message to **60 characters or fewer** — longer ones wrap to a
+third line on phones and make the banner grow. Use short dates ("Nov 21")
+and let the linked page carry the details.
+
 Add `"expires": "YYYY-MM-DD"` (the last day it should show) and it takes
 itself down: within the hour after that date, the automatic pipeline
 moves it to `archive/announcements.json` for reference and redeploys.
