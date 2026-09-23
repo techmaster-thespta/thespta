@@ -570,7 +570,11 @@ def build_announcement_banner(announcements, context):
 
     def resolve_href(a):
         if a.get("page_url"):
-            return context[f"page_urls.{a['page_url']}"]
+            # A featured event page's page_urls key only exists while that
+            # page is live (see load_site), so an announcement outliving
+            # its event page falls back to the Events page instead of
+            # crashing the whole build with a KeyError.
+            return context.get(f"page_urls.{a['page_url']}", context["page_urls.events"])
         return a.get("href", "#")
 
     def render_icon(a):
