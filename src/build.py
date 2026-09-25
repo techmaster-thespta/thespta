@@ -1893,6 +1893,59 @@ def build_document_title(page_name, site, nav_labels, event_page=None):
     return html.escape(f"{name} | {org} · {where}")
 
 
+EMAIL_PATTERN = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
+# Things the pattern above also matches that aren't email addresses.
+NOT_EMAILS = re.compile(r"@group\.calendar\.google\.com$|\.(png|jpe?g|gif|svg|webp|css|js)$", re.I)
+
+
+def is_allowed_email(address, site):
+    """PTA addresses (anything with "thespta" before the @, e.g.
+    president.thespta@gmail.com) are always fine; anything else has to be
+    approved one by one in config/site.json's `approved_emails`."""
+    local = address.split("@", 1)[0].lower()
+    approved = {a.lower() for a in site.get("approved_emails", [])}
+    return "thespta" in local or address.lower() in approved
+
+
+def hide_unapproved_emails(text, site, page_name, pending):
+    """The PTA's rule: the website never shows a personal email unless
+    the PTA approved that exact address. Runs over every finished page,
+    so it also catches addresses arriving indirectly — a calendar
+    event's Description (synced hourly, no human in the loop), flyer
+    details typed into config — not just ones added on purpose.
+
+    An unapproved address is *hidden* — a mailto link around it is
+    dropped entirely, a bare address is removed — never swapped for a
+    different contact (the PTA asked for that explicitly). It's
+    collected in `pending` and listed after the build, so whoever is
+    working with the PTA can ask them about each one; approving means
+    adding it to `approved_emails` in config/site.json."""
+
+    def allowed(address):
+        return NOT_EMAILS.search(address) or is_allowed_email(address, site)
+
+    def note(address):
+        pending.setdefault(address.lower(), (address, set()))[1].add(page_name)
+
+    def drop_link(m):
+        address = m.group(1)
+        if allowed(address):
+            return m.group(0)
+        note(address)
+        return ""
+
+    text = re.sub(r'<a\b[^>]*href="mailto:([^"?]+)[^"]*"[^>]*>.*?</a>', drop_link, text, flags=re.S)
+
+    def drop_bare(m):
+        address = m.group(0)
+        if allowed(address):
+            return address
+        note(address)
+        return ""
+
+    return EMAIL_PATTERN.sub(drop_bare, text)
+
+
 def colorize_title_words(text):
     """Alternate each word's color between the site's dark text tone and
     teal — the same two-tone treatment already used in the home hero
@@ -2061,6 +2114,7 @@ def main():
         stale.unlink()
     context_by_depth = {}
     built_page_names = []
+    pending_emails = {}
 
     for page_name, tmpl_path, event_page in page_jobs:
         depth = page_name.count("/")
@@ -2190,6 +2244,7 @@ def main():
             f"</head>\n<body>\n{text}\n</body>\n</html>\n"
         )
 
+        text = hide_unapproved_emails(text, site, page_name, pending_emails)
         out_path = PAGES_OUT / page_name
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(text)
@@ -2267,6 +2322,10 @@ def main():
         )
         (PAGES_OUT / "robots.txt").write_text(robots_txt)
         print(f"  built {(PAGES_OUT / 'robots.txt').relative_to(ROOT)}")
+
+    for address, pages in pending_emails.values():
+        print(f"  ! email {address} is NOT approved — hidden on {', '.join(sorted(pages))}. "
+              "Ask the PTA; if they approve it, add it to approved_emails in config/site.json.")
 
     print(f"\nDone — {len(built_page_names)} pages written to /pages.")
     print("Push to main to deploy — GitHub Actions rebuilds, validates, and redeploys to GitHub Pages automatically.")

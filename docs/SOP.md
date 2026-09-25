@@ -45,6 +45,14 @@ Requires only Python 3 — no npm, no installs, nothing to configure.
 
 ## Task 1 — Change site info (name, address, contact, links)
 
+**Emails on the website**: only PTA addresses (`…thespta@gmail.com`) and
+addresses the PTA has approved one by one appear on the site. The
+approved list is `approved_emails` in `config/site.json`. Any other
+address — even one typed into a calendar event's description — is
+automatically **hidden** (left off the page, nothing in its place) when
+the site builds, and the build log names it. Whoever next works on the
+site asks the PTA about it; to approve it, add it to `approved_emails`.
+
 **File:** `config/site.json`
 
 | Field | Controls |
