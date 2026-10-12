@@ -1635,6 +1635,64 @@ def build_sponsorship_section(info, context):
     })
 
 
+def render_sponsor_card(sponsor, context):
+    """One sponsor card (Home page section and Sponsors page share it).
+    Optional fields: `logo_filename` (a file in assets/images/, shown
+    above the name), `tier` (e.g. "Gold" -> a "Gold Sponsor" badge), and
+    `blurb` (one short line). A sponsor with none of them renders as the
+    original name-and-link card."""
+    esc = html.escape
+    logo_html = tier_html = blurb_html = tier_class = ""
+    # A logo usually already shows the business name, so the text name is
+    # dropped when there's a logo (it stays in the logo's alt text); set
+    # "show_name": true for a logo that doesn't include the name.
+    name_html = ""
+    if not sponsor.get("logo_filename") or sponsor.get("show_name"):
+        name_html = f'<h3>{esc(sponsor["name"])}</h3>'
+
+    if sponsor.get("logo_filename"):
+        logo_html = (
+            f'<a class="thes__sponsor-logo" href="{esc(sponsor["href"])}" target="_blank" rel="noopener">'
+            f'<img src="{context["IMAGES_BASE_URL"]}/{esc(sponsor["logo_filename"])}" '
+            f'alt="{esc(sponsor["name"])} logo" loading="lazy"></a>\n  '
+        )
+    if sponsor.get("tier"):
+        tier_slug = re.sub(r"[^a-z]+", "-", sponsor["tier"].lower()).strip("-")
+        tier_class = f" thes__sponsor-card--level-{tier_slug}"
+        tier_html = (
+            f'<span class="thes__badge thes__badge--level-{tier_slug}">{esc(sponsor["tier"])} Sponsor</span>\n  '
+        )
+    if sponsor.get("blurb"):
+        blurb_html = f'<p>{esc(sponsor["blurb"])}</p>\n  '
+    card_tmpl = (TEMPLATES / "card-sponsor.html.tmpl").read_text()
+    return render(card_tmpl, {
+        "name": esc(sponsor["name"]), "href": esc(sponsor["href"]),
+        "logo_html": logo_html, "tier_html": tier_html, "blurb_html": blurb_html, "tier_class": tier_class, "name_html": name_html,
+    })
+
+
+SPONSOR_LEVEL_ORDER = ["presenting", "gold", "silver", "community"]
+
+
+def sort_sponsors(sponsors):
+    """Highest level first (Presenting, Gold, Silver, Community, then no
+    level); file order is kept within a level."""
+    def rank(s):
+        level = (s.get("tier") or "").strip().lower()
+        return SPONSOR_LEVEL_ORDER.index(level) if level in SPONSOR_LEVEL_ORDER else len(SPONSOR_LEVEL_ORDER)
+    return sorted(sponsors, key=rank)
+
+
+def build_home_sponsors_section(sponsors, context):
+    """Home page "Our Sponsors" — omitted entirely when there are none,
+    same empty-means-no-section rule as build_optional_section."""
+    if not sponsors:
+        return ""
+    cards = "\n".join(indent(render_sponsor_card(s, context), 8) for s in sort_sponsors(sponsors))
+    section_tmpl = (TEMPLATES / "sponsors-section.html.tmpl").read_text()
+    return render(section_tmpl, {**context, "SPONSOR_CARDS": cards})
+
+
 def build_sponsors_page_section(sponsors, context):
     """The "Our Sponsors" section on the Sponsors page itself — unlike
     build_optional_section's usual empty-means-no-section pattern (still
@@ -1644,9 +1702,8 @@ def build_sponsors_page_section(sponsors, context):
     need to actually see where their name/logo would land, not have the
     section silently vanish because nobody's signed up yet. Shows a
     single dashed placeholder card in that case instead."""
-    card_tmpl = (TEMPLATES / "card-sponsor.html.tmpl").read_text()
     if sponsors:
-        cards = "\n".join(indent(render(card_tmpl, s), 8) for s in sponsors)
+        cards = "\n".join(indent(render_sponsor_card(s, context), 8) for s in sort_sponsors(sponsors))
     else:
         cards = indent(
             '<div class="thes__card thes__card--placeholder">'
@@ -2251,9 +2308,7 @@ def main():
         footer = build_footer(context)
         home_events_section = build_home_events_section(events, context)
         events_page_section = build_events_page_section(events, context)
-        sponsors_section = build_optional_section(
-            "sponsors.json", "card-sponsor.html.tmpl", "sponsors-section.html.tmpl", "SPONSOR_CARDS", context
-        )
+        sponsors_section = build_home_sponsors_section(load_json("sponsors.json", default=[]), context)
         sponsorship_section = build_sponsorship_section(load_json("sponsorship.json", default={}), context)
         joined_sponsors_section = build_sponsors_page_section(load_json("sponsors.json", default=[]), context)
         flyers_section = build_optional_section(

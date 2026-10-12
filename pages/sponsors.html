@@ -66,6 +66,9 @@
     --teal-tint: #E1F3F3;
     --coral: #F2645A;
     --coral-tint: #FDE7E5;
+    --gold-tint: #FFF4C2;
+    --silver: #9AA9B7;
+    --silver-tint: #EDF1F4;
     --bg-tint: #DDEFEF;
     --text: #172B3D;
     --text-muted: #566878;
@@ -348,6 +351,26 @@
   .thes__card--yellow a { color: var(--yellow-text); }
   .thes__card--coral a { color: var(--coral); }
   .thes__card--navy a { color: var(--navy); }
+  /* Sponsor cards: a centered, wrapping row (not equal grid columns) so
+     higher levels can be bigger — Presenting > Gold > Silver > Community. */
+  .thes__sponsor-grid { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 20px; }
+  .thes__sponsor-card { flex: 1 1 300px; max-width: 300px; min-width: 0; justify-items: center; text-align: center; --logo-h: 110px; }
+  .thes__sponsor-card--level-presenting { flex-basis: 420px; max-width: 420px; --logo-h: 170px; }
+  .thes__sponsor-card--level-gold { flex-basis: 360px; max-width: 360px; --logo-h: 140px; }
+  .thes__sponsor-card--level-silver { flex-basis: 300px; max-width: 300px; --logo-h: 110px; }
+  .thes__sponsor-card--level-community { flex-basis: 250px; max-width: 250px; --logo-h: 85px; }
+  .thes__sponsor-grid > .thes__card--placeholder { flex: 1 1 300px; max-width: 340px; }
+  /* Sponsor level (matches the sponsorship tier colors): badge + thin top accent */
+  .thes__sponsor-card--level-presenting { border-top: 4px solid var(--navy); }
+  .thes__sponsor-card--level-gold { border-top: 4px solid var(--yellow); }
+  .thes__sponsor-card--level-silver { border-top: 4px solid var(--silver); }
+  .thes__sponsor-card--level-community { border-top: 4px solid var(--coral); }
+  .thes__badge.thes__badge--level-presenting { background: var(--navy); color: #fff; }
+  .thes__badge.thes__badge--level-gold { background: var(--gold-tint); color: var(--yellow-text); }
+  .thes__badge.thes__badge--level-silver { background: var(--silver-tint); color: var(--text-muted); }
+  .thes__badge.thes__badge--level-community { background: var(--coral-tint); color: var(--coral); }
+  .thes__sponsor-logo { display: flex; align-items: center; justify-content: center; height: var(--logo-h); margin: 0 0 6px; }
+  .thes__sponsor-logo img { max-width: 100%; max-height: var(--logo-h); width: auto; height: auto; object-fit: contain; }
 
   /* ---- Icon-only item (impact grid, no card box) ---- */
   .thes__icon-item { display: grid; justify-items: center; gap: 8px; text-align: center; min-width: 0; }
@@ -626,7 +649,7 @@
 })();
 </script>
 
-<div class="thes__announce" id="thes-announce" data-hash="24351333b00f">
+<div class="thes__announce" id="thes-announce" data-hash="1f6a755b767c">
   <div class="thes__announce-inner">
     <div class="thes__announce-track" id="thes-announce-track">
 <a class="thes__announce-slide" style="display:flex;opacity:1;" href="fundraising.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">Joe Corbi's & Believe Kids fundraiser — now thru Oct 16!</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
@@ -638,6 +661,9 @@
 <a class="thes__announce-slide" href="before-after-school-programs.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">TechGirls free STEM club, grades 4-5 — register by Oct 16</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
 <a class="thes__announce-slide" href="events.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">Math! Just the Facts! Tue, Oct 20, 5:30 PM — pizza served!</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
 <a class="thes__announce-slide" href="events.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">Wear Orange for Unity Day! Wednesday, Oct 21</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
+<a class="thes__announce-slide" href="sponsors.html"><img class="thes__announce-icon" src="images/sponsor-bfunk-dance-company.png" alt=""><span class="thes__announce-text">Thank you to B. Funk Dance Company for sponsoring THES!</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
+<a class="thes__announce-slide" href="sponsors.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">Thank you to Mathnasium for sponsoring THES!</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
+<a class="thes__announce-slide" href="sponsors.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">Thank you to Lightning View Home Inspections for sponsoring!</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
     </div>
     <button type="button" class="thes__announce-close" id="thes-announce-close" aria-label="Dismiss announcement">&times;</button>
   </div>
@@ -719,11 +745,29 @@
   <div class="thes__wrap">
     <div class="thes__section-head">
       <span class="thes__eyebrow">Featured Sponsors</span>
-      <h2>Where You'll Be Seen</h2>
-      <p>Every sponsor gets a card here, and on our Home page.</p>
     </div>
-    <div class="thes__grid thes__grid--narrow">
-        <div class="thes__card thes__card--placeholder"><h3>Your Business Here</h3><p>Become our next sponsor and get featured in this spot.</p></div>
+    <div class="thes__sponsor-grid">
+        <div class="thes__card thes__sponsor-card thes__sponsor-card--level-gold">
+          <a class="thes__sponsor-logo" href="https://www.mathnasium.com/math-centers/columbiamd" target="_blank" rel="noopener"><img src="images/sponsor-mathnasium.png" alt="Mathnasium logo" loading="lazy"></a>
+          <span class="thes__badge thes__badge--level-gold">Gold Sponsor</span>
+  
+          <p>Math learning center and tutoring in Columbia.</p>
+          <a href="https://www.mathnasium.com/math-centers/columbiamd" target="_blank" rel="noopener">Visit Sponsor &rarr;</a>
+        </div>
+        <div class="thes__card thes__sponsor-card thes__sponsor-card--level-silver">
+          <a class="thes__sponsor-logo" href="https://www.bfunk.com/" target="_blank" rel="noopener"><img src="images/sponsor-bfunk-dance-company.png" alt="B. Funk Dance Company logo" loading="lazy"></a>
+          <span class="thes__badge thes__badge--level-silver">Silver Sponsor</span>
+  
+          <p>Dance studio and performance company.</p>
+          <a href="https://www.bfunk.com/" target="_blank" rel="noopener">Visit Sponsor &rarr;</a>
+        </div>
+        <div class="thes__card thes__sponsor-card thes__sponsor-card--level-community">
+          <a class="thes__sponsor-logo" href="https://www.lightningviewhomeinspections.com/" target="_blank" rel="noopener"><img src="images/sponsor-lightning-view-home-inspections.png" alt="Lightning View Home Inspections logo" loading="lazy"></a>
+          <span class="thes__badge thes__badge--level-community">Community Sponsor</span>
+  
+          <p>Home inspection services.</p>
+          <a href="https://www.lightningviewhomeinspections.com/" target="_blank" rel="noopener">Visit Sponsor &rarr;</a>
+        </div>
     </div>
   </div>
 </section>
