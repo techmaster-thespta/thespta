@@ -1,20 +1,11 @@
 [
   {
-    "day": "15",
-    "month": "Oct",
-    "date": "2026-10-15",
-    "title": "THE ESSENTIALS OF ESTATE AND SPECIAL NEEDS PLANNING",
-    "when": "10:00 \u2013 11:30 AM",
-    "featured": true,
-    "description": "THE ESSENTIALS OF ESTATE AND SPECIAL NEEDS PLANNING Thursday, October 15, 2026 10:00-11:30 a.m. Howard County Library Elkridge Branch 6540 Washington Blvd. Elkridge, MD 21075 Estate planning is\u2026"
-  },
-  {
     "day": "20",
     "month": "Oct",
     "date": "2026-10-20",
     "title": "BABY LEADERS REGISTRATION DUE!",
     "when": "All Day",
-    "featured": false,
+    "featured": true,
     "description": "BABY LEADERS REGISTRATION EXTENDED! Application due October 16, 2026 Orientation: October 20, 2026 12-1 p.m. or 7-8 p.m. Training: Saturdays 9:30 a.m. - 12:00 p.m. October 31, November 7, 14, 21\u2026"
   },
   {
@@ -25,5 +16,14 @@
     "when": "All Day",
     "featured": false,
     "description": "24TH ANNUAL AUTISM CONFERENCE: CELEBRATING NEURODIVERSITY, DRIVING CHANGE Tuesday, October 20, 2026 Virtual Event Catherine Lord, PhD, internationally recognized autism researcher and clinician, will\u2026"
+  },
+  {
+    "day": "20",
+    "month": "Oct",
+    "date": "2026-10-20",
+    "title": "UNDERSTANDING & SUPPORTING SELF-INJURY IN AUTISM",
+    "when": "12:00 \u2013 1:00 PM",
+    "featured": false,
+    "description": "UNDERSTANDING &amp; SUPPORTING SELF-INJURY IN AUTISM Wednesday, October 21, 2026 12:00-1:00 p.m. Virtual Event Learn practical, evidence-based strategies to better understand and support individuals\u2026"
   }
 ]
