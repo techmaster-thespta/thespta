@@ -14,6 +14,7 @@
   "school_district": "Howard County Public School System",
   "email": "president.thespta@gmail.com",
   "approved_emails": [
+    "tyrone@tdpbaltimore.org",
     "phughes@HowardCountyMD.gov",
     "cjnickell@HowardCountyMD.gov",
     "kbillingsley@HowardCountyMD.gov",
@@ -57,7 +58,8 @@
     "family_support_resources": "family-support-resources",
     "special_education_family_support": "family-support-resources/special-education-family-support",
     "hcpss_handbook": "family-support-resources/student-parent-handbook",
-    "little_free_library": "family-support-resources/little-free-library"
+    "little_free_library": "family-support-resources/little-free-library",
+    "fathers_building_resilience": "family-support-resources/fathers-building-resilience"
   },
   "nav": [
     { "label": "Home", "page_url": "home" },
@@ -75,7 +77,8 @@
     { "label": "Family Support Resources", "page_url": "family_support_resources", "children": [
       { "label": "Special Education & Family Support", "page_url": "special_education_family_support" },
       { "label": "HCPSS Student & Parent Handbook", "page_url": "hcpss_handbook" },
-      { "label": "Little Free Library", "page_url": "little_free_library" }
+      { "label": "Little Free Library", "page_url": "little_free_library" },
+      { "label": "Fathers: Building Resilience", "page_url": "fathers_building_resilience" }
     ] },
     { "label": "Newsletters", "page_url": "newsletter", "children": [
       { "label": "PTA Newsletter", "page_url": "pta_newsletter" },
