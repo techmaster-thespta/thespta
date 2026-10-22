@@ -19,5 +19,19 @@
     "tier": "Community",
     "logo_filename": "sponsor-lightning-view-home-inspections.png",
     "blurb": "Home inspection services."
+  },
+  {
+    "name": "Chambers",
+    "href": "https://www.chambersusa.com/",
+    "tier": "Community",
+    "logo_filename": "sponsor-chambers.png",
+    "show_name": true
+  },
+  {
+    "name": "Cub Scout Pack 838",
+    "href": "https://sites.google.com/view/cub-scout-pack838/home",
+    "tier": "Silver",
+    "logo_filename": "sponsor-cub-scout-pack-838.png",
+    "blurb": "Cub Scouts in Columbia, Maryland."
   }
 ]
