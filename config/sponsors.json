@@ -25,7 +25,8 @@
     "href": "https://www.chambersusa.com/",
     "tier": "Community",
     "logo_filename": "sponsor-chambers.png",
-    "show_name": true
+    "show_name": true,
+    "blurb": "Planning, architecture, and design firm."
   },
   {
     "name": "Cub Scout Pack 838",
@@ -33,5 +34,12 @@
     "tier": "Silver",
     "logo_filename": "sponsor-cub-scout-pack-838.png",
     "blurb": "Cub Scouts in Columbia, Maryland."
+  },
+  {
+    "name": "Three Sprouts Landscaping",
+    "href": "https://www.facebook.com/share/154Hg3t3Tvj/",
+    "tier": "Silver",
+    "logo_filename": "sponsor-three-sprouts-landscaping.png",
+    "blurb": "Landscaping: growing beauty, one yard at a time."
   }
 ]
