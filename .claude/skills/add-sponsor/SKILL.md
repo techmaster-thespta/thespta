@@ -16,8 +16,10 @@ sponsor shown in the "Our Sponsors" section of the Home page.
 { "name": "Columbia Family Dentistry", "href": "https://example.com" }
 ```
 
-Both fields required. `href` should be the sponsor's actual website; use
-`"#"` only if the user genuinely doesn't have one yet and says so.
+`name` is required. `href` should be the sponsor's actual website;
+leave it out entirely when the sponsor has none or the user asks not to
+link it — the card then shows no "Visit" link and the logo isn't
+clickable. Never use `"#"`.
 
 Optional fields (all rendered by `render_sponsor_card()` in `src/build.py`,
 same card on the Home page and the Sponsors page):
@@ -29,9 +31,11 @@ same card on the Home page and the Sponsors page):
   tiers without the word "Sponsor" (`"Presenting"`, `"Gold"`,
   `"Silver"`, `"Community"`); shows as a "<tier> Sponsor" badge.
 - `blurb` — one short line about the business (optional).
-- `show_name` — the text name is hidden when there's a logo (logos
-  usually include it; it stays in the alt text). Set `"show_name": true`
-  for a logo that doesn't show the business name.
+- The `name` always shows as text under the logo, and in the "Visit
+  <name>" link, the Sponsors page's search description, and its
+  structured data — so search engines and AI assistants can read who
+  the sponsors are (they can't read words inside a logo image). Use the
+  business's real, full name.
 
 Cards are ordered and sized by `tier` automatically (Presenting biggest,
 then Gold, Silver, Community; file order kept within a level), each with
