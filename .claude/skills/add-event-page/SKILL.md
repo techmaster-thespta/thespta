@@ -69,6 +69,34 @@ computed from the real event date, never guessed. `start`/`end` are local time i
 Location defaults to the school's address from `config/site.json`;
 override with `address_line1`/`address_line2` for an off-site event.
 `register_href`, when set, adds a "Register as a Vendor" button.
+**Vendor map** (e.g. the Holiday Market): set `"vendor_map":
+"vendor-maps/<file>.json"` on the entry to get a phone-friendly,
+tappable, searchable booth map on its own subpage,
+`events/<slug>/vendor-map.html` (shareable by link / QR code), with an
+"Open the Vendor Map" button on the event page (`render_vendor_map`,
+`render_vendor_map_page` in `src/build.py`). The data file under `config/vendor-maps/` holds every
+booth's `number`, `name`, `tags` (food / children / outlet) and its
+`col`/`row` on the gym grid, plus `areas` (hallway, cafeteria, ...).
+**When vendors move, edit only that file:** change the `name`/`tags` on
+the booth number (a swap is two edits), then set `updated` to today.
+`col`/`row` only change if the room layout itself changes. Keep the
+printable layout image as an `extra_flyers` entry, labeled as possibly
+out of date.
+
+**Public vendor list**: `"vendor_list": "vendor-maps/<file>.json"` (the
+same file) adds a paged, searchable "Vendors & Tables" list to the event
+page itself: vendor names A–Z with no booth numbers, then hallway/PTA/
+sponsor tables (items with a tag, or areas with `"public_list":
+"tables"`), then other activities. Each vendor (a booth, or an entry in
+`unassigned` for confirmed vendors without a booth yet) can carry
+`category` (one of the file's `categories`, which become filter chips),
+`about` (1–2 sentences) and `links` (website/instagram/facebook/tiktok),
+taken from the vendor's own spotlight response; never publish their
+contact name or email. `vendor_list` and `vendor_map` are
+independent, so the list can be public while the map stays unpublished.
+For the 2026 Holiday Market the map is staging-only until the user says
+"push the map to prod now".
+
 For an online-only event (e.g. Giving Tuesday), set `online_href` to the
 event's URL: the Where line shows `location_name` plus that link instead
 of the school's address, and the search data marks it as an online event.

@@ -800,6 +800,12 @@ def event_page_name(event):
     return f"{EVENT_PAGES_DIR}/{event['slug']}.html"
 
 
+def vendor_map_page_name(event):
+    """The standalone vendor map page for an event with `vendor_map` set —
+    a subpage of the event's own page, shareable by link / QR code."""
+    return f"{EVENT_PAGES_DIR}/{event['slug']}/vendor-map.html"
+
+
 def format_event_time(t):
     hour = t.hour % 12 or 12
     suffix = "AM" if t.hour < 12 else "PM"
@@ -964,6 +970,289 @@ CHECK_ICON = (
 )
 
 
+VENDOR_TAG_LABELS = {"food": "Food", "children": "Children's", "outlet": "Outlet", "pta": "THES PTA", "sponsor": "PTA Sponsor"}
+VENDOR_LINK_LABELS = {"website": "Website", "instagram": "Instagram", "facebook": "Facebook", "tiktok": "TikTok"}
+
+
+def vendor_category_slug(category):
+    return "cat-" + re.sub(r"[^a-z0-9]+", "-", category.lower()).strip("-")
+
+
+def vendor_tag_html(vendor, include_category=True):
+    """Category pill (if any) plus Food/Children's/PTA/Sponsor pills — never
+    'outlet', which only matters for setup, not shoppers."""
+    esc = html.escape
+    pills = []
+    if include_category and vendor.get("category"):
+        pills.append(f'<span class="thes__vmap-tag thes__vmap-tag--cat">{esc(vendor["category"])}</span>')
+    for t in vendor.get("tags", []):
+        if t in VENDOR_TAG_LABELS and t != "outlet" and not (t == "food" and vendor.get("category") == "Food & Treats"):
+            pills.append(f'<span class="thes__vmap-tag thes__vmap-tag--{esc(t)}">{esc(VENDOR_TAG_LABELS[t])}</span>')
+    return "".join(pills)
+
+
+def vendor_more_html(vendor):
+    """The vendor's own description and links (from their spotlight
+    response), or "" if they gave none."""
+    esc = html.escape
+    parts = []
+    if vendor.get("about"):
+        parts.append(f'<p>{esc(vendor["about"])}</p>')
+    links = [
+        f'<a href="{esc(href)}" target="_blank" rel="noopener">{VENDOR_LINK_LABELS[key]} &rarr;</a>'
+        for key, href in (vendor.get("links") or {}).items() if href and key in VENDOR_LINK_LABELS
+    ]
+    if links:
+        parts.append(f'<div class="thes__vmap-links">{"".join(links)}</div>')
+    return "".join(parts)
+
+
+def vendor_filter_attrs(vendor):
+    """data-tags (for the filter chips) and data-search (for the search box)."""
+    esc = html.escape
+    tags = list(vendor.get("tags", []))
+    if vendor.get("category"):
+        tags.append(vendor_category_slug(vendor["category"]))
+    if "food" in tags and vendor.get("category") != "Food & Treats":
+        tags.append(vendor_category_slug("Food & Treats"))  # food booths without a response still count
+    words = " ".join([vendor["name"], vendor.get("category", ""), vendor.get("about", ""),
+                      *[VENDOR_TAG_LABELS.get(t, t) for t in vendor.get("tags", [])]]).lower()
+    return f'data-tags="{esc(" ".join(tags))}" data-search="{esc(words)}"'
+
+
+def vendor_chips_html(data, extra=()):
+    """Filter chips: All, one per category in use, then any extras."""
+    esc = html.escape
+    used = {v.get("category") for v in [*data.get("booths", []), *data.get("unassigned", [])]}
+    cats = [c for c in data.get("categories", []) if c in used]
+    chips = ['<button type="button" class="thes__vmap-chip is-on" data-filter="">All</button>']
+    chips += [f'<button type="button" class="thes__vmap-chip" data-filter="{vendor_category_slug(c)}">{esc(c)}</button>' for c in cats]
+    chips += [f'<button type="button" class="thes__vmap-chip" data-filter="{esc(f)}">{esc(label)}</button>' for f, label in extra]
+    return "\n          ".join(chips)
+
+
+def load_vendor_file(filename, what):
+    if not filename:
+        return None
+    if not (CONFIG / filename).exists():
+        print(f"  ! {what} config/{filename} not found — not rendered")
+        return None
+    return load_json(filename)
+
+
+def render_vendor_map(filename):
+    """Interactive vendor map for a featured event page with `vendor_map`
+    set (a file under config/, e.g. "vendor-maps/holiday-market-2026.json").
+    Booth spots are a simple CSS grid (no absolute positioning), each a
+    tappable numbered button colored by its tags; below it, a searchable,
+    category-filterable list of every vendor grouped by area (plus confirmed
+    vendors whose booth isn't known yet). Tapping a booth shows that
+    vendor's name, category, description and links, copied from its list
+    entry, so there's one copy of each vendor's details in the page. The
+    data file is the only thing to edit when vendors move. "" when no map
+    is set or the file is missing."""
+    data = load_vendor_file(filename, "vendor map")
+    if not data:
+        return ""
+    esc = html.escape
+    gym = data.get("gym", {})
+    cols, rows = int(gym.get("columns", 10)), int(gym.get("rows", 7))
+
+    cells = []
+    for lab in gym.get("labels", []):
+        kind = lab.get("kind", "")
+        cells.append(
+            f'<div class="thes__vmap-label thes__vmap-label--{esc(kind or "plain")}" '
+            f'style="grid-column:{int(lab["col"])} / span {int(lab.get("span", 1))};grid-row:{int(lab["row"])};">'
+            f'{esc(lab["text"])}</div>'
+        )
+    booths = sorted(data.get("booths", []), key=lambda b: b["number"])
+    for b in booths:
+        tags = b.get("tags", [])
+        kind = "food" if "food" in tags else "children" if "children" in tags else "regular"
+        bolt = '<i class="thes__vmap-plug" aria-hidden="true"></i>' if "outlet" in tags else ""
+        cells.append(
+            f'<button type="button" class="thes__vmap-booth thes__vmap-booth--{kind}" '
+            f'style="grid-column:{int(b["col"])} / span {int(b.get("span", gym.get("booth_span", 1)))};grid-row:{int(b["row"])};" '
+            f'data-booth="{int(b["number"])}" aria-label="Booth {int(b["number"])}: {esc(b["name"])}">'
+            f'{int(b["number"])}{bolt}</button>'
+        )
+
+    # Hallway tables (an area with `map_strip`) get their own tappable row
+    # under the gym, using the same booth button class so tap/filter/search
+    # highlighting works on them too.
+    hall_html = ""
+    for area in data.get("areas", []):
+        if not area.get("map_strip"):
+            continue
+        tiles = "".join(
+            f'<button type="button" class="thes__vmap-booth thes__vmap-booth--hall" data-booth="{esc(i["spot"])}" '
+            f'aria-label="{esc(i["spot"])}: {esc(i["name"])}"><b>{esc(i["spot"])}</b>'
+            f'<span>{esc(i.get("map_label") or i["name"])}</span></button>'
+            for i in area.get("items", []) if i.get("spot")
+        )
+        hall_html += (f'<div class="thes__vmap-hall"><div class="thes__vmap-hall-title">{esc(area["map_strip"])}</div>'
+                      f'<div class="thes__vmap-hall-row">{tiles}</div></div>')
+
+    def list_item(v, spot=None, where=""):
+        # The booth goes right after the name, so the list maps to the
+        # grid at a glance without tapping anything.
+        data_booth = f' data-booth="{esc(str(spot))}"' if spot else ""
+        where_html = f'<span class="thes__vmap-spot">{esc(where)}</span>' if where else ""
+        more = vendor_more_html(v)
+        more_html = f'<div class="thes__vmap-more">{more}</div>' if more else ""
+        return (
+            f'<li class="thes__vmap-item"{data_booth} {vendor_filter_attrs(v)}>'
+            f'<span class="thes__vmap-name">{esc(v["name"])}</span>{where_html}{vendor_tag_html(v)}{more_html}</li>'
+        )
+
+    groups = [(gym.get("name", "School Gym"), [list_item(b, b["number"], f'Booth {int(b["number"])}') for b in booths])]
+    unassigned = sorted(data.get("unassigned", []), key=lambda v: v["name"].lower())
+    if unassigned:
+        groups.append(("Booth to Be Confirmed", [list_item(v, where="Booth TBD") for v in unassigned]))
+    for area in data.get("areas", []):
+        groups.append((area["name"], [
+            list_item(i, i.get("spot"), f'Hallway {i["spot"]}' if i.get("spot") else "") for i in area.get("items", [])
+        ]))
+    pager = (
+        '<div class="thes__vlist-pager" id="thes-vmap-pager" hidden>'
+        '<button type="button" class="thes__vmap-chip" id="thes-vmap-prev">&larr; Prev</button>'
+        '<span id="thes-vmap-page" aria-live="polite"></span>'
+        '<button type="button" class="thes__vmap-chip" id="thes-vmap-next">Next &rarr;</button></div>'
+    )
+    # The gym list is long, so it pages (see vendor-map.html.tmpl); the
+    # other groups are short and always show in full.
+    lists = "\n".join(
+        f'<div class="thes__vmap-group"{" data-paged" if i == 0 else ""}><h3>{esc(name)}</h3>'
+        f'<ul class="thes__vmap-list">{"".join(items)}</ul>{pager if i == 0 else ""}</div>'
+        for i, (name, items) in enumerate(groups)
+    )
+    updated = ""
+    if data.get("updated"):
+        d = dt.date.fromisoformat(data["updated"])
+        updated = f' Updated {d:%B} {d.day}, {d.year}.'
+    tmpl = (TEMPLATES / "vendor-map.html.tmpl").read_text()
+    return render(tmpl, {
+        "VMAP_TITLE": esc(data.get("title", "Vendor Map")),
+        "VMAP_NOTE": esc(data.get("note", "")) + esc(updated),
+        "VMAP_CHIPS": vendor_chips_html(data, [("children", "Children's"), ("pta sponsor", "PTA & Sponsors")]),
+        "VMAP_COLS": str(cols),
+        "VMAP_ROWS": str(rows),
+        "VMAP_CELLS": "\n        ".join(cells),
+        "VMAP_HALL": hall_html,
+        "VMAP_LISTS": lists,
+        "VMAP_PER_PAGE": str(int(data.get("map_list_per_page", 10))),
+    })
+
+
+def render_vendor_list(filename):
+    """Public vendor list for a featured event page with `vendor_list` set
+    (same config/vendor-maps/<file>.json the map reads) — no booth numbers
+    or layout, so it can go public while the map itself stays private.
+    Vendors (booths plus confirmed-but-unassigned ones) are alphabetical,
+    filterable by category, searchable, and paged client-side (all shown
+    without JS); a vendor with a description or links gets a native
+    <details> "More" toggle. Tables in `areas` that carry a sponsor/PTA tag,
+    or every item of an area marked `"public_list": "tables"`, are listed
+    after them, then the rest as "Also at the Market". "" when unset or
+    the file is missing."""
+    data = load_vendor_file(filename, "vendor list")
+    if not data:
+        return ""
+    esc = html.escape
+    seen, vendors = set(), []
+    for v in [*data.get("booths", []), *data.get("unassigned", [])]:
+        name = re.sub(r"\s*\(booth \d+ of \d+\)\s*$", "", v["name"]).strip()
+        if name.lower() in seen:
+            continue
+        seen.add(name.lower())
+        vendors.append({**v, "name": name})
+    vendors.sort(key=lambda v: re.sub(r"^the\s+", "", v["name"].lower()))
+
+    def item(v):
+        more = vendor_more_html(v)
+        head = f'<span class="thes__vmap-name">{esc(v["name"])}</span>{vendor_tag_html(v)}'
+        if more:
+            body = (f'<details class="thes__vlist-details"><summary>{head}'
+                    f'<span class="thes__vlist-more" aria-hidden="true">More</span></summary>'
+                    f'<div class="thes__vmap-more">{more}</div></details>')
+        else:
+            body = head
+        return f'<li class="thes__vmap-item" {vendor_filter_attrs(v)}>{body}</li>'
+
+    groups = [("Vendors", [item(v) for v in vendors], True)]
+    tables, activities = [], []
+    for area in data.get("areas", []):
+        for it in area.get("items", []):
+            if it.get("tags") or area.get("public_list") == "tables":
+                tables.append(item(it))
+            else:
+                where = re.sub(r"\s*\(.*\)\s*$", "", area["name"])
+                activities.append(item({**it, "name": f'{it["name"]} · {where}'}))
+    if tables:
+        groups.append(("Sponsor, Community & PTA Tables", tables, False))
+    if activities:
+        groups.append(("Also at the Market", activities, False))
+    html_groups = "\n".join(
+        f'<div class="thes__vlist-group"{" data-paged" if paged else ""}><h3>{esc(title)}</h3>'
+        f'<ul class="thes__vmap-list">{"".join(items)}</ul></div>'
+        for title, items, paged in groups
+    )
+    tmpl = (TEMPLATES / "vendor-list.html.tmpl").read_text()
+    return render(tmpl, {
+        "VLIST_TITLE": "Vendors & Tables",
+        "VLIST_NOTE": esc("Who you'll find at the market. Tap a vendor to learn more. Vendors are subject to change."),
+        "VLIST_CHIPS": vendor_chips_html(data),
+        "VLIST_GROUPS": html_groups,
+        "VLIST_PER_PAGE": str(int(data.get("list_per_page", 12))),
+    })
+
+def render_vendor_map_link(event):
+    """On an event page with `vendor_map` set: a short section with a big
+    button to the standalone map page (vendor_map_page_name). Relative
+    link — the event page lives at events/<slug>.html, the map at
+    events/<slug>/vendor-map.html."""
+    if not event.get("vendor_map"):
+        return ""
+    href = f"{event['slug']}/vendor-map.html"
+    return (
+        '  <section class="thes__section" id="vendor-map">\n'
+        '    <div class="thes__wrap" style="text-align:center;">\n'
+        '      <div class="thes__section-head"><h2>Vendor Map</h2>'
+        "<p>Find every vendor in the gym, the hallway, and around the school. "
+        "Tap a booth or search by name, right from your phone.</p></div>\n"
+        f'      <a class="thes__btn thes__btn--teal" href="{href}">Open the Vendor Map &rarr;</a>\n'
+        "    </div>\n"
+        "  </section>"
+    )
+
+
+def render_vendor_map_page(event, site, context):
+    """The standalone vendor map page (vendor_map_page_name): page header,
+    the interactive map (render_vendor_map), and a link back to the event
+    page. Its breadcrumb trails Events / <event> / Vendor Map."""
+    esc = html.escape
+    name = event.get("nav_label") or event["title"]
+    event_href = f"../{event['slug']}.html"
+    breadcrumb = (
+        '<nav class="thes__breadcrumb" aria-label="Breadcrumb">'
+        f'<a href="{context["page_urls.events"]}">Events</a><span aria-hidden="true"> / </span>'
+        f'<a href="{event_href}">{esc(name)}</a><span aria-hidden="true"> / </span>'
+        '<span aria-current="page">Vendor Map</span></nav>'
+    )
+    tmpl = (TEMPLATES / "vendor-map-page.html.tmpl").read_text()
+    return render(tmpl, {
+        **context,
+        "VMAP_BREADCRUMB": breadcrumb,
+        "VMAP_EYEBROW": esc(format_event_when(event)),
+        "VMAP_PAGE_TITLE": colorize_title_words(esc(f"{name} Vendor Map")),
+        "VMAP_TAGLINE": esc(f"{event.get('location_name') or site.get('school_name', '')}"),
+        "VMAP_SECTION": render_vendor_map(event.get("vendor_map")),
+        "VMAP_EVENT_HREF": event_href,
+        "VMAP_EVENT_NAME": esc(name),
+    })
+
+
 def render_event_page(event, site, context):
     """One opt-in event page's body — the same shared template for every
     entry in config/event-pages.json, filled in from that entry."""
@@ -1066,6 +1355,7 @@ def render_event_page(event, site, context):
         "EVENT_ABOUT": about,
         "EVENT_SECTIONS": "\n".join(section_cards),
         "EVENT_FLYER": flyer,
+        "EVENT_VENDOR_MAP": render_vendor_list(event.get("vendor_list")) + render_vendor_map_link(event),
     })
 
 
@@ -2380,13 +2670,16 @@ def main():
         (str(p.relative_to(TEMPLATES / "pages")).removesuffix(".tmpl"), p, None) for p in page_templates
     ]
     page_jobs += [(event_page_name(e), TEMPLATES / "event-page.html.tmpl", e) for e in event_pages]
+    page_jobs += [
+        (vendor_map_page_name(e), TEMPLATES / "vendor-map-page.html.tmpl", e) for e in event_pages if e.get("vendor_map")
+    ]
 
     PAGES_OUT.mkdir(exist_ok=True)
     # pages/events/ holds nothing but generated featured-event pages, so
     # it's cleared on every build — otherwise an expired/archived event's
     # old HTML would linger in pages/ and keep getting deployed (both
     # workflows copy pages/ wholesale into the site).
-    for stale in (PAGES_OUT / EVENT_PAGES_DIR).glob("*.html"):
+    for stale in [*(PAGES_OUT / EVENT_PAGES_DIR).glob("*.html"), *(PAGES_OUT / EVENT_PAGES_DIR).glob("*/*.html")]:
         stale.unlink()
     context_by_depth = {}
     built_page_names = []
@@ -2459,7 +2752,10 @@ def main():
         page_context = context
         if page_name in PAGE_TITLES:
             page_context = {**context, "PAGE_TITLE": colorize_title_words(PAGE_TITLES[page_name])}
-        if event_page:
+        is_vendor_map_page = tmpl_path.name == "vendor-map-page.html.tmpl"
+        if is_vendor_map_page:
+            text = render_vendor_map_page(event_page, site, context)
+        elif event_page:
             text = render_event_page(event_page, site, context)
         else:
             text = render(tmpl_path.read_text(), page_context)
@@ -2497,16 +2793,20 @@ def main():
         # parent directories — "get-involved/committees.html" should say
         # "Committees", not "Get-Involved/Committees".
         page_jsonld = organization_jsonld
-        if event_page:
+        if event_page and not is_vendor_map_page:
             page_jsonld += build_event_jsonld(event_page, site)
         if page_name == "sponsors.html":
             page_jsonld += build_sponsors_jsonld(load_json("sponsors.json", default=[]), site)
         document_title = build_document_title(page_name, site, nav_labels, event_page)
+        if is_vendor_map_page:
+            document_title = html.escape(f'Vendor Map · {event_page["title"]} | {site.get("org_name", "")}')
         analytics_snippet = build_analytics_snippet(context.get("google_analytics_id", ""))
         analytics_snippet += build_umami_snippet(context.get("umami_website_id", ""))
         page_description = PAGE_DESCRIPTIONS.get(page_name, PAGE_DESCRIPTIONS["index.html"])
         if event_page:
             page_description = html.escape(event_page["summary"])
+        if is_vendor_map_page:
+            page_description = html.escape(f'Interactive vendor map for the {event_page["title"]}: find every booth and vendor by name.')
         if page_name == "sponsors.html":
             page_description = sponsors_page_description(load_json("sponsors.json", default=[]))
         canonical_url = f'https://{site["custom_domain"]}/{"" if page_name == "index.html" else page_name}'

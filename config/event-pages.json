@@ -44,7 +44,8 @@
     ],
     "register_href": "https://thespta.givebacks.gives/3acad9/Campaign/Details",
     "contact_name": "Natalie Miskimins",
-    "contact_email": "president.thespta@gmail.com"
+    "contact_email": "president.thespta@gmail.com",
+    "vendor_list": "vendor-maps/holiday-market-2026.json"
   },
   {
     "slug": "giving-tuesday",

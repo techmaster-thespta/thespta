@@ -309,6 +309,10 @@
   @media (max-width: 699px) {
     .thes__pagehead-media { height: clamp(140px, 42vw, 220px); }
   }
+  /* A text-only page header (no photo), e.g. the vendor map page, which
+     people open from a QR code and want to reach the map right away. */
+  .thes__pagehead.thes__pagehead--compact { display: block; aspect-ratio: auto; max-width: 1120px; }
+  .thes__pagehead--compact .thes__pagehead-text { padding-bottom: 0; }
 
   /* ---- Buttons ---- */
   .thes__btn {
@@ -601,6 +605,84 @@
   .thes__social-links a { display: inline-flex; }
   .thes__social-links a:hover { color: #fff; text-decoration: none; }
   .thes__footer-bottom { border-top: 1px solid rgba(255,255,255,0.15); text-align: center; padding: 14px; font-size: 0.78rem; color: rgba(255,255,255,0.6); }
+  /* Vendor map (featured event pages with `vendor_map`): a simple CSS
+     grid of numbered booth buttons, no absolute positioning. Colors use
+     two-class selectors so `.thes a`/button resets can't override them. */
+  .thes__vmap-tools { display: grid; gap: 10px; margin: 0 auto 14px; max-width: 760px; }
+  .thes .thes__vmap-search { width: 100%; font: inherit; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: #fff; color: var(--text); }
+  .thes__vmap-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  /* On phones the category chips sit in one swipeable row so the map stays near the top. */
+  @media (max-width: 699px) {
+    .thes__vmap-chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .thes__vmap-chips::-webkit-scrollbar { display: none; }
+    .thes .thes__vmap-chip { flex: none; white-space: nowrap; }
+  }
+  .thes .thes__vmap-chip { font: inherit; font-size: 0.85rem; font-weight: 700; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); background: #fff; color: var(--navy); cursor: pointer; }
+  .thes .thes__vmap-chip.is-on { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .thes__vmap-frame { max-width: 760px; margin: 0 auto; background: var(--bg-tint); border: 2px solid var(--navy); border-radius: 12px; padding: 8px; }
+  .thes__vmap { display: grid; gap: 5px 2px; }
+  .thes .thes__vmap-booth { font: inherit; font-weight: 700; font-size: clamp(0.72rem, 2.6vw, 0.95rem); min-height: 40px; padding: 0; border-radius: 6px; border: 1px solid var(--border); background: #fff; color: var(--navy); cursor: pointer; transition: opacity 0.15s, transform 0.15s; }
+  .thes .thes__vmap-booth.thes__vmap-booth--food { background: var(--coral-tint); border-color: var(--coral); }
+  .thes .thes__vmap-booth.thes__vmap-booth--children { background: var(--teal-tint); border-color: var(--teal); }
+  .thes .thes__vmap-booth.is-dim { opacity: 0.25; }
+  .thes .thes__vmap-booth.is-match { box-shadow: 0 0 0 2px var(--teal); }
+  .thes .thes__vmap-booth.is-selected { background: var(--yellow); border-color: var(--navy); color: var(--navy); transform: scale(1.12); z-index: 1; opacity: 1; box-shadow: 0 0 0 2px var(--navy); }
+  .thes__vmap-plug { display: inline-block; width: 6px; height: 6px; margin-left: 2px; vertical-align: super; border-radius: 50%; background: var(--yellow-text); }
+  .thes__vmap-label { display: flex; align-items: center; justify-content: center; text-align: center; font-size: clamp(0.6rem, 2.2vw, 0.78rem); font-weight: 700; color: var(--text-muted); line-height: 1.15; padding: 2px; }
+  .thes__vmap-label--aisle { min-height: 22px; color: var(--teal); letter-spacing: 0.04em; text-transform: uppercase; font-size: clamp(0.55rem, 2vw, 0.7rem); }
+  .thes__vmap-label--entrance { background: var(--navy); color: #fff; border-radius: 6px; }
+  .thes__vmap-hall { margin-top: 8px; padding-top: 8px; border-top: 2px dashed var(--navy); }
+  .thes__vmap-hall-title { text-align: center; font-size: clamp(0.6rem, 2.2vw, 0.78rem); font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .thes__vmap-hall-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+  .thes .thes__vmap-booth.thes__vmap-booth--hall { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 4px 2px; min-height: 54px; background: var(--gold-tint); border-color: var(--yellow-text); line-height: 1.1; }
+  .thes__vmap-booth--hall b { font-size: clamp(0.68rem, 2.4vw, 0.85rem); }
+  .thes__vmap-booth--hall span { font-size: clamp(0.55rem, 2vw, 0.72rem); font-weight: 600; overflow-wrap: anywhere; }
+  .thes__vmap-group .thes__vmap-name { flex: 0 1 auto; }
+  .thes__vmap-spot { flex: none; font-size: 0.78rem; font-weight: 700; color: #fff; background: var(--navy); border-radius: 6px; padding: 2px 8px; white-space: nowrap; }
+  .thes__vmap-detail { max-width: 760px; margin: 12px auto 0; padding: 12px 14px; border-radius: 10px; background: #fff; border: 1px solid var(--border); color: var(--text-muted); text-align: center; }
+  .thes__vmap-detail.is-on { color: var(--navy); font-weight: 700; border-color: var(--navy); }
+  .thes__vmap-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin: 12px auto 24px; font-size: 0.85rem; color: var(--text-muted); }
+  .thes__vmap-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .thes__vmap-key { display: inline-flex; align-items: flex-start; justify-content: flex-end; padding: 2px; width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--border); background: #fff; }
+  .thes__vmap-key--food { background: var(--coral-tint); border-color: var(--coral); }
+  .thes__vmap-key--children { background: var(--teal-tint); border-color: var(--teal); }
+  .thes__vmap-key--hall { background: var(--gold-tint); border-color: var(--yellow-text); }
+  .thes__vmap-key--plug::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--yellow-text); }
+  .thes__vmap-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 18px; max-width: 1000px; margin: 0 auto; }
+  .thes__vmap-group h3 { font-size: 1.05rem; margin: 0 0 8px; }
+  .thes__vmap-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .thes__vmap-item { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+  .thes__vmap-item[data-booth] { cursor: pointer; }
+  .thes__vmap-item.is-selected { border-color: var(--navy); background: var(--gold-tint); }
+  .thes__vmap-num { flex: none; min-width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; background: var(--navy); color: #fff; font-weight: 700; font-size: 0.85rem; }
+  .thes__vmap-num--none { background: var(--teal-tint); color: var(--teal); }
+  .thes__vmap-name { flex: 1 1 0; min-width: 0; font-weight: 600; color: var(--navy); }
+  .thes__vmap-tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 999px; background: var(--bg-tint); color: var(--text-muted); }
+  .thes__vmap-tag--food { background: var(--coral-tint); color: var(--coral); }
+  .thes__vmap-tag--children { background: var(--teal-tint); color: var(--teal); }
+  .thes__vmap-tag--pta, .thes__vmap-tag--sponsor { background: var(--gold-tint); color: var(--yellow-text); }
+  .thes__vmap-empty { text-align: center; color: var(--text-muted); }
+  /* [hidden] must win over the display rules above (search, filters, paging). */
+  .thes [hidden].thes__vmap-item, .thes [hidden].thes__vmap-group, .thes [hidden].thes__vlist-group, .thes [hidden].thes__vlist-pager, .thes [hidden].thes__vmap-empty { display: none; }
+  .thes__vmap-tag { white-space: nowrap; line-height: 1.5; display: inline-block; }
+  .thes__vmap-tag--cat { background: var(--teal-tint); color: var(--navy); }
+  .thes__vlist-details .thes__vmap-name { flex: 1 1 12em; }
+  .thes__vmap-more { flex-basis: 100%; font-size: 0.92rem; color: var(--text); }
+  .thes__vmap-more p { margin: 6px 0 0; }
+  .thes__vmap-links { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px; }
+  .thes .thes__vmap-links a { color: var(--teal); font-weight: 700; text-decoration: none; }
+  .thes__vmap-item .thes__vmap-more { display: none; }
+  .thes__vmap-detail .thes__vmap-more, .thes__vlist-details .thes__vmap-more { display: block; text-align: left; }
+  .thes__vlist-details { flex: 1 1 100%; }
+  .thes__vlist-details summary { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; cursor: pointer; list-style: none; }
+  .thes__vlist-details summary::-webkit-details-marker { display: none; }
+  .thes__vlist-more { margin-left: auto; font-size: 0.8rem; font-weight: 700; color: var(--teal); }
+  .thes__vlist-more::after { content: " +"; }
+  .thes__vlist-details[open] .thes__vlist-more::after { content: " \2212"; }
+  .thes__vlist { display: grid; gap: 22px; max-width: 760px; margin: 0 auto; }
+  .thes__vlist-group h3 { font-size: 1.05rem; margin: 0 0 8px; }
+  .thes__vlist-pager { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 18px auto 0; color: var(--text-muted); font-size: 0.9rem; }
+  .thes .thes__vmap-chip:disabled { opacity: 0.4; cursor: default; }
 </style>
 
 
@@ -653,7 +735,7 @@
 })();
 </script>
 
-<div class="thes__announce" id="thes-announce" data-hash="98787190a372">
+<div class="thes__announce" id="thes-announce" data-hash="95b15f7f659e">
   <div class="thes__announce-inner">
     <div class="thes__announce-track" id="thes-announce-track">
 <a class="thes__announce-slide" data-weight="4" style="display:flex;opacity:1;" href="../events/giving-tuesday.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">Giving Tuesday, Dec 1: give a little, make a big difference</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
@@ -673,6 +755,12 @@
 <a class="thes__announce-slide" href="../sponsors.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">Thank you to Arbor Orthodontics for sponsoring THES!</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
 <a class="thes__announce-slide" href="../sponsors.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">Thank you to Kapookids for sponsoring THES!</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
 <a class="thes__announce-slide" href="../sponsors.html"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">Thank you to Best Brains for sponsoring THES!</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
+<a class="thes__announce-slide" href="https://icodeschool.com/columbia-md/camps/"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">iCode Battle Bots camp, Mon Nov 23: register now</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
+<a class="thes__announce-slide" href="https://icodeschool.com/columbia-md/camps/"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">iCode Drone Code camp, Tue Nov 24: register now</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
+<a class="thes__announce-slide" href="https://icodeschool.com/columbia-md/camps/"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">iCode Robot Squads camp, Wed Nov 25: register now</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
+<a class="thes__announce-slide" href="https://icodeschool.com/columbia-md/camps/"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">iCode Game Builder camp, Thu Nov 26: register now</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
+<a class="thes__announce-slide" href="https://icodeschool.com/columbia-md/camps/"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">iCode Roblox Editor camp, Fri Nov 27, ages 9–15</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
+<a class="thes__announce-slide" href="https://icodeschool.com/columbia-md/camps/"><svg class="thes__announce-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg><span class="thes__announce-text">iCode Jr Creator camp, Fri Nov 27, ages 5–8</span><span class="thes__announce-arrow" aria-hidden="true">&rarr;</span></a>
     </div>
     <button type="button" class="thes__announce-close" id="thes-announce-close" aria-label="Dismiss announcement">&times;</button>
   </div>
@@ -806,6 +894,105 @@
       </div>
     </div>
   </section>
+
+  <section class="thes__section" id="vendors">
+    <div class="thes__wrap">
+      <div class="thes__section-head">
+        <h2>Vendors & Tables</h2>
+        <p>Who you&#x27;ll find at the market. Tap a vendor to learn more. Vendors are subject to change.</p>
+      </div>
+      <div class="thes__vmap-tools">
+        <input type="search" class="thes__vmap-search" id="thes-vlist-search" placeholder="Search vendors, e.g. jewelry, cookies, crochet" aria-label="Search vendors">
+        <div class="thes__vmap-chips" role="group" aria-label="Filter vendors by category">
+          <button type="button" class="thes__vmap-chip is-on" data-filter="">All</button>
+          <button type="button" class="thes__vmap-chip" data-filter="cat-food-treats">Food &amp; Treats</button>
+          <button type="button" class="thes__vmap-chip" data-filter="cat-jewelry-accessories">Jewelry &amp; Accessories</button>
+          <button type="button" class="thes__vmap-chip" data-filter="cat-handmade-crafts-gifts">Handmade Crafts &amp; Gifts</button>
+          <button type="button" class="thes__vmap-chip" data-filter="cat-kids-activities">Kids &amp; Activities</button>
+          <button type="button" class="thes__vmap-chip" data-filter="cat-beauty-wellness">Beauty &amp; Wellness</button>
+          <button type="button" class="thes__vmap-chip" data-filter="cat-family-services">Family Services</button>
+        </div>
+      </div>
+      <div class="thes__vlist" id="thes-vlist">
+<div class="thes__vlist-group" data-paged><h3>Vendors</h3><ul class="thes__vmap-list"><li class="thes__vmap-item" data-tags="outlet" data-search="a taste of home   outlet"><span class="thes__vmap-name">A Taste of Home</span></li><li class="thes__vmap-item" data-tags="food outlet cat-food-treats" data-search="althea&#x27;s almost famous food &amp; treats jamaican patties. food outlet"><details class="thes__vlist-details"><summary><span class="thes__vmap-name">Althea&#x27;s Almost Famous</span><span class="thes__vmap-tag thes__vmap-tag--cat">Food &amp; Treats</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Jamaican patties.</p><div class="thes__vmap-links"><a href="https://www.ilovethisjerk.com" target="_blank" rel="noopener">Website &rarr;</a><a href="https://www.instagram.com/altheasalmostfamous" target="_blank" rel="noopener">Instagram &rarr;</a><a href="https://www.facebook.com/altheasalmostfamous" target="_blank" rel="noopener">Facebook &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="food cat-food-treats" data-search="alyssa&#x27;s sweets &amp; treats food &amp; treats pies, cookies, breads, and desserts. food"><details class="thes__vlist-details"><summary><span class="thes__vmap-name">Alyssa&#x27;s Sweets &amp; Treats</span><span class="thes__vmap-tag thes__vmap-tag--cat">Food &amp; Treats</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Pies, cookies, breads, and desserts.</p><div class="thes__vmap-links"><a href="https://www.instagram.com/alyssassweetsntreats" target="_blank" rel="noopener">Instagram &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="" data-search="arbonne  "><span class="thes__vmap-name">Arbonne</span></li><li class="thes__vmap-item" data-tags="outlet" data-search="bean &amp; butter   outlet"><span class="thes__vmap-name">Bean &amp; Butter</span></li><li class="thes__vmap-item" data-tags="" data-search="blooming creations  "><span class="thes__vmap-name">Blooming Creations</span></li><li class="thes__vmap-item" data-tags="" data-search="the book nook  "><span class="thes__vmap-name">The Book Nook</span></li><li class="thes__vmap-item" data-tags="cat-family-services" data-search="brandon dean&#x27;s childcare family services in-home sitter for occasional care. limited childcare gift certificates for sale, plus a raffle for complimentary care."><details class="thes__vlist-details"><summary><span class="thes__vmap-name">Brandon Dean&#x27;s Childcare</span><span class="thes__vmap-tag thes__vmap-tag--cat">Family Services</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>In-home sitter for occasional care. Limited childcare gift certificates for sale, plus a raffle for complimentary care.</p><div class="thes__vmap-links"><a href="https://brandondeanschildcare.weebly.com" target="_blank" rel="noopener">Website &rarr;</a><a href="https://www.instagram.com/BrandonDeansChildcare" target="_blank" rel="noopener">Instagram &rarr;</a><a href="https://www.facebook.com/BrandonDeansChildcare/" target="_blank" rel="noopener">Facebook &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="children" data-search="bricks &amp; beyond   children&#x27;s"><span class="thes__vmap-name">Bricks &amp; Beyond</span><span class="thes__vmap-tag thes__vmap-tag--children">Children&#x27;s</span></li><li class="thes__vmap-item" data-tags="cat-kids-activities" data-search="chrysalis craft club kids &amp; activities snow pal sensory jars, diy pet rock penguin jars, cozy knits, and a chrysalis dollar prize pop for kids. founded by a local early childhood educator offering art classes, enrichment, and parties."><details class="thes__vlist-details"><summary><span class="thes__vmap-name">Chrysalis Craft Club</span><span class="thes__vmap-tag thes__vmap-tag--cat">Kids &amp; Activities</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Snow Pal Sensory Jars, DIY Pet Rock Penguin Jars, cozy knits, and a Chrysalis Dollar Prize Pop for kids. Founded by a local early childhood educator offering art classes, enrichment, and parties.</p><div class="thes__vmap-links"><a href="https://www.chrysaliscraftclub.com" target="_blank" rel="noopener">Website &rarr;</a><a href="https://www.instagram.com/chrysaliscraftclub" target="_blank" rel="noopener">Instagram &rarr;</a><a href="https://www.facebook.com/profile.php?id=61588746796129" target="_blank" rel="noopener">Facebook &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="" data-search="color street  "><span class="thes__vmap-name">Color Street</span></li><li class="thes__vmap-item" data-tags="" data-search="community resources  "><span class="thes__vmap-name">Community Resources</span></li><li class="thes__vmap-item" data-tags="" data-search="the cozy candle co.  "><span class="thes__vmap-name">The Cozy Candle Co.</span></li><li class="thes__vmap-item" data-tags="" data-search="crafts by carley  "><span class="thes__vmap-name">Crafts by Carley</span></li><li class="thes__vmap-item" data-tags="cat-kids-activities" data-search="cupcakes, corks &amp; confetti kids &amp; activities family and kid-friendly activity and snack gift kits, curated for the thes crowd."><details class="thes__vlist-details"><summary><span class="thes__vmap-name">Cupcakes, Corks &amp; Confetti</span><span class="thes__vmap-tag thes__vmap-tag--cat">Kids &amp; Activities</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Family and kid-friendly activity and snack gift kits, curated for the THES crowd.</p><div class="thes__vmap-links"><a href="https://www.bookcccevents.com" target="_blank" rel="noopener">Website &rarr;</a><a href="https://www.instagram.com/cupcakes_corks_confetti" target="_blank" rel="noopener">Instagram &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="" data-search="daisy embroidery  "><span class="thes__vmap-name">Daisy Embroidery</span></li><li class="thes__vmap-item" data-tags="" data-search="dream designs  "><span class="thes__vmap-name">Dream Designs</span></li><li class="thes__vmap-item" data-tags="cat-jewelry-accessories" data-search="fefemo designs jewelry &amp; accessories handmade earrings, designed with a love of jewelry."><details class="thes__vlist-details"><summary><span class="thes__vmap-name">FefeMo Designs</span><span class="thes__vmap-tag thes__vmap-tag--cat">Jewelry &amp; Accessories</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Handmade earrings, designed with a love of jewelry.</p></div></details></li><li class="thes__vmap-item" data-tags="outlet cat-jewelry-accessories" data-search="the habitual bling inc. jewelry &amp; accessories affordable, eye-catching statement jewelry. most pieces are $8, with more exclusive pieces at $35. sparkle is a habit! outlet"><details class="thes__vlist-details"><summary><span class="thes__vmap-name">The Habitual Bling Inc.</span><span class="thes__vmap-tag thes__vmap-tag--cat">Jewelry &amp; Accessories</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Affordable, eye-catching statement jewelry. Most pieces are $8, with more exclusive pieces at $35. Sparkle is a habit!</p><div class="thes__vmap-links"><a href="https://shop.paparazzipremiere.com/1144702/register" target="_blank" rel="noopener">Website &rarr;</a><a href="https://www.tiktok.com/@msinspiration3" target="_blank" rel="noopener">TikTok &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="" data-search="handmade by heidi  "><span class="thes__vmap-name">Handmade by Heidi</span></li><li class="thes__vmap-item" data-tags="" data-search="happy hands crafts  "><span class="thes__vmap-name">Happy Hands Crafts</span></li><li class="thes__vmap-item" data-tags="outlet" data-search="icryo columbia   outlet"><span class="thes__vmap-name">iCRYO Columbia</span></li><li class="thes__vmap-item" data-tags="cat-handmade-crafts-gifts" data-search="journals by design handmade crafts &amp; gifts one-of-a-kind journals made from new and recycled materials. &quot;where the soul meets the paper.&quot;"><details class="thes__vlist-details"><summary><span class="thes__vmap-name">Journals by Design</span><span class="thes__vmap-tag thes__vmap-tag--cat">Handmade Crafts &amp; Gifts</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>One-of-a-kind journals made from new and recycled materials. &quot;Where the soul meets the paper.&quot;</p><div class="thes__vmap-links"><a href="https://journalsbydesign.myshopify.com/" target="_blank" rel="noopener">Website &rarr;</a><a href="https://www.instagram.com/susiesjournalsbydesign/" target="_blank" rel="noopener">Instagram &rarr;</a><a href="https://www.facebook.com/profile.php?id=61591554077722" target="_blank" rel="noopener">Facebook &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="" data-search="jw treasures  "><span class="thes__vmap-name">JW Treasures</span></li><li class="thes__vmap-item" data-tags="cat-family-services" data-search="k. carey photography family services timeless children&#x27;s portrait photography. stop by to see portraits and learn about portrait sessions."><details class="thes__vlist-details"><summary><span class="thes__vmap-name">K. Carey Photography</span><span class="thes__vmap-tag thes__vmap-tag--cat">Family Services</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Timeless children&#x27;s portrait photography. Stop by to see portraits and learn about portrait sessions.</p><div class="thes__vmap-links"><a href="https://kcareyphotography.com" target="_blank" rel="noopener">Website &rarr;</a><a href="https://www.instagram.com/kcareyphotography" target="_blank" rel="noopener">Instagram &rarr;</a><a href="https://www.facebook.com/kcareyphotog" target="_blank" rel="noopener">Facebook &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="" data-search="katy&#x27;s kreations  "><span class="thes__vmap-name">Katy&#x27;s Kreations</span></li><li class="thes__vmap-item" data-tags="children" data-search="kid creations   children&#x27;s"><span class="thes__vmap-name">Kid Creations</span><span class="thes__vmap-tag thes__vmap-tag--children">Children&#x27;s</span></li><li class="thes__vmap-item" data-tags="food cat-food-treats" data-search="kreative dezzerts food &amp; treats baked goods and treats, plus custom cakes that bring the &quot;wow&quot; factor to any party. food"><details class="thes__vlist-details"><summary><span class="thes__vmap-name">Kreative Dezzerts</span><span class="thes__vmap-tag thes__vmap-tag--cat">Food &amp; Treats</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Baked goods and treats, plus custom cakes that bring the &quot;WOW&quot; factor to any party.</p><div class="thes__vmap-links"><a href="https://www.instagram.com/kreative_dezzerts" target="_blank" rel="noopener">Instagram &rarr;</a><a href="https://www.facebook.com/share/1A73H2Af9K/" target="_blank" rel="noopener">Facebook &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="cat-family-services" data-search="lightbridge academy of columbia family services a new early childhood education center coming soon to columbia. program and enrollment info, a holiday-themed children&#x27;s activity, and small giveaways."><details class="thes__vlist-details"><summary><span class="thes__vmap-name">Lightbridge Academy of Columbia</span><span class="thes__vmap-tag thes__vmap-tag--cat">Family Services</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>A new early childhood education center coming soon to Columbia. Program and enrollment info, a holiday-themed children&#x27;s activity, and small giveaways.</p><div class="thes__vmap-links"><a href="https://lightbridgeacademy.com/columbia-md/" target="_blank" rel="noopener">Website &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="" data-search="little learners books  "><span class="thes__vmap-name">Little Learners Books</span></li><li class="thes__vmap-item" data-tags="" data-search="local artisans  "><span class="thes__vmap-name">Local Artisans</span></li><li class="thes__vmap-item" data-tags="" data-search="local authors  "><span class="thes__vmap-name">Local Authors</span></li><li class="thes__vmap-item" data-tags="" data-search="lularoe  "><span class="thes__vmap-name">LuLaRoe</span></li><li class="thes__vmap-item" data-tags="cat-kids-activities" data-search="mae creations kids &amp; activities plaster ready-to-paint kits, complete with paint and brushes."><details class="thes__vlist-details"><summary><span class="thes__vmap-name">Mae Creations</span><span class="thes__vmap-tag thes__vmap-tag--cat">Kids &amp; Activities</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Plaster ready-to-paint kits, complete with paint and brushes.</p></div></details></li><li class="thes__vmap-item" data-tags="" data-search="mary kay  "><span class="thes__vmap-name">Mary Kay</span></li><li class="thes__vmap-item" data-tags="" data-search="mk market  "><span class="thes__vmap-name">MK Market</span></li><li class="thes__vmap-item" data-tags="" data-search="nature&#x27;s nook  "><span class="thes__vmap-name">Nature&#x27;s Nook</span></li><li class="thes__vmap-item" data-tags="outlet cat-family-services" data-search="new york life insurance family services financial gifts for children and grandchildren, free child safety id cards made on the spot (no child information is kept), and a raffle. outlet"><details class="thes__vlist-details"><summary><span class="thes__vmap-name">New York Life Insurance</span><span class="thes__vmap-tag thes__vmap-tag--cat">Family Services</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Financial gifts for children and grandchildren, free child safety ID cards made on the spot (no child information is kept), and a raffle.</p><div class="thes__vmap-links"><a href="https://www.newyorklife.com/agent/cpervaiz01" target="_blank" rel="noopener">Website &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="" data-search="norwex  "><span class="thes__vmap-name">Norwex</span></li><li class="thes__vmap-item" data-tags="" data-search="pampered chef  "><span class="thes__vmap-name">Pampered Chef</span></li><li class="thes__vmap-item" data-tags="children" data-search="playful paradise   children&#x27;s"><span class="thes__vmap-name">Playful Paradise</span><span class="thes__vmap-tag thes__vmap-tag--children">Children&#x27;s</span></li><li class="thes__vmap-item" data-tags="food cat-food-treats" data-search="pmc &amp; our family baked goods   food"><span class="thes__vmap-name">PMC &amp; Our Family Baked Goods</span><span class="thes__vmap-tag thes__vmap-tag--food">Food</span></li><li class="thes__vmap-item" data-tags="outlet" data-search="the rizzo collection   outlet"><span class="thes__vmap-name">The Rizzo Collection</span></li><li class="thes__vmap-item" data-tags="" data-search="scentsy  "><span class="thes__vmap-name">Scentsy</span></li><li class="thes__vmap-item" data-tags="food cat-food-treats" data-search="selah sugar food &amp; treats mini cakes, brownies, and cookies from the sweetest business in town. food"><details class="thes__vlist-details"><summary><span class="thes__vmap-name">Selah Sugar</span><span class="thes__vmap-tag thes__vmap-tag--cat">Food &amp; Treats</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Mini cakes, brownies, and cookies from the sweetest business in town.</p><div class="thes__vmap-links"><a href="https://www.instagram.com/cakesbyselahsugar" target="_blank" rel="noopener">Instagram &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="" data-search="sew creative  "><span class="thes__vmap-name">Sew Creative</span></li><li class="thes__vmap-item" data-tags="outlet" data-search="shaded by tamika   outlet"><span class="thes__vmap-name">Shaded by Tamika</span></li><li class="thes__vmap-item" data-tags="" data-search="sugar &amp; shine designs  "><span class="thes__vmap-name">Sugar &amp; Shine Designs</span></li><li class="thes__vmap-item" data-tags="cat-handmade-crafts-gifts" data-search="sweet loops by stef handmade crafts &amp; gifts handmade crochet kitchen and spa pieces, cozy scarves and ear warmers, keychains, and bag charms, individually or as gift sets."><details class="thes__vlist-details"><summary><span class="thes__vmap-name">Sweet Loops by Stef</span><span class="thes__vmap-tag thes__vmap-tag--cat">Handmade Crafts &amp; Gifts</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Handmade crochet kitchen and spa pieces, cozy scarves and ear warmers, keychains, and bag charms, individually or as gift sets.</p><div class="thes__vmap-links"><a href="https://www.instagram.com/sweettloopsbystef" target="_blank" rel="noopener">Instagram &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="" data-search="sweetlife honey  "><span class="thes__vmap-name">Sweetlife Honey</span></li><li class="thes__vmap-item" data-tags="cat-jewelry-accessories" data-search="tam&#x27;s gems jewelry &amp; accessories handmade jewelry."><details class="thes__vlist-details"><summary><span class="thes__vmap-name">Tam&#x27;s Gems</span><span class="thes__vmap-tag thes__vmap-tag--cat">Jewelry &amp; Accessories</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Handmade jewelry.</p><div class="thes__vmap-links"><a href="https://tamsgems.store" target="_blank" rel="noopener">Website &rarr;</a><a href="https://www.instagram.com/tams_gems1619" target="_blank" rel="noopener">Instagram &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="" data-search="thirty-one gifts  "><span class="thes__vmap-name">Thirty-One Gifts</span></li><li class="thes__vmap-item" data-tags="" data-search="tupperware  "><span class="thes__vmap-name">Tupperware</span></li><li class="thes__vmap-item" data-tags="cat-beauty-wellness" data-search="xoxo lol club beauty &amp; wellness reusable press-on nails, manifestation and intention-setting kits, ancestor remembrance kits, and feng shui-inspired accessories."><details class="thes__vlist-details"><summary><span class="thes__vmap-name">XOXO LOL CLUB</span><span class="thes__vmap-tag thes__vmap-tag--cat">Beauty &amp; Wellness</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Reusable press-on nails, manifestation and intention-setting kits, ancestor remembrance kits, and Feng Shui-inspired accessories.</p><div class="thes__vmap-links"><a href="https://www.instagram.com/xoxololclub" target="_blank" rel="noopener">Instagram &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="cat-handmade-crafts-gifts" data-search="yanna makes handmade crafts &amp; gifts handcrafted bags and totes, cosmetic pouches, decorative pillows, book and journal covers, and unique gifts made with beautiful, often sustainably sourced fabrics."><details class="thes__vlist-details"><summary><span class="thes__vmap-name">Yanna Makes</span><span class="thes__vmap-tag thes__vmap-tag--cat">Handmade Crafts &amp; Gifts</span><span class="thes__vlist-more" aria-hidden="true">More</span></summary><div class="thes__vmap-more"><p>Handcrafted bags and totes, cosmetic pouches, decorative pillows, book and journal covers, and unique gifts made with beautiful, often sustainably sourced fabrics.</p><div class="thes__vmap-links"><a href="https://yannamakesstudio.etsy.com" target="_blank" rel="noopener">Website &rarr;</a><a href="https://www.instagram.com/yannamakes" target="_blank" rel="noopener">Instagram &rarr;</a></div></div></details></li><li class="thes__vmap-item" data-tags="food cat-food-treats" data-search="ym cookie co.   food"><span class="thes__vmap-name">YM Cookie Co.</span><span class="thes__vmap-tag thes__vmap-tag--food">Food</span></li><li class="thes__vmap-item" data-tags="" data-search="younique  "><span class="thes__vmap-name">Younique</span></li></ul></div>
+<div class="thes__vlist-group"><h3>Sponsor, Community &amp; PTA Tables</h3><ul class="thes__vmap-list"><li class="thes__vmap-item" data-tags="" data-search="mindful beginnings  "><span class="thes__vmap-name">Mindful Beginnings</span></li><li class="thes__vmap-item" data-tags="sponsor" data-search="mathnasium – the math learning center   pta sponsor"><span class="thes__vmap-name">Mathnasium – The Math Learning Center</span><span class="thes__vmap-tag thes__vmap-tag--sponsor">PTA Sponsor</span></li><li class="thes__vmap-item" data-tags="pta" data-search="thes pta information &amp; activities   thes pta"><span class="thes__vmap-name">THES PTA Information &amp; Activities</span><span class="thes__vmap-tag thes__vmap-tag--pta">THES PTA</span></li><li class="thes__vmap-item" data-tags="pta" data-search="thes pta raffle prizes &amp; giveaways   thes pta"><span class="thes__vmap-name">THES PTA Raffle Prizes &amp; Giveaways</span><span class="thes__vmap-tag thes__vmap-tag--pta">THES PTA</span></li><li class="thes__vmap-item" data-tags="sponsor" data-search="three sprouts landscaping   pta sponsor"><span class="thes__vmap-name">Three Sprouts Landscaping</span><span class="thes__vmap-tag thes__vmap-tag--sponsor">PTA Sponsor</span></li></ul></div>
+<div class="thes__vlist-group"><h3>Also at the Market</h3><ul class="thes__vmap-list"><li class="thes__vmap-item" data-tags="" data-search="free arts &amp; crafts for kids · cafeteria  "><span class="thes__vmap-name">Free arts &amp; crafts for kids · Cafeteria</span></li><li class="thes__vmap-item" data-tags="" data-search="eat &amp; enjoy food from the food trucks · cafeteria  "><span class="thes__vmap-name">Eat &amp; enjoy food from the food trucks · Cafeteria</span></li><li class="thes__vmap-item" data-tags="" data-search="photo booth · front foyer  "><span class="thes__vmap-name">Photo booth · Front Foyer</span></li><li class="thes__vmap-item" data-tags="" data-search="moonbounce · front of school  "><span class="thes__vmap-name">Moonbounce · Front of School</span></li></ul></div>
+      </div>
+      <p class="thes__vmap-empty" id="thes-vlist-empty" hidden>No vendors match that search.</p>
+      <div class="thes__vlist-pager" id="thes-vlist-pager" hidden>
+        <button type="button" class="thes__vmap-chip" id="thes-vlist-prev">&larr; Prev</button>
+        <span id="thes-vlist-page" aria-live="polite"></span>
+        <button type="button" class="thes__vmap-chip" id="thes-vlist-next">Next &rarr;</button>
+      </div>
+    </div>
+  </section>
+<script>
+(function () {
+  var root = document.getElementById("vendors");
+  if (!root) return;
+  var PER_PAGE = 12;
+  var vendors = root.querySelectorAll('.thes__vlist-group[data-paged] .thes__vmap-item');
+  var search = document.getElementById("thes-vlist-search");
+  var pager = document.getElementById("thes-vlist-pager");
+  var label = document.getElementById("thes-vlist-page");
+  var prev = document.getElementById("thes-vlist-prev");
+  var next = document.getElementById("thes-vlist-next");
+  var empty = document.getElementById("thes-vlist-empty");
+  var page = 0;
+
+  var filter = "";
+  var chips = root.querySelectorAll(".thes__vmap-chip[data-filter]");
+  var others = root.querySelectorAll('.thes__vlist-group:not([data-paged]) .thes__vmap-item');
+
+  function matches(it, q) {
+    if (q && it.getAttribute("data-search").indexOf(q) === -1) return false;
+    if (!filter) return true;
+    var tags = " " + it.getAttribute("data-tags") + " ";
+    return filter.split(" ").some(function (f) { return tags.indexOf(" " + f + " ") !== -1; });
+  }
+
+  function render() {
+    var q = (search.value || "").trim().toLowerCase();
+    var hits = [];
+    for (var i = 0; i < vendors.length; i++) {
+      vendors[i].hidden = true;
+      if (matches(vendors[i], q)) hits.push(vendors[i]);
+    }
+    // Searching shows every match at once; otherwise page through them.
+    var pages = q ? 1 : Math.max(1, Math.ceil(hits.length / PER_PAGE));
+    if (page >= pages) page = pages - 1;
+    for (var j = 0; j < hits.length; j++) {
+      if (q || Math.floor(j / PER_PAGE) === page) hits[j].hidden = false;
+    }
+    var shown = hits.length;
+    for (var k = 0; k < others.length; k++) {
+      var ok = matches(others[k], q);
+      others[k].hidden = !ok; if (ok) shown++;
+    }
+    pager.hidden = pages < 2;
+    label.textContent = "Page " + (page + 1) + " of " + pages;
+    prev.disabled = page === 0;
+    next.disabled = page === pages - 1;
+    var groups = root.querySelectorAll(".thes__vlist-group");
+    for (var g = 0; g < groups.length; g++) groups[g].hidden = !groups[g].querySelector(".thes__vmap-item:not([hidden])");
+    empty.hidden = shown !== 0;
+  }
+
+  for (var c = 0; c < chips.length; c++) {
+    chips[c].addEventListener("click", function () {
+      for (var x = 0; x < chips.length; x++) chips[x].classList.remove("is-on");
+      this.classList.add("is-on");
+      filter = this.getAttribute("data-filter");
+      page = 0; render();
+    });
+  }
+  prev.addEventListener("click", function () { page--; render(); root.scrollIntoView({ behavior: "smooth" }); });
+  next.addEventListener("click", function () { page++; render(); root.scrollIntoView({ behavior: "smooth" }); });
+  search.addEventListener("input", function () { page = 0; render(); });
+  render();
+})();
+</script>
+
 
   <section class="thes__section">
     <div class="thes__wrap">
