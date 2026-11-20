@@ -983,10 +983,11 @@ def vendor_tag_html(vendor, include_category=True):
     'outlet', which only matters for setup, not shoppers."""
     esc = html.escape
     pills = []
-    if include_category and vendor.get("category"):
-        pills.append(f'<span class="thes__vmap-tag thes__vmap-tag--cat">{esc(vendor["category"])}</span>')
+    category = vendor.get("category") or ("Food & Treats" if "food" in vendor.get("tags", []) else "")
+    if include_category and category:
+        pills.append(f'<span class="thes__vmap-tag thes__vmap-tag--cat">{esc(category)}</span>')
     for t in vendor.get("tags", []):
-        if t in VENDOR_TAG_LABELS and t != "outlet" and not (t == "food" and vendor.get("category") == "Food & Treats"):
+        if t in VENDOR_TAG_LABELS and t not in ("outlet", "food"):
             pills.append(f'<span class="thes__vmap-tag thes__vmap-tag--{esc(t)}">{esc(VENDOR_TAG_LABELS[t])}</span>')
     return "".join(pills)
 
@@ -1015,6 +1016,8 @@ def vendor_filter_attrs(vendor):
         tags.append(vendor_category_slug(vendor["category"]))
     if "food" in tags and vendor.get("category") != "Food & Treats":
         tags.append(vendor_category_slug("Food & Treats"))  # food booths without a response still count
+    if "children" in tags and vendor.get("category") != "Kids & Activities":
+        tags.append(vendor_category_slug("Kids & Activities"))  # children's booths count under Kids too
     words = " ".join([vendor["name"], vendor.get("category", ""), vendor.get("about", ""),
                       *[VENDOR_TAG_LABELS.get(t, t) for t in vendor.get("tags", [])]]).lower()
     return f'data-tags="{esc(" ".join(tags))}" data-search="{esc(words)}"'
@@ -1026,7 +1029,9 @@ def vendor_chips_html(data, extra=()):
     used = {v.get("category") for v in [*data.get("booths", []), *data.get("unassigned", [])]}
     cats = [c for c in data.get("categories", []) if c in used]
     chips = ['<button type="button" class="thes__vmap-chip is-on" data-filter="">All</button>']
-    chips += [f'<button type="button" class="thes__vmap-chip" data-filter="{vendor_category_slug(c)}">{esc(c)}</button>' for c in cats]
+    short = data.get("category_chips", {})  # short button labels, so every chip fits on one phone screen
+    chips += [f'<button type="button" class="thes__vmap-chip" data-filter="{vendor_category_slug(c)}" '
+              f'aria-label="{esc(c)}">{esc(short.get(c, c))}</button>' for c in cats]
     chips += [f'<button type="button" class="thes__vmap-chip" data-filter="{esc(f)}">{esc(label)}</button>' for f, label in extra]
     return "\n          ".join(chips)
 
@@ -1094,26 +1099,26 @@ def render_vendor_map(filename):
         hall_html += (f'<div class="thes__vmap-hall"><div class="thes__vmap-hall-title">{esc(area["map_strip"])}</div>'
                       f'<div class="thes__vmap-hall-row">{tiles}</div></div>')
 
-    def list_item(v, spot=None, where=""):
-        # The booth goes right after the name, so the list maps to the
-        # grid at a glance without tapping anything.
+    def list_item(v, spot=None, badge=""):
+        # A fixed-width badge column (booth number, hallway spot, TBD) then
+        # the name, so every row lines up and maps to the grid at a glance.
         data_booth = f' data-booth="{esc(str(spot))}"' if spot else ""
-        where_html = f'<span class="thes__vmap-spot">{esc(where)}</span>' if where else ""
+        badge_html = (f'<span class="thes__vmap-num">{esc(badge)}</span>' if badge
+                      else '<span class="thes__vmap-num thes__vmap-num--none" aria-hidden="true">&bull;</span>')
         more = vendor_more_html(v)
         more_html = f'<div class="thes__vmap-more">{more}</div>' if more else ""
         return (
             f'<li class="thes__vmap-item"{data_booth} {vendor_filter_attrs(v)}>'
-            f'<span class="thes__vmap-name">{esc(v["name"])}</span>{where_html}{vendor_tag_html(v)}{more_html}</li>'
+            f'{badge_html}<span class="thes__vmap-body"><span class="thes__vmap-name">{esc(v["name"])}</span>'
+            f'<span class="thes__vmap-tags">{vendor_tag_html(v)}</span></span>{more_html}</li>'
         )
 
-    groups = [(gym.get("name", "School Gym"), [list_item(b, b["number"], f'Booth {int(b["number"])}') for b in booths])]
+    groups = [(gym.get("name", "School Gym"), [list_item(b, b["number"], str(int(b["number"]))) for b in booths])]
     unassigned = sorted(data.get("unassigned", []), key=lambda v: v["name"].lower())
     if unassigned:
-        groups.append(("Booth to Be Confirmed", [list_item(v, where="Booth TBD") for v in unassigned]))
+        groups.append(("Booth to Be Confirmed", [list_item(v, badge="TBD") for v in unassigned]))
     for area in data.get("areas", []):
-        groups.append((area["name"], [
-            list_item(i, i.get("spot"), f'Hallway {i["spot"]}' if i.get("spot") else "") for i in area.get("items", [])
-        ]))
+        groups.append((area["name"], [list_item(i, i.get("spot"), i.get("spot", "")) for i in area.get("items", [])]))
     pager = (
         '<div class="thes__vlist-pager" id="thes-vmap-pager" hidden>'
         '<button type="button" class="thes__vmap-chip" id="thes-vmap-prev">&larr; Prev</button>'
@@ -1135,7 +1140,7 @@ def render_vendor_map(filename):
     return render(tmpl, {
         "VMAP_TITLE": esc(data.get("title", "Vendor Map")),
         "VMAP_NOTE": esc(data.get("note", "")) + esc(updated),
-        "VMAP_CHIPS": vendor_chips_html(data, [("children", "Children's"), ("pta sponsor", "PTA & Sponsors")]),
+        "VMAP_CHIPS": vendor_chips_html(data, [("pta sponsor", "PTA & Sponsors")]),
         "VMAP_COLS": str(cols),
         "VMAP_ROWS": str(rows),
         "VMAP_CELLS": "\n        ".join(cells),
